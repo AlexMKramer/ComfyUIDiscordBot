@@ -1820,6 +1820,11 @@
     "negative_prompt": "linear narrative, 2000s, undetailed"
   },
   {
+    "name": "random",
+    "prompt": "",
+    "negative_prompt": ""
+  },
+  {
     "name": "ratatouille",
     "prompt": "ratatouille {prompt} . animated, culinary, paris, highly detailed",
     "negative_prompt": "live-action, non-culinary, new york, undetailed"
