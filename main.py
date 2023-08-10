@@ -138,7 +138,7 @@ async def crazy(ctx):
     random_entry = random.choice(data)
     random_style = random_entry["name"]
     prompt["146"]["inputs"]["style"] = random_style
-    await ctx.respond(f"Generating 'crazy' images for {ctx.author.mention}\n Prompt: {new_prompt}\nStyle: {random_style}")
+    await ctx.respond(f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
@@ -154,7 +154,7 @@ async def crazy(ctx):
                 file_paths.append(temp_file.name)
         file_list = [discord.File(file_path) for file_path in file_paths]
         await ctx.send(
-            f"Here you are {ctx.author.mention}!\nPrompt : {new_prompt} with style {random_style}",
+            f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {random_style}",
             files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
@@ -181,13 +181,13 @@ async def crazy(ctx):
 )
 async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
     if new_style is not None and new_height_width is not None:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\nStyle: {new_style}\nHeight/Width: {new_height_width}")
+        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
     elif new_style is not None and new_height_width is None:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\nStyle: {new_style}")
+        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}")
     elif new_style is None and new_height_width is not None:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\nHeight/Width: {new_height_width}")
+        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}")
     else:
-        await ctx.respond(f"Generating images for {ctx.author.mention}")
+        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}")
 
     prompt["146"]["inputs"]["text_positive"] = new_prompt
     seed = random.randint(0, 0xffffffffff)
@@ -214,19 +214,19 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
         file_list = [discord.File(file_path) for file_path in file_paths]
         if new_style is not None and new_height_width is not None:
             await ctx.send(
-                f"Here you are {ctx.author.mention}!\nPrompt: {new_prompt}\nStyle: {new_style}\nHeight/Width: {new_height_width}",
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}",
                 files=file_list)
         elif new_style is not None and new_height_width is None:
             await ctx.send(
-                f"Here you are {ctx.author.mention}!\nPrompt: {new_prompt}\nStyle: {new_style}",
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {new_style}",
                 files=file_list)
         elif new_style is None and new_height_width is not None:
             await ctx.send(
-                f"Here you are {ctx.author.mention}!\nPrompt: {new_prompt}\nHeight/Width: {new_height_width}",
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}",
                 files=file_list)
         else:
             await ctx.send(
-                f"Here you are {ctx.author.mention}!\nPrompt: {new_prompt}",
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}",
                 files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
