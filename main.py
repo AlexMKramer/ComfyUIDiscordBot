@@ -88,34 +88,6 @@ async def on_connect():
     print(f'Logged in as {bot.user.name}')
 
 
-@bot.slash_command(description='Generate the images')
-async def backup(ctx, new_prompt: Option(str, description='Enter the prompt')):
-    await ctx.respond(f"Generating images for {ctx.author.mention}...")
-    prompt["146"]["inputs"]["text_positive"] = new_prompt
-    seed = random.randint(0, 0xffffffffff)
-    prompt["22"]["inputs"]["noise_seed"] = int(seed)  # set seed for base model
-    prompt["23"]["inputs"]["noise_seed"] = int(seed)  # set seed for refiner model
-    prompt["146"]["inputs"]["style"] = 'sai-base'
-    ws = websocket.WebSocket()
-    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    print("Current seed:", seed)
-    print("Current prompt:", new_prompt)
-    images = comfyAPI.get_images(ws, prompt)
-    file_paths = []
-    for node_id in images:
-        for image_data in images[node_id]:
-            image = Image.open(io.BytesIO(image_data))
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                image.save(temp_file.name)
-                file_paths.append(temp_file.name)
-        file_list = [discord.File(file_path) for file_path in file_paths]
-        await ctx.send(
-            f"Here you are {ctx.author.mention}!\nPrompt : {new_prompt}",
-            files=file_list)
-        for file_path in file_paths:
-            os.remove(file_path)
-
-
 @bot.slash_command(description='Generate random images with a random style')
 async def crazy(ctx):
 
@@ -193,11 +165,17 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
     prompt["23"]["inputs"]["noise_seed"] = int(seed)
-    prompt["146"]["inputs"]["style"] = new_style
+    if new_style:
+        prompt["146"]["inputs"]["style"] = new_style
+    else:
+        prompt["146"]["inputs"]["style"] = 'base'
     if new_height_width:
         height, width = new_height_width.split()
         prompt["5"]["inputs"]["height"] = int(height)
         prompt["5"]["inputs"]["width"] = int(width)
+    else:
+        prompt["5"]["inputs"]["height"] = 1024
+        prompt["5"]["inputs"]["width"] = 1024
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
