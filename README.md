@@ -7,11 +7,8 @@ Any suggestions or help is welcome.
 
 ### Requirements
 - ComfyUI running on a machine.  This is setup for running it on the same machine, but can be configured to use another machine by changing the "server_address" variable in comfyAPI.py.
-
 - SDXL Base and Refiner models.  These can be found here: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors and here: https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors
-
-- SDXL Prompt Styler found here: https://github.com/twri/sdxl_prompt_styler
-
+- ComfyUI custom node: SDXL Prompt Styler found here: https://github.com/twri/sdxl_prompt_styler
 - Python and pip.
 
 ### Models
@@ -33,9 +30,9 @@ If you want to use different models, change the two model names below.  I recomm
   
 
 
-### Installation
+## Installation
 
-Clone the repository.
+### Clone the repository.
 
     git clone https://github.com/comfyanonymous/ComfyUI.git
 
@@ -45,7 +42,10 @@ I recommend using a virtual environment.  This can be done by running the follow
     source ./venv/bin/activate
     pip install -r requirements.txt
 
+### Update sdxl_styles.json
+Replace the sdxl_styles.json in ComfyUI/custom_nodes/sdxl_prompt_styler/ with the one found in this repository.
 
+### Update main.py
 You will need to fill in several variables in main.py;
 - `TOKEN` - Your bot's token
 - `folder_path` - The path where your ComfyUI checkpoints folder is located. Ex; /home/USER/ComfyUI/checkpoints
