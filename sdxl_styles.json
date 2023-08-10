@@ -260,6 +260,11 @@
     "negative_prompt": "minimalistic, low-contrast, blurry, deformed, modern, abstract"
   },
   {
+    "name": "base",
+    "prompt": "{prompt}",
+    "negative_prompt": ""
+  },
+  {
     "name": "batik",
     "prompt": "batik style {prompt} . indonesian, resist dyeing, floral, highly detailed",
     "negative_prompt": "non-indonesian, direct dyeing, geometric, undetailed"
