@@ -166,7 +166,7 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
     prompt["23"]["inputs"]["noise_seed"] = int(seed)
     if new_style is not None:
-        if new_style is str("random"):
+        if new_style == 'random':
             random_entry = random.choice(data)
             new_style = random_entry["name"]
         prompt["146"]["inputs"]["style"] = new_style
