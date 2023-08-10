@@ -56,12 +56,14 @@ example_subjects = prompts_data["prompts"]["subjects"]
 example_verbs = prompts_data["prompts"]["verbs"]
 example_locations = prompts_data["prompts"]["locations"]
 
+
 async def style_autocomplete(ctx: discord.AutocompleteContext):
     return [name for name in style_names if name.startswith(ctx.value.lower())]
 
 
 async def height_width_autocomplete(ctx: discord.AutocompleteContext):
     return [height_width for height_width in height_width_option]
+
 
 async def read_files_in_subfolder(ctx, folder_path, subfolder_name):
     subfolder_path = os.path.join(folder_path, subfolder_name)
@@ -196,7 +198,6 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
         height, width = new_height_width.split()
         prompt["5"]["inputs"]["height"] = int(height)
         prompt["5"]["inputs"]["width"] = int(width)
-
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))

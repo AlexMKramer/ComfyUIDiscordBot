@@ -4,7 +4,6 @@ import urllib.request
 import urllib.parse
 
 
-
 server_address = "127.0.0.1:8188"
 client_id = str(uuid.uuid4())
 
