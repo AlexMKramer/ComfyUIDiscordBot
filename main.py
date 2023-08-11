@@ -5,12 +5,13 @@ import websocket
 import random
 import discord
 from discord.ext import commands
-from discord import option, Option
+from discord import option
 import os
 from PIL import Image
 import io
 import tempfile
 import comfyAPI
+from typing import Optional
 
 
 TOKEN = ''  # Add your bot token here
@@ -23,22 +24,7 @@ prompt = comfyAPI.prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
-# Setup the queue process
-command_queue = queue.Queue()
 
-
-# Enqueue commands
-def enqueue_command(command, ctx):
-    command_queue.put((command, ctx))
-
-
-# Process the commands from the queue
-async def process_command_queue():
-    while True:
-        if not command_queue.empty():
-            command, ctx = command_queue.get()
-            await command(ctx)
-        await asyncio.sleep(1)
 
 prompt["10"]["inputs"]["ckpt_name"] = base_model
 prompt["4"]["inputs"]["ckpt_name"] = refiner_model
@@ -106,18 +92,11 @@ async def on_connect():
 
 @bot.slash_command(description='Generate random images with a random style')
 async def crazy(ctx):
-    await ctx.respond(f'Queue size is {command_queue.qsize()}')
-    # Enqueue the command for processing
-    enqueue_command(_crazy_command, ctx)
-
-
-async def _crazy_command(ctx):
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)  # set seed for base model
     prompt["23"]["inputs"]["noise_seed"] = int(seed)  # set seed for refiner model
 
     # Random prompt
-
     # Random subject
     random_subject = random.choice(example_subjects)
     # Random verb
@@ -131,7 +110,7 @@ async def _crazy_command(ctx):
     random_entry = random.choice(data)
     random_style = random_entry["name"]
     prompt["146"]["inputs"]["style"] = random_style
-    await ctx.send(f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
+    await ctx.respond(f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
@@ -149,6 +128,92 @@ async def _crazy_command(ctx):
         await ctx.send(
             f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {random_style}",
             files=file_list)
+        for file_path in file_paths:
+            os.remove(file_path)
+
+
+@bot.slash_command(description='Generate images using only words!')
+
+@option(
+    "new_prompt",
+    description="Enter the prompt",
+    required=True
+)
+@option(
+    "new_style",
+    description="Enter the style",
+    autocomplete=style_autocomplete,
+    required=False
+)
+@option(
+    "new_height_width",
+    description="Choose the height and width",
+    autocomplete=height_width_autocomplete,
+    required=False
+)
+async def dream(self, ctx:discord.ApplicationContext, *,
+               new_prompt: str,
+               new_style: Optional[str] = None,
+               new_height_width: Optional[str] = None
+               ):
+    if new_style is None:
+        new_style = "base"
+    if new_height_width is None:
+        new_height_width = "1024 1024"
+
+    input_tuple= (new_prompt, new_style, new_height_width)
+
+
+async def construct(ctx, args=dream.input_tuple):
+    new_prompt, new_style, new_height_width = args
+    prompt["146"]["inputs"]["text_positive"] = new_prompt
+    seed = random.randint(0, 0xffffffffff)
+    prompt["22"]["inputs"]["noise_seed"] = int(seed)
+    prompt["23"]["inputs"]["noise_seed"] = int(seed)
+    if new_style is not None:
+        if new_style == 'random':
+            random_entry = random.choice(data)
+            new_style = random_entry["name"]
+        prompt["146"]["inputs"]["style"] = new_style
+    else:
+        prompt["146"]["inputs"]["style"] = 'base'
+    if new_height_width:
+        height, width = new_height_width.split()
+        prompt["5"]["inputs"]["height"] = int(height)
+        prompt["5"]["inputs"]["width"] = int(width)
+    else:
+        prompt["5"]["inputs"]["height"] = 1024
+        prompt["5"]["inputs"]["width"] = 1024
+
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("Current seed:", seed)
+    print("Current prompt:", new_prompt)
+    images = comfyAPI.get_images(ws, prompt)
+    file_paths = []
+    for node_id in images:
+        for image_data in images[node_id]:
+            image = Image.open(io.BytesIO(image_data))
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                image.save(temp_file.name)
+                file_paths.append(temp_file.name)
+        file_list = [discord.File(file_path) for file_path in file_paths]
+        if new_style is not None and new_height_width is not None:
+            await ctx.send(
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}",
+                files=file_list)
+        elif new_style is not None and new_height_width is None:
+            await ctx.send(
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {new_style}",
+                files=file_list)
+        elif new_style is None and new_height_width is not None:
+            await ctx.send(
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}",
+                files=file_list)
+        else:
+            await ctx.send(
+                f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}",
+                files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
 
@@ -232,8 +297,5 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
                 files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
-
-loop = asyncio.get_event_loop()
-loop.create_task(process_command_queue())
 
 bot.run(TOKEN)
