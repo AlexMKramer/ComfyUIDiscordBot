@@ -1,5 +1,6 @@
+import asyncio
 import json
-
+import queue
 import websocket
 import random
 import discord
@@ -22,7 +23,22 @@ prompt = comfyAPI.prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
+# Setup the queue process
+command_queue = queue.Queue()
 
+
+# Enqueue commands
+def enqueue_command(command, ctx):
+    command_queue.put((command, ctx))
+
+
+# Process the commands from the queue
+async def process_command_queue():
+    while True:
+        if not command_queue.empty():
+            command, ctx = command_queue.get()
+            await command(ctx)
+        await asyncio.sleep(1)
 
 prompt["10"]["inputs"]["ckpt_name"] = base_model
 prompt["4"]["inputs"]["ckpt_name"] = refiner_model
@@ -90,7 +106,11 @@ async def on_connect():
 
 @bot.slash_command(description='Generate random images with a random style')
 async def crazy(ctx):
+    # Enqueue the command for processing
+    enqueue_command(_crazy_command, ctx)
 
+
+async def _crazy_command(ctx):
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)  # set seed for base model
     prompt["23"]["inputs"]["noise_seed"] = int(seed)  # set seed for refiner model
@@ -211,5 +231,8 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
                 files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
+
+loop = asyncio.get_event_loop()
+loop.create_task(process_command_queue())
 
 bot.run(TOKEN)
