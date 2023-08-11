@@ -20,16 +20,13 @@ folder_path = os.getenv('FOLDER_PATH')
 base_model = 'sd_xl_base_1.0_0.9vae.safetensors'
 refiner_model = 'sd_xl_refiner_1.0_0.9vae.safetensors'
 
-
 prompt = comfyAPI.prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
 
-
 prompt["10"]["inputs"]["ckpt_name"] = base_model
 prompt["4"]["inputs"]["ckpt_name"] = refiner_model
-
 
 #  Height and Width options
 height_width_option = [
@@ -111,7 +108,8 @@ async def crazy(ctx):
     random_entry = random.choice(data)
     random_style = random_entry["name"]
     prompt["146"]["inputs"]["style"] = random_style
-    await ctx.respond(f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
+    await ctx.respond(
+        f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
@@ -134,7 +132,6 @@ async def crazy(ctx):
 
 
 @bot.slash_command(description='Generate images using only words!')
-
 @option(
     "new_prompt",
     description="Enter the prompt",
@@ -152,17 +149,16 @@ async def crazy(ctx):
     autocomplete=height_width_autocomplete,
     required=False
 )
-async def dream(self, ctx:discord.ApplicationContext, *,
-               new_prompt: str,
-               new_style: Optional[str] = None,
-               new_height_width: Optional[str] = None
-               ):
+async def dream(new_prompt: str,
+                new_style: Optional[str] = None,
+                new_height_width: Optional[str] = None
+                ):
     if new_style is None:
         new_style = "base"
     if new_height_width is None:
         new_height_width = "1024 1024"
 
-    input_tuple= (new_prompt, new_style, new_height_width)
+    input_tuple = (new_prompt, new_style, new_height_width)
 
 
 async def construct(ctx, args=dream.input_tuple):
@@ -220,7 +216,6 @@ async def construct(ctx, args=dream.input_tuple):
 
 
 @bot.slash_command(description='Generate images using only words!')
-
 @option(
     "new_prompt",
     description="Enter the prompt",
@@ -240,11 +235,14 @@ async def construct(ctx, args=dream.input_tuple):
 )
 async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
     if new_style is not None and new_height_width is not None:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
+        await ctx.respond(
+            f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
     elif new_style is not None and new_height_width is None:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}")
+        await ctx.respond(
+            f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}")
     elif new_style is None and new_height_width is not None:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}")
+        await ctx.respond(
+            f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}")
     else:
         await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}")
 
@@ -298,5 +296,6 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
                 files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
+
 
 bot.run(TOKEN)
