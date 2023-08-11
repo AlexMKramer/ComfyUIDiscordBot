@@ -88,49 +88,6 @@ async def on_connect():
     print(f'Logged in as {bot.user.name}')
 
 
-@bot.slash_command(description='Generate random images with a random style')
-async def crazy(ctx):
-    seed = random.randint(0, 0xffffffffff)
-    prompt["22"]["inputs"]["noise_seed"] = int(seed)  # set seed for base model
-    prompt["23"]["inputs"]["noise_seed"] = int(seed)  # set seed for refiner model
-
-    # Random prompt
-    # Random subject
-    random_subject = random.choice(example_subjects)
-    # Random verb
-    random_verb = random.choice(example_verbs)
-    # Random location
-    random_location = random.choice(example_locations)
-    new_prompt = f"{random_subject} {random_verb} {random_location}"
-    prompt["146"]["inputs"]["text_positive"] = new_prompt
-
-    # Random style
-    random_entry = random.choice(data)
-    random_style = random_entry["name"]
-    prompt["146"]["inputs"]["style"] = random_style
-    await ctx.respond(
-        f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
-
-    ws = websocket.WebSocket()
-    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    print("Current seed:", seed)
-    print("Current prompt:", new_prompt)
-    images = comfyAPI.get_images(ws, prompt)
-    file_paths = []
-    for node_id in images:
-        for image_data in images[node_id]:
-            image = Image.open(io.BytesIO(image_data))
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                image.save(temp_file.name)
-                file_paths.append(temp_file.name)
-        file_list = [discord.File(file_path) for file_path in file_paths]
-        await ctx.send(
-            f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n**Style:** {random_style}",
-            files=file_list)
-        for file_path in file_paths:
-            os.remove(file_path)
-
-
 @bot.slash_command(description='Generate images using only words!')
 @option(
     "new_prompt",
@@ -149,19 +106,21 @@ async def crazy(ctx):
     autocomplete=height_width_autocomplete,
     required=False
 )
-async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
-    if new_style is not None and new_height_width is not None:
-        await ctx.respond(
-            f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
-    elif new_style is not None and new_height_width is None:
-        await ctx.respond(
-            f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}")
-    elif new_style is None and new_height_width is not None:
-        await ctx.respond(
-            f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}")
-    else:
-        await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}")
+async def dream(ctx_parse: discord.SlashContext,
+                new_prompt: str,
+                new_style: Optional[str] = None,
+                new_height_width: Optional[str] = None
+                ):
+    if new_style is None:
+        new_style = "base"
+    if new_height_width is None:
+        new_height_width = "1024 1024"
 
+    input_tuple = (new_prompt, new_style, new_height_width)
+
+
+async def construct(ctx, args=dream.input_tuple):
+    new_prompt, new_style, new_height_width = args
     prompt["146"]["inputs"]["text_positive"] = new_prompt
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
@@ -212,6 +171,5 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
                 files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
-
 
 bot.run(TOKEN)
