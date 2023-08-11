@@ -106,6 +106,7 @@ async def on_connect():
 
 @bot.slash_command(description='Generate random images with a random style')
 async def crazy(ctx):
+    await ctx.respond(f'Queue size is {command_queue.qsize()}')
     # Enqueue the command for processing
     enqueue_command(_crazy_command, ctx)
 
@@ -130,7 +131,7 @@ async def _crazy_command(ctx):
     random_entry = random.choice(data)
     random_style = random_entry["name"]
     prompt["146"]["inputs"]["style"] = random_style
-    await ctx.respond(f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
+    await ctx.send(f"Generating 'crazy' images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {random_style}")
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
