@@ -12,10 +12,11 @@ import io
 import tempfile
 import comfyAPI
 from typing import Optional
+from dotenv import load_dotenv
 
-
-TOKEN = ''  # Add your bot token here
-folder_path = ''  # Add path to models/checkpoints folder. Ex: /home/USER/ComfyUI/models/checkpoints/
+load_dotenv()
+TOKEN = os.getenv('TOKEN')
+folder_path = os.getenv('FOLDER_PATH')
 base_model = 'sd_xl_base_1.0_0.9vae.safetensors'
 refiner_model = 'sd_xl_refiner_1.0_0.9vae.safetensors'
 
