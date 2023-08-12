@@ -43,7 +43,7 @@ I recommend using a virtual environment.  This can be done by running the follow
     pip install -r requirements.txt
 
 ### Update sdxl_styles.json
-Replace the sdxl_styles.json in ComfyUI/custom_nodes/sdxl_prompt_styler/ with the one found in this repository.
+Copy the sdxl_styles.json from this repo into the ComfyUI/custom_nodes/sdxl_prompt_styler folder.  This will add the styles to the SDXL Prompt Styler node.
 
 ### Update main.py
 You will need to fill in several variables in main.py;
