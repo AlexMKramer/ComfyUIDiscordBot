@@ -199,10 +199,13 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_
     if new_upscale:
         if new_upscale == "2x":
             prompt["148"]["inputs"]["scale_by"] = 2
+            print("Upscaling by 2x")
         elif new_upscale == "4x":
             prompt["148"]["inputs"]["scale_by"] = 4
+            print("Upscaling by 4x")
     else:
         prompt["148"]["inputs"]["scale_by"] = 1
+        print("Upscaling by 1x")
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
     print("Current seed:", seed)
