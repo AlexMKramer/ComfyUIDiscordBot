@@ -102,7 +102,7 @@ prompt_text = """
             "end_at_step": 13,
             "return_with_leftover_noise": "enable",
             "model": [
-                "10",
+                "153",
                 0
             ],
             "positive": [
@@ -159,15 +159,15 @@ prompt_text = """
             "target_width": 4096,
             "target_height": 4096,
             "text_g": [
-                "146",
+                "153",
                 0
             ],
             "text_l": [
-                "146",
+                "153",
                 0
             ],
             "clip": [
-                "10",
+                "153",
                 1
             ]
         },
@@ -206,7 +206,7 @@ prompt_text = """
                 1
             ],
             "clip": [
-                "10",
+                "153",
                 1
             ]
         },
