@@ -161,7 +161,7 @@ async def crazy(ctx):
     autocomplete=upscale_option,
     required=False
 )
-async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
+async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, upscale: str):
     if new_style is not None and new_height_width is not None:
         await ctx.respond(
             f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
@@ -192,7 +192,7 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
     else:
         prompt["5"]["inputs"]["height"] = 1024
         prompt["5"]["inputs"]["width"] = 1024
-    if ctx.options.upscale:
+    if upscale:
         if ctx.options.upscale == "2x":
             prompt["148"]["inputs"]["scale_by"] = 2
         elif ctx.options.upscale == "4x":
