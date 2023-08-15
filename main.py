@@ -71,6 +71,10 @@ async def height_width_autocomplete(ctx: discord.AutocompleteContext):
     return [height_width for height_width in height_width_option]
 
 
+async def upscale_autocomplete(ctx: discord.AutocompleteContext):
+    return [upscale for upscale in upscale_option]
+
+
 async def read_files_in_subfolder(ctx, folder_path, subfolder_name):
     subfolder_path = os.path.join(folder_path, subfolder_name)
     if not os.path.isdir(subfolder_path):
@@ -156,12 +160,12 @@ async def crazy(ctx):
     required=False
 )
 @option(
-    "upscale",
+    "new_upscale",
     description="Upscale the image",
-    autocomplete=upscale_option,
+    autocomplete=upscale_autocomplete,
     required=False
 )
-async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, upscale: str):
+async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_upscale: str):
     if new_style is not None and new_height_width is not None:
         await ctx.respond(
             f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
@@ -192,10 +196,10 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, upsc
     else:
         prompt["5"]["inputs"]["height"] = 1024
         prompt["5"]["inputs"]["width"] = 1024
-    if upscale:
-        if ctx.options.upscale == "2x":
+    if new_upscale:
+        if new_upscale == "2x":
             prompt["148"]["inputs"]["scale_by"] = 2
-        elif ctx.options.upscale == "4x":
+        elif new_upscale == "4x":
             prompt["148"]["inputs"]["scale_by"] = 4
     else:
         prompt["148"]["inputs"]["scale_by"] = 1
