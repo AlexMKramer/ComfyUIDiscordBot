@@ -8,8 +8,12 @@ Any suggestions or help is welcome.
 ### Requirements
 - ComfyUI running on a machine.  This is setup for running it on the same machine, but can be configured to use another machine by changing the "server_address" variable in comfyAPI.py.
 - SDXL Base and Refiner models.  These can be found here: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors and here: https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors
-- ComfyUI custom node: SDXL Prompt Styler found here: https://github.com/twri/sdxl_prompt_styler
 - Python and pip.
+
+#### ComfyUI Custom nodes
+- SDXL Prompt Styler: https://github.com/twri/sdxl_prompt_styler
+- ComfyUI Impact Pack: https://github.com/ltdrdata/ComfyUI-Impact-Pack
+- ComfyUI Lora Tag Loader: https://github.com/badjeff/comfyui_lora_tag_loader/
 
 ### Models
 Currently, the bot uses the SDXL Base and the SDXL Refiner.  I am using the 1.0 version with the 0.9 VAE baked in.
@@ -25,9 +29,12 @@ If you want to use different models, change the two model names below.  I recomm
 - [x] **Crazy** - `/crazy`
 
     Crazy will generate 4 images using a random subject, activity, and location with a random style.
-- [ ] **Upscale**
+- [x] **Upscale**
 
-  
+    Upscale will take an image and upscale it using the default style and size in either 2x or 4x.
+- [ ] **Lora**
+
+    Lora will generate an image using the Lora Tag Loader node.  This is working, though doesnt show a list of the current Loras installed.
 
 
 ## Installation
