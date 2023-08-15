@@ -246,6 +246,33 @@ prompt_text = """
             "log_prompt": "No"
         },
         "class_type": "SDXLPromptStyler"
+    },
+    "148": {
+        "inputs": {
+            "upscale_method": "nearest-exact",
+            "scale_by": 1,
+            "image": [
+                "8",
+                0
+            ],
+            "class_type": "ImageScaleBy"
+    },
+    "157": {
+        "inputs": {
+            "text": [
+                "146",
+                0
+            ],
+            "model": [
+                "10",
+                0
+            ],
+            "clip": [
+                "10",
+                1
+            ]
+        },
+        "class_type": "LoraTagLoader"
     }
 }
 """
