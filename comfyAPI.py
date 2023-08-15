@@ -232,7 +232,7 @@ prompt_text = """
         "inputs": {
             "filename_prefix": "ComfyUI",
             "images": [
-                "8",
+                "148",
                 0
             ]
         },
