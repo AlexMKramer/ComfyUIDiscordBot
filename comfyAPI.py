@@ -242,7 +242,7 @@ prompt_text = """
         "inputs": {
             "text_positive": "an owl on a tree, colorful",
             "text_negative": "",
-            "style": "sai-base",
+            "style": "base",
             "log_prompt": "No"
         },
         "class_type": "SDXLPromptStyler"
@@ -258,7 +258,7 @@ prompt_text = """
         },
         "class_type": "ImageScaleBy"
     },
-    "157": {
+    "153": {
         "inputs": {
             "text": [
                 "146",
