@@ -41,6 +41,12 @@ height_width_option = [
     "640 1536"
 ]
 
+
+upscale_option = [
+    "2x",
+    "4x"
+]
+
 #  Style Json parse
 with open("sdxl_styles.json", 'r') as sdxl_styles:
     data = json.load(sdxl_styles)
@@ -152,11 +158,8 @@ async def crazy(ctx):
 @option(
     "upscale",
     description="Upscale the image",
-    required=False,
-    choices=[
-        "2x",
-        "4x"
-    ]
+    autocomplete=upscale_option,
+    required=False
 )
 async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str):
     if new_style is not None and new_height_width is not None:
