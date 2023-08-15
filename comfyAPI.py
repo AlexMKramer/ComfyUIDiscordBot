@@ -250,12 +250,13 @@ prompt_text = """
     "148": {
         "inputs": {
             "upscale_method": "nearest-exact",
-            "scale_by": 1,
+            "scale_by": 4,
             "image": [
                 "8",
                 0
-            ],
-            "class_type": "ImageScaleBy"
+            ]
+        },
+        "class_type": "ImageScaleBy"
     },
     "157": {
         "inputs": {
