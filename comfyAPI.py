@@ -160,11 +160,11 @@ prompt_text = """
             "target_height": 4096,
             "text_g": [
                 "153",
-                0
+                2
             ],
             "text_l": [
                 "153",
-                0
+                2
             ],
             "clip": [
                 "153",
