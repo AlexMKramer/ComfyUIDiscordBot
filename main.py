@@ -156,7 +156,7 @@ async def music(ctx, song_name: str, artist_name: str):
     extracted_text = remove_brackets(extracted_text)
 
     # Remove quotes
-    # extracted_text = remove_quotes(extracted_text)
+    extracted_text = remove_quotes(extracted_text)
 
     # Split the extracted text into lines
     lines = extracted_text.split('\n')
@@ -168,7 +168,7 @@ async def music(ctx, song_name: str, artist_name: str):
     lines = [line for line in lines if '[' not in line and ']' not in line]
 
     # Select 3 random, unique lines
-    random_lines = random.sample(lines, 3)
+    random_lines = random.sample(lines, min(3, len(lines)))  # Safely sample up to 3 lines
 
     with open('lyrics.txt', 'w') as f:
         f.write(extracted_text)
