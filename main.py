@@ -75,7 +75,7 @@ async def upscale_autocomplete(ctx: discord.AutocompleteContext):
     return [upscale for upscale in upscale_option]
 
 
-async def read_files_in_subfolder(ctx, folder_path, subfolder_name):
+'''async def read_files_in_subfolder(ctx, folder_path, subfolder_name):
     subfolder_path = os.path.join(folder_path, subfolder_name)
     if not os.path.isdir(subfolder_path):
         await ctx.send(f"Subfolder '{subfolder_name}' does not exist.")
@@ -89,6 +89,23 @@ async def read_files_in_subfolder(ctx, folder_path, subfolder_name):
             _, file_extension = os.path.splitext(file_name)
             if file_extension in extensions:
                 await ctx.send(file_name)
+'''
+
+# Find Loras in ComfyUI/models folder and create a list for autocomplete
+async def loras_autocomplete(ctx: discord.AutocompleteContext):
+    subfolder_name = 'loras'
+    # Walk through the directory tree rooted at root_folder
+    for dirpath, dirnames, filenames in os.walk(folder_path):
+        # Check if the target subfolder is in the current directory
+        if subfolder_name in dirnames:
+            subfolder_path = os.path.join(dirpath, subfolder_name)
+
+            # List files within the target subfolder
+            subfolder_files = [os.path.join(subfolder_path, file) for file in os.listdir(subfolder_path)]
+            return [loras for loras in subfolder_files if loras.startswith(ctx.value.lower())]
+
+    # If the target subfolder is not found
+    return []
 
 
 @bot.event

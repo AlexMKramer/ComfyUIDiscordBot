@@ -48,14 +48,16 @@ I recommend using a virtual environment.  This can be done by running the follow
     python -m venv venv
     source ./venv/bin/activate
     pip install -r requirements.txt
+Edit the .env file and fill in the variables.  You will need to create a discord bot and get the token from the discord developer portal. Then fill in the Folder path with the path leading to your ComfyUI/models folder.
+
+- `TOKEN` - Your bot's token
+- `folder_path` - The path where your ComfyUI models folder is located. Ex; /home/USER/ComfyUI/models
 
 ### Update sdxl_styles.json
 Copy the sdxl_styles.json from this repo into the ComfyUI/custom_nodes/sdxl_prompt_styler folder.  This will add the styles to the SDXL Prompt Styler node.
 
 ### Update main.py
 You will need to fill in several variables in main.py;
-- `TOKEN` - Your bot's token
-- `folder_path` - The path where your ComfyUI checkpoints folder is located. Ex; /home/USER/ComfyUI/checkpoints
 - `base_mode` - The name of the base model. Ex; sd_xl_base_1.0_0.9vae.safetensors
 - `refiner_model` - The name of the refiner model. Ex; sd_xl_refiner_1.0_0.9vae.safetensors
 
