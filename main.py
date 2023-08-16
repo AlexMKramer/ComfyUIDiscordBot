@@ -156,7 +156,7 @@ async def music(ctx, song_name: str, artist_name: str):
     extracted_text = remove_brackets(extracted_text)
 
     # Remove quotes
-    extracted_text = remove_quotes(extracted_text)
+    # extracted_text = remove_quotes(extracted_text)
 
     # Split the extracted text into lines
     lines = extracted_text.split('\n')
