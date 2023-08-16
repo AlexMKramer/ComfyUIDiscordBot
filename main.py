@@ -13,13 +13,16 @@ import tempfile
 import comfyAPI
 from typing import Optional
 from dotenv import load_dotenv
+import re
+from lyricsgenius import Genius
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 folder_path = os.getenv('FOLDER_PATH')
 base_model = 'sd_xl_base_1.0_0.9vae.safetensors'
 refiner_model = 'sd_xl_refiner_1.0_0.9vae.safetensors'
-
+genius_token = os.getenv('GENIUS_TOKEN')
+genius = Genius(genius_token)
 prompt = comfyAPI.prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -75,22 +78,6 @@ async def upscale_autocomplete(ctx: discord.AutocompleteContext):
     return [upscale for upscale in upscale_option]
 
 
-'''async def read_files_in_subfolder(ctx, folder_path, subfolder_name):
-    subfolder_path = os.path.join(folder_path, subfolder_name)
-    if not os.path.isdir(subfolder_path):
-        await ctx.send(f"Subfolder '{subfolder_name}' does not exist.")
-        return
-
-    extensions = ['.ckpt', '.pth', '.safetensors']
-
-    for root, dirs, files in os.walk(subfolder_path):
-        for file_name in files:
-            file_path = os.path.join(root, file_name)
-            _, file_extension = os.path.splitext(file_name)
-            if file_extension in extensions:
-                await ctx.send(file_name)
-'''
-
 # Find Loras in ComfyUI/models folder and create a list for autocomplete
 async def loras_autocomplete(ctx: discord.AutocompleteContext):
     subfolder_name = 'loras'
@@ -113,6 +100,101 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
+
+
+@bot.slash_command(description='Generate images based on song lyrics!')
+@option(
+    "song_name",
+    description="Enter the song name",
+    required=True
+)
+@option(
+    "artist_name",
+    description="Enter the artist name",
+    required=True
+)
+async def music(ctx, song_name: str, artist_name: str):
+    await ctx.respond(
+        f"Generating images for {ctx.author.mention}\n**Song:** {song_name}\n**Artist:** {artist_name}")
+    artist = genius.search_artist({artist_name}, max_songs=0, sort="title")
+    song = genius.search_song({song_name}, artist.name)
+
+    with open('lyrics.txt', 'w') as f:
+        f.write(song.lyrics)
+
+    def extract_text_between_keywords(text, keyword1, keyword2_pattern):
+        start_index = text.find(keyword1)
+        end_match = re.search(keyword2_pattern, text[start_index:])
+
+        if start_index != -1 and end_match:
+            end_index = start_index + end_match.start()
+            return text[start_index + len(keyword1):end_index].strip()
+        else:
+            return ""
+
+    def remove_brackets(text):
+        return re.sub(r'\[.*?\]', '', text)
+
+    # Read the text file
+    with open('lyrics.txt', 'r') as file:
+        file_contents = file.read()
+
+    # Define keywords and pattern for keyword2
+    keyword1 = "Lyrics"
+    keyword2_pattern = r"\d+Embed"  # Regular expression to match one or more digits followed by "Embed"
+
+    # Extract the desired text
+    extracted_text = extract_text_between_keywords(file_contents, keyword1, keyword2_pattern)
+
+    # Remove the number at the end
+    extracted_text = re.sub(r'\d+$', '', extracted_text)
+
+    # Remove anything in brackets
+    extracted_text = remove_brackets(extracted_text)
+
+    # Split the extracted text into lines
+    lines = extracted_text.split('\n')
+
+    # Remove empty lines
+    lines = [line for line in lines if line.strip()]
+
+    # Remove lines containing brackets
+    lines = [line for line in lines if '[' not in line and ']' not in line]
+
+    # Select 3 random, unique lines
+    random_lines = random.sample(lines, 3)
+
+    with open('lyrics.txt', 'w') as f:
+        f.write(extracted_text)
+
+    output_line = ', '.join(random_lines)
+    new_prompt = song_name + ", " + output_line + ", " + artist_name
+    prompt["146"]["inputs"]["text_positive"] = new_prompt
+    seed = random.randint(0, 0xffffffffff)
+    prompt["22"]["inputs"]["noise_seed"] = int(seed)
+    prompt["23"]["inputs"]["noise_seed"] = int(seed)
+    prompt["146"]["inputs"]["style"] = 'base'
+    prompt["5"]["inputs"]["height"] = 1024
+    prompt["5"]["inputs"]["width"] = 1024
+    prompt["148"]["inputs"]["scale_by"] = 1
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("Current seed:", seed)
+    print("Current prompt:", new_prompt)
+    images = comfyAPI.get_images(ws, prompt)
+    file_paths = []
+    for node_id in images:
+        for image_data in images[node_id]:
+            image = Image.open(io.BytesIO(image_data))
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                image.save(temp_file.name)
+                file_paths.append(temp_file.name)
+        file_list = [discord.File(file_path) for file_path in file_paths]
+        await ctx.send(
+            f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n **Song:** {song_name}\n**Artist:** {artist_name}",
+            files=file_list)
+        for file_path in file_paths:
+            os.remove(file_path)
 
 
 @bot.slash_command(description='Generate random images with a random style')

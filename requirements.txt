@@ -1,4 +1,5 @@
 Pillow~=10.0.0
 websocket-client~=1.6.1
 py-cord
-python-dotenv
+python-dotenv~=1.0.0
+lyricsgenius~=3.0.1
