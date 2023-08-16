@@ -32,9 +32,12 @@ If you want to use different models, change the two model names below.  I recomm
 - [x] **Upscale**
 
     Upscale will take an image and upscale it using the default style and size in either 2x or 4x.
-- [ ] **Lora**
+- [x] **Lora**
 
-    Lora will generate an image using the Lora Tag Loader node.  This is working, though doesnt show a list of the current Loras installed.
+    Lora will generate an image using the Lora Tag Loader node.  This will take a list of your current loras downloaded in Comfy and add them to the begining of the prompt.
+- [x] **Music**
+
+    Music will generate an image by the lyrics using song_name and artist_name.  This will use the default style and size.
 
 
 ## Installation
@@ -52,6 +55,7 @@ Edit the .env file and fill in the variables.  You will need to create a discord
 
 - `TOKEN` - Your bot's token
 - `folder_path` - The path where your ComfyUI models folder is located. Ex; /home/USER/ComfyUI/models
+- `genius_token` - Your genius token.  This is used for the music command.  You can get one here: https://genius.com/api-clients/new
 
 ### Update sdxl_styles.json
 Copy the sdxl_styles.json from this repo into the ComfyUI/custom_nodes/sdxl_prompt_styler folder.  This will add the styles to the SDXL Prompt Styler node.

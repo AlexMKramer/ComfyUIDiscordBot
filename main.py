@@ -176,6 +176,7 @@ async def music(ctx, song_name: str, artist_name: str):
     output_line = ', '.join(random_lines)
     new_prompt = song_name + ", " + output_line + ", " + artist_name
     prompt["146"]["inputs"]["text_positive"] = new_prompt
+    prompt["146"]["inputs"]["text_negative"] = 'text, words, letters, numbers'
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
     prompt["23"]["inputs"]["noise_seed"] = int(seed)
@@ -218,6 +219,7 @@ async def crazy(ctx):
     random_location = random.choice(example_locations)
     new_prompt = f"{random_subject} {random_verb} {random_location}"
     prompt["146"]["inputs"]["text_positive"] = new_prompt
+    prompt["146"]["inputs"]["text_negative"] = ''
 
     # Random style
     random_entry = random.choice(data)
@@ -291,6 +293,7 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_
     else:
         await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}")
     prompt["146"]["inputs"]["text_positive"] = new_prompt
+    prompt["146"]["inputs"]["text_negative"] = ''
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
     prompt["23"]["inputs"]["noise_seed"] = int(seed)
