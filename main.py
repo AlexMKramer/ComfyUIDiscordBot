@@ -182,7 +182,13 @@ async def crazy(ctx):
     autocomplete=upscale_autocomplete,
     required=False
 )
-async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_upscale: str):
+@option(
+    "new_lora",
+    description="Choose the Loras model",
+    autocomplete=loras_autocomplete,
+    required=False
+)
+async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_upscale: str, new_lora: str):
     if new_style is not None and new_height_width is not None:
         await ctx.respond(
             f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Style:** {new_style}\n**Height/Width:** {new_height_width}")
@@ -194,7 +200,8 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_
             f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}\n**Height/Width:** {new_height_width}")
     else:
         await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}")
-
+    if new_lora is not None:
+        new_prompt = new_prompt + " " + new_lora
     prompt["146"]["inputs"]["text_positive"] = new_prompt
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
