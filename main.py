@@ -101,7 +101,7 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
             subfolder_path = os.path.join(dirpath, subfolder_name)
 
             # List files within the target subfolder
-            subfolder_files = [os.path.join(subfolder_path, file) for file in os.listdir(subfolder_path)]
+            subfolder_files = [file for file in os.listdir(subfolder_path)]
             return [loras for loras in subfolder_files if loras.startswith(ctx.value.lower())]
 
     # If the target subfolder is not found
