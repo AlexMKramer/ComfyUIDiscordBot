@@ -102,7 +102,7 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
 
             # List files within the target subfolder
             subfolder_files = [file for file in os.listdir(subfolder_path)]
-            return [loras for loras in subfolder_files if loras.startswith(ctx.value.lower())]
+            return [os.path.splitext(loras)[0] for loras in subfolder_files if loras.startswith(ctx.value.lower())]
 
     # If the target subfolder is not found
     return []
@@ -184,7 +184,7 @@ async def crazy(ctx):
 )
 @option(
     "new_lora",
-    description="Choose the Loras model",
+    description="Choose the Lora model",
     autocomplete=loras_autocomplete,
     required=False
 )
@@ -201,7 +201,7 @@ async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_
     else:
         await ctx.respond(f"Generating images for {ctx.author.mention}\n**Prompt:** {new_prompt}")
     if new_lora is not None:
-        new_prompt = new_prompt + " " + new_lora
+        new_prompt = " <lora:" + new_lora + ":0.5>," + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
