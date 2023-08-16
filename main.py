@@ -144,7 +144,7 @@ async def music(ctx, song_name: str, artist_name: str):
 
     # Define keywords and pattern for keyword2
     keyword1 = "Lyrics"
-    keyword2_pattern = r"\d+Embed"  # Regular expression to match one or more digits followed by "Embed"
+    keyword2_pattern = r"\d*Embed|Embed"  # Regular expression to match one or more digits followed by "Embed"
 
     # Extract the desired text
     extracted_text = extract_text_between_keywords(file_contents, keyword1, keyword2_pattern)
