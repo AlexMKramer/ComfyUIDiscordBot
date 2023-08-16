@@ -135,6 +135,9 @@ async def music(ctx, song_name: str, artist_name: str):
     def remove_brackets(text):
         return re.sub(r'\[.*?\]', '', text)
 
+    def remove_quotes(text):
+        return text.replace('"', '')
+
     # Read the text file
     with open('lyrics.txt', 'r') as file:
         file_contents = file.read()
@@ -151,6 +154,9 @@ async def music(ctx, song_name: str, artist_name: str):
 
     # Remove anything in brackets
     extracted_text = remove_brackets(extracted_text)
+
+    # Remove quotes
+    extracted_text = remove_quotes(extracted_text)
 
     # Split the extracted text into lines
     lines = extracted_text.split('\n')
