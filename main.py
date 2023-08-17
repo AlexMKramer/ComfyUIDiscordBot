@@ -15,6 +15,7 @@ from typing import Optional
 from dotenv import load_dotenv
 import re
 from lyricsgenius import Genius
+import openai
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -23,6 +24,7 @@ base_model = 'sd_xl_base_1.0_0.9vae.safetensors'
 refiner_model = 'sd_xl_refiner_1.0_0.9vae.safetensors'
 genius_token = os.getenv('GENIUS_TOKEN')
 genius = Genius(genius_token)
+openai.api_key = os.getenv('OPENAI_API_KEY')
 prompt = comfyAPI.prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -44,7 +46,6 @@ height_width_option = [
     "640 1536"
 ]
 
-
 upscale_option = [
     "2x",
     "4x"
@@ -64,6 +65,22 @@ with open("prompts.json", 'r') as sdxl_prompts:
 example_subjects = prompts_data["prompts"]["subjects"]
 example_verbs = prompts_data["prompts"]["verbs"]
 example_locations = prompts_data["prompts"]["locations"]
+
+# Setup OpenAI integration
+# Setup Message History with known good prompt and response
+message_history = [{'role': 'user',
+                    'content': "Can you help me create an image generation prompt based on song lyrics?  I would like "
+                               "to convey the song's message, mood, and impression in the image.  The best format, "
+                               "is this:{Art style determined by the overall mood}, {subject determined by the message "
+                               "of the song, or who the song is talking about}, {details determined by the feeling of "
+                               "the song with colors that fit the mood separated by commas} An example:La Douleur, "
+                               "a man sitting in a room by himself, an empty chair with a bottle on the floor nearby, "
+                               "dark, gloomy, sad, blue, gray!"},
+                   {'role': 'assistant',
+                    'content': "Of course, I'd be happy to help you create an image generation prompt based on song "
+                               "lyrics! Please provide me with the song lyrics you have in mind, and if you could "
+                               "share some details about the song's message, mood, and impression, I'll assist you in "
+                               "crafting the image prompt using the format you've provided."}]
 
 
 async def style_autocomplete(ctx: discord.AutocompleteContext):
@@ -89,11 +106,134 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
 
             # List files within the target subfolder
             subfolder_files = [file for file in os.listdir(subfolder_path)]
-            return sorted([os.path.splitext(loras)[0] for loras in subfolder_files if loras.startswith(ctx.value.lower())])
+            return sorted(
+                [os.path.splitext(loras)[0] for loras in subfolder_files if loras.startswith(ctx.value.lower())])
 
     # If the target subfolder is not found
     return []
 
+
+@bot.event
+async def on_connect():
+    if bot.auto_sync_commands:
+        await bot.sync_commands()
+    print(f'Logged in as {bot.user.name}')
+
+
+@bot.slash_command(description='Generate images based on song lyrics!')
+@option(
+    "song_name",
+    description="Enter the song name",
+    required=True
+)
+@option(
+    "artist_name",
+    description="Enter the artist name",
+    required=True
+)
+async def interpret(ctx, song_name: str, artist_name: str):
+    await ctx.respond(
+        f"Generating images for {ctx.author.mention}\n**Song:** {song_name}\n**Artist:** {artist_name}")
+    try:
+        artist = genius.search_artist(artist_name, max_songs=0, sort="title")
+        song = genius.search_song(song_name, artist.name)
+    except Exception as e:
+        print("Error:", e)
+        await ctx.send(f"Unable to find song/artist. Check your spelling and try again.")
+        exit(1)
+
+    with open('lyrics.txt', 'w') as f:
+        f.write(song.lyrics)
+
+    def extract_text_between_keywords(text, keyword1, keyword2_pattern):
+        start_index = text.find(keyword1)
+        end_match = re.search(keyword2_pattern, text[start_index:])
+
+        if start_index != -1 and end_match:
+            end_index = start_index + end_match.start()
+            return text[start_index + len(keyword1):end_index].strip()
+        else:
+            return ""
+
+    def remove_brackets(text):
+        return re.sub(r'\[.*?\]', '', text)
+
+    def remove_quotes(text):
+        return text.replace('"', '')
+
+    # Read the text file
+    with open('lyrics.txt', 'r') as file:
+        file_contents = file.read()
+
+    # Define keywords and pattern for keyword2
+    keyword1 = "Lyrics"
+    keyword2_pattern = r"\d*Embed|Embed"  # Regular expression to match one or more digits followed by "Embed"
+
+    # Extract the desired text
+    extracted_text = extract_text_between_keywords(file_contents, keyword1, keyword2_pattern)
+
+    # Remove the ad in the lyrics if there is one.
+    ad_pattern = r'See .*? LiveGet tickets as low as \$\d+You might also like'
+    extracted_text = re.sub(ad_pattern, '', extracted_text)
+
+    # Remove the number at the end
+    extracted_text = re.sub(r'\d+$', '', extracted_text)
+
+    # Remove anything in brackets
+    extracted_text = remove_brackets(extracted_text)
+
+    # Remove quotes
+    extracted_text = remove_quotes(extracted_text)
+
+    start_index = extracted_text.find('{')
+    if start_index != -1:
+        new_content = extracted_text[start_index:]
+    else:
+        new_content = extracted_text
+
+    if new_content == extracted_text:
+        await ctx.send(f"Unknown Lyric format")
+        exit(1)
+
+    with open('lyrics.txt', 'w') as f:
+        f.write(extracted_text)
+
+    message_history.append({"role": "user", "content": extracted_text})
+    # OpenAI Completion
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=message_history
+    )
+    reply_content = completion.choices[0].message.content
+
+    new_prompt = reply_content
+    prompt["146"]["inputs"]["text_positive"] = new_prompt
+    prompt["146"]["inputs"]["text_negative"] = 'disfigured, extra limbs, hands, text, words, letters, numbers'
+    seed = random.randint(0, 0xffffffffff)
+    prompt["22"]["inputs"]["noise_seed"] = int(seed)
+    prompt["23"]["inputs"]["noise_seed"] = int(seed)
+    prompt["146"]["inputs"]["style"] = 'base'
+    prompt["5"]["inputs"]["height"] = 1024
+    prompt["5"]["inputs"]["width"] = 1024
+    prompt["148"]["inputs"]["scale_by"] = 1
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("Current seed:", seed)
+    print("Current prompt:", new_prompt)
+    images = comfyAPI.get_images(ws, prompt)
+    file_paths = []
+    for node_id in images:
+        for image_data in images[node_id]:
+            image = Image.open(io.BytesIO(image_data))
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                image.save(temp_file.name)
+                file_paths.append(temp_file.name)
+        file_list = [discord.File(file_path) for file_path in file_paths]
+        await ctx.send(
+            f"Here you are {ctx.author.mention}!\n**Prompt:** {new_prompt}\n **Song:** {song_name}\n**Artist:** {artist_name}",
+            files=file_list)
+        for file_path in file_paths:
+            os.remove(file_path)
 
 @bot.event
 async def on_connect():

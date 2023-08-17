@@ -3,3 +3,4 @@ websocket-client~=1.6.1
 py-cord
 python-dotenv~=1.0.0
 lyricsgenius~=3.0.1
+openai~=0.27.8
