@@ -154,6 +154,10 @@ async def music(ctx, song_name: str, artist_name: str):
     # Extract the desired text
     extracted_text = extract_text_between_keywords(file_contents, keyword1, keyword2_pattern)
 
+    # Remove the ad in the lyrics if there is one.
+    ad_pattern = r'See .*? LiveGet tickets as low as \$\d+You might also like'
+    extracted_text = re.sub(ad_pattern, '', extracted_text)
+
     # Remove the number at the end
     extracted_text = re.sub(r'\d+$', '', extracted_text)
 
