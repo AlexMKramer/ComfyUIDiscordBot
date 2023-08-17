@@ -116,8 +116,13 @@ async def on_connect():
 async def music(ctx, song_name: str, artist_name: str):
     await ctx.respond(
         f"Generating images for {ctx.author.mention}\n**Song:** {song_name}\n**Artist:** {artist_name}")
-    artist = genius.search_artist(artist_name, max_songs=0, sort="title")
-    song = genius.search_song(song_name, artist.name)
+    try:
+        artist = genius.search_artist(artist_name, max_songs=0, sort="title")
+        song = genius.search_song(song_name, artist.name)
+    except Exception as e:
+        print("Error:", e)
+        await ctx.send(f"Unable to find song/artist. Check your spelling and try again.")
+        exit(1)
 
     with open('lyrics.txt', 'w') as f:
         f.write(song.lyrics)
