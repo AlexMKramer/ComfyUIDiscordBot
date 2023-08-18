@@ -66,58 +66,26 @@ example_subjects = prompts_data["prompts"]["subjects"]
 example_verbs = prompts_data["prompts"]["verbs"]
 example_locations = prompts_data["prompts"]["locations"]
 
-message_history = [{'role': 'user',
-                    'content': "Using song lyrics, come up with a prompt for an image generator.  "
-                               "Please follow the format exactly. The format should be broken down "
-                               "like this: {Art Style}, {Subject}, {Details}, {Color}\n The art style "
-                               "should be determined by the overall impression of the song.  If it is "
-                               "sad, then something like La Douleur should be used. If it is happy, "
-                               "perhaps a vibrant street art style.\nThe Subject should be determined "
-                               "by who the song is about.  If the song is about a couple trying to "
-                               "escape the city, then the subject should be a couple.\nThe Details "
-                               "should be determined by descriptive words used in the song.  If they "
-                               "mention empty bottles, then add empty bottles to the prompt.\nThe "
-                               "color should be determined by the mood of the song.  If the mood is a "
-                               "happy one, use bright colors.\nHere is an example:\n{A dreamlike and "
-                               "ethereal art style}, {a couple standing on a cliffside embracing, "
-                               "overlooking a surreal and beautiful landscape}, {sunset, grassy, "
-                               "soft wind}, {soft pastels, with hints of warm oranges and pinks}"},
-                   {'role': 'assistant',
-                    'content': "{Vibrant and energetic street art style}, {a group of friends dancing and "
-                               "celebrating under the city lights}, {joyful, urban, rhythm}, {bold and lively "
-                               "colors, with splashes of neon blues and pinks}"}]
-
-# Setup OpenAI integration
-# Setup Message History with known good prompt and response
-'''message_history = [{'role': 'user',
-                    'content': "Can you help me create an image generation prompt based on song lyrics?  I would like "
-                               "to convey the song's message, mood, and impression in the image.  The best format, "
-                               "is this:{Art style determined by the overall mood}, {subject determined by the message "
-                               "of the song, or who the song is talking about}, {details determined by the feeling of "
-                               "the song with colors that fit the mood separated by commas} An example:La Douleur, "
-                               "a man sitting in a room by himself, an empty chair with a bottle on the floor nearby, "
-                               "dark, gloomy, sad, blue, gray!"},
-                   {'role': 'assistant',
-                    'content': "Of course, I'd be happy to help you create an image generation prompt based on song "
-                               "lyrics! Please provide me with the song lyrics you have in mind, and if you could "
-                               "share some details about the song's message, mood, and impression, I'll assist you in "
-                               "crafting the image prompt using the format you've provided."},
-                   {'role': 'user',
-                    'content': "Why don't you ask him if he's going to stay Why don't you ask him if he's going away "
-                               "Why don't you tell me what's going on Why don't you tell me who's on the phoneWhy "
-                               "don't you ask him what's going on Why don't you ask him who's the latest on his "
-                               "throne Don't say that you love me Just tell me that you want me Tusk"},
-                   {'role': 'assistant',
-                    'content': "Here's an image generation prompt that captures the enigmatic "
-                               "and questioning tone of the lyrics: {Mysterious and surreal art "
-                               "style}, {a scene set in a dimly lit room with a vintage rotary "
-                               "telephone at its center, illuminated by a single beam of light; "
-                               "the room is filled with subtle hints of intrigue and secrecy, "
-                               "creating an atmosphere of uncertainty and curiosity}, "
-                               "{a color palette of deep blues and purples, with contrasting "
-                               "highlights that accentuate the details and shadows, symbolizing "
-                               "the complexity of the situation}"}
-                   ]'''
+initial_prompt = [{'role': 'user',
+                   'content': "Using song lyrics, come up with a prompt for an image generator.  "
+                              "Please follow the format exactly. The format should be broken down "
+                              "like this: {Art Style}, {Subject}, {Details}, {Color}\n The art style "
+                              "should be determined by the overall impression of the song.  If it is "
+                              "sad, then something like La Douleur should be used. If it is happy, "
+                              "perhaps a vibrant street art style.\nThe Subject should be determined "
+                              "by who the song is about.  If the song is about a couple trying to "
+                              "escape the city, then the subject should be a couple.\nThe Details "
+                              "should be determined by descriptive words used in the song.  If they "
+                              "mention empty bottles, then add empty bottles to the prompt.\nThe "
+                              "color should be determined by the mood of the song.  If the mood is a "
+                              "happy one, use bright colors.\nHere is an example:\n{A dreamlike and "
+                              "ethereal art style}, {a couple standing on a cliffside embracing, "
+                              "overlooking a surreal and beautiful landscape}, {sunset, grassy, "
+                              "soft wind}, {soft pastels, with hints of warm oranges and pinks}"},
+                  {'role': 'assistant',
+                   'content': "{Vibrant and energetic street art style}, {a group of friends dancing and "
+                              "celebrating under the city lights}, {joyful, urban, rhythm}, {bold and lively "
+                              "colors, with splashes of neon blues and pinks}"}, ]
 
 
 async def style_autocomplete(ctx: discord.AutocompleteContext):
@@ -236,14 +204,17 @@ async def interpret(ctx, song_name: str, artist_name: str):
     with open('lyrics.txt', 'w') as f:
         f.write(extracted_text)
 
-    message_history.append(
-        {"role": "user", "content": "Here are the lyrics I would like in this format:" + extracted_text})
+    new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + extracted_text})
+    send_prompt = initial_prompt + [new_prompt]
+    print(f'Prompt: {send_prompt}')
     # OpenAI Completion
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
-        messages=message_history
+        messages=send_prompt
     )
     reply_content = completion.choices[0].message.content
+
+    print(f'OpenAI reply: {reply_content}')
 
     new_prompt = remove_text_before_and_after_braces(reply_content)
     prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -273,7 +244,6 @@ async def interpret(ctx, song_name: str, artist_name: str):
             files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
-
 
 @bot.event
 async def on_connect():
