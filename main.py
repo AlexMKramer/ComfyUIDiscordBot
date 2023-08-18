@@ -210,8 +210,6 @@ async def interpret(ctx, song_name: str, artist_name: str):
     # Remove quotes
     extracted_text = remove_quotes(extracted_text)
 
-    await ctx.send(f"Unknown Lyric format")
-
     with open('lyrics.txt', 'w') as f:
         f.write(extracted_text)
 
