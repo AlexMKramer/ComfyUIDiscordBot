@@ -111,6 +111,15 @@ async def upscale_autocomplete(ctx: discord.AutocompleteContext):
     return [upscale for upscale in upscale_option]
 
 
+def remove_text_before_brace(text):
+    brace_index = text.find('{')
+    if brace_index != -1:
+        new_text = text[brace_index:]
+        return new_text
+    else:
+        return text
+
+
 # Find Loras in ComfyUI/models folder and create a list for autocomplete
 async def loras_autocomplete(ctx: discord.AutocompleteContext):
     subfolder_name = 'loras'
@@ -201,17 +210,12 @@ async def interpret(ctx, song_name: str, artist_name: str):
     # Remove quotes
     extracted_text = remove_quotes(extracted_text)
 
-    start_index = extracted_text.find('{')
-    if start_index != -1:
-        new_content = extracted_text[start_index:]
-    else:
-        new_content = extracted_text
-
-    if new_content == extracted_text:
-        await ctx.send(f"Unknown Lyric format")
+    await ctx.send(f"Unknown Lyric format")
 
     with open('lyrics.txt', 'w') as f:
         f.write(extracted_text)
+
+    extracted_text = remove_text_before_brace(extracted_text)
 
     message_history.append({"role": "user", "content": extracted_text})
     # OpenAI Completion
