@@ -80,7 +80,23 @@ message_history = [{'role': 'user',
                     'content': "Of course, I'd be happy to help you create an image generation prompt based on song "
                                "lyrics! Please provide me with the song lyrics you have in mind, and if you could "
                                "share some details about the song's message, mood, and impression, I'll assist you in "
-                               "crafting the image prompt using the format you've provided."}]
+                               "crafting the image prompt using the format you've provided."},
+                   {'role': 'user',
+                    'content': "Why don't you ask him if he's going to stay Why don't you ask him if he's going away "
+                               "Why don't you tell me what's going on Why don't you tell me who's on the phoneWhy "
+                               "don't you ask him what's going on Why don't you ask him who's the latest on his "
+                               "throne Don't say that you love me Just tell me that you want me Tusk"},
+                   {'role': 'assistant',
+                    'content': "Here's an image generation prompt that captures the enigmatic "
+                               "and questioning tone of the lyrics: {Mysterious and surreal art "
+                               "style}, {a scene set in a dimly lit room with a vintage rotary "
+                               "telephone at its center, illuminated by a single beam of light; "
+                               "the room is filled with subtle hints of intrigue and secrecy, "
+                               "creating an atmosphere of uncertainty and curiosity}, "
+                               "{a color palette of deep blues and purples, with contrasting "
+                               "highlights that accentuate the details and shadows, symbolizing "
+                               "the complexity of the situation}"}
+                   ]
 
 
 async def style_autocomplete(ctx: discord.AutocompleteContext):
@@ -233,6 +249,7 @@ async def interpret(ctx, song_name: str, artist_name: str):
             files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
+
 
 @bot.event
 async def on_connect():
