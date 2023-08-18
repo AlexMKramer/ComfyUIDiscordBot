@@ -95,7 +95,20 @@ message_history = [{'role': 'user',
                                "creating an atmosphere of uncertainty and curiosity}, "
                                "{a color palette of deep blues and purples, with contrasting "
                                "highlights that accentuate the details and shadows, symbolizing "
-                               "the complexity of the situation}"}
+                               "the complexity of the situation}"},
+                   {'role': 'user',
+                    'content': "This foolish game, is still the same The notes go flying off in the air And don't "
+                               "you believe it's true, The music is all for you It's really all we've got to share "
+                               "Cause rocking and rolling, It's only howling at the Moon. It's only howling at the "
+                               "Moon."},
+                   {'role': 'assistant',
+                    'content': "Here's an image generation prompt that captures the playful and rhythmic nature of "
+                               "the lyrics: {Dynamic and energetic art style}, {a scene set in a vibrant and bustling "
+                               "city street at night, with people dancing and grooving to the rhythm of the music "
+                               "that seems to permeate the air; neon lights and colorful graffiti adorn the "
+                               "surroundings, creating a lively and electric atmosphere}, {a vivid color palette with "
+                               "bold and contrasting hues, reflecting the energetic spirit of the song and the joy of "
+                               "rocking and rolling under the moonlight}"}
                    ]
 
 
