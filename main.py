@@ -193,7 +193,6 @@ async def interpret(ctx, song_name: str, artist_name: str):
 
     if new_content == extracted_text:
         await ctx.send(f"Unknown Lyric format")
-        exit(1)
 
     with open('lyrics.txt', 'w') as f:
         f.write(extracted_text)
