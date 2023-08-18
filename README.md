@@ -9,6 +9,7 @@ Any suggestions or help is welcome.
 - ComfyUI running on a machine.  This is setup for running it on the same machine, but can be configured to use another machine by changing the "server_address" variable in comfyAPI.py.
 - SDXL Base and Refiner models.  These can be found here: https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0_0.9vae.safetensors and here: https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0_0.9vae.safetensors
 - Python and pip.
+- OpenAI API key.  You can get one here: https://beta.openai.com/
 
 #### ComfyUI Custom nodes
 - SDXL Prompt Styler: https://github.com/twri/sdxl_prompt_styler
@@ -32,12 +33,15 @@ If you want to use different models, change the two model names below.  I recomm
 - [x] **Upscale**
 
     Upscale will take an image and upscale it using the default style and size in either 2x or 4x.
-- [x] **Lora**
+- [x] **Lora Support**
 
-    Lora will generate an image using the Lora Tag Loader node.  This will take a list of your current loras downloaded in Comfy and add them to the begining of the prompt.
+    Under Draw, Lora will generate an image using the Lora Tag Loader node.  This will take a list of your current loras downloaded in Comfy and add them to the begining of the prompt.
 - [x] **Music**
 
     Music will generate an image by the lyrics using song_name and artist_name.  This will use the default style and size.
+- [x] **Interpret**
+
+    Interpret will generate an image using a Song and Artist name to gather the lyrics, that then get sent to ChatGPT to form a prompt.
 
 
 ## Installation
@@ -56,6 +60,7 @@ Edit the .env file and fill in the variables.  You will need to create a discord
 - `TOKEN` - Your bot's token
 - `folder_path` - The path where your ComfyUI models folder is located. Ex; /home/USER/ComfyUI/models
 - `genius_token` - Your genius token.  This is used for the music command.  You can get one here: https://genius.com/api-clients/new
+- `OPENAI_API_KEY` - Your OpenAI API key.  You can get one here: https://beta.openai.com/
 
 ### Update sdxl_styles.json
 Copy the sdxl_styles.json from this repo into the ComfyUI/custom_nodes/sdxl_prompt_styler folder.  This will add the styles to the SDXL Prompt Styler node.
@@ -67,4 +72,4 @@ You will need to fill in several variables in main.py;
 
 
 # Thanks
-/Rotyxium/CtoD for the ground work on the bot.
+/Rotyxium/CtoD for the groundwork on the bot.
