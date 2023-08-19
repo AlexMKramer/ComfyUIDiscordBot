@@ -155,6 +155,7 @@ async def on_connect():
 @option(
     "model_name",
     description="Enter the model name",
+    autocomplete=models_autocomplete,
     required=False
 )
 async def interpret(ctx, song_name: str, artist_name: str, model_name: str):
@@ -279,6 +280,7 @@ async def on_connect():
 @option(
     "model_name",
     description="Enter the model name",
+    autocomplete=models_autocomplete,
     required=False
 )
 async def music(ctx, song_name: str, artist_name: str, model_name: str):
@@ -456,6 +458,7 @@ async def crazy(ctx):
 @option(
     "model_name",
     description="Enter the model name",
+    autocomplete=models_autocomplete,
     required=False
 )
 async def draw(ctx, new_prompt: str, new_style: str, new_height_width: str, new_lora: str, model_name: str):
