@@ -32,14 +32,14 @@ If you want to use different models, change the two model names below.  I recomm
     Crazy will generate 4 images using a random subject, activity, and location with a random style.
 - [x] **Upscale**
 
-    Automatically scales up using RealESRGAN_x2.pth.  
+    Automatically scales up using 4x-UltraSharp.  
 - [x] **Lora Support**
 
     Under Draw, Lora will generate an image using the Lora Tag Loader node.  This will take a list of your current loras downloaded in Comfy and add them to the begining of the prompt.
-- [x] **Music**
+- [x] **Music** - `/music` `song_name` `artist_name`
 
     Music will generate an image by the lyrics using song_name and artist_name.  This will use the default style and size.
-- [x] **Interpret**
+- [x] **Interpret** - `/interpret` `song_name` `artist_name`
 
     Interpret will generate an image using a Song and Artist name to gather the lyrics, that then get sent to ChatGPT to form a prompt.
 
