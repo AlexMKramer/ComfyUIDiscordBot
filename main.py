@@ -128,7 +128,7 @@ async def models_autocomplete(ctx: discord.AutocompleteContext):
             # List files within the target subfolder
             subfolder_files = [file for file in os.listdir(subfolder_path)]
             return sorted(
-                [os.path.splitext(models)[0] for models in subfolder_files if models.startswith(ctx.value.lower())])
+                [os.path.splitext(models)[0] for models in subfolder_files])
 
     # If the target subfolder is not found
     return []
