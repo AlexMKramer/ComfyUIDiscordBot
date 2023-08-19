@@ -32,7 +32,7 @@ If you want to use different models, change the two model names below.  I recomm
     Crazy will generate 4 images using a random subject, activity, and location with a random style.
 - [x] **Upscale**
 
-    Upscale will take an image and upscale it using the default style and size in either 2x or 4x.
+    Automatically scales up using RealESRGAN_x2.pth.  
 - [x] **Lora Support**
 
     Under Draw, Lora will generate an image using the Lora Tag Loader node.  This will take a list of your current loras downloaded in Comfy and add them to the begining of the prompt.

@@ -37,9 +37,9 @@ def get_images(ws, prompt):
             if message['type'] == 'executing':
                 data = message['data']
                 if data['node'] is None and data['prompt_id'] == prompt_id:
-                    break #Execution is done
+                    break # Execution is done
         else:
-            continue #previews are binary data
+            continue # previews are binary data
 
     history = get_history(prompt_id)[prompt_id]
     for o in history['outputs']:
@@ -86,14 +86,14 @@ prompt_text = """
     },
     "10": {
         "inputs": {
-            "ckpt_name": "sd_xl_base_1.0_0.9vae.safetensors"
+            "ckpt_name": "copaxTimelessxlSDXL1_v42.safetensors"
         },
         "class_type": "CheckpointLoaderSimple"
     },
     "22": {
         "inputs": {
             "add_noise": "enable",
-            "noise_seed": 69,
+            "noise_seed": 614487432439792,
             "steps": 20,
             "cfg": 7.5,
             "sampler_name": "dpmpp_2m",
@@ -123,7 +123,7 @@ prompt_text = """
     "23": {
         "inputs": {
             "add_noise": "disable",
-            "noise_seed": 69,
+            "noise_seed": 614487432439792,
             "steps": 20,
             "cfg": 7.5,
             "sampler_name": "dpmpp_2m",
@@ -228,35 +228,14 @@ prompt_text = """
         },
         "class_type": "CLIPTextEncodeSDXLRefiner"
     },
-    "122": {
-        "inputs": {
-            "filename_prefix": "ComfyUI",
-            "images": [
-                "148",
-                0
-            ]
-        },
-        "class_type": "SaveImage"
-    },
     "146": {
         "inputs": {
-            "text_positive": "an owl on a tree, colorful",
+            "text_positive": "A dreamlike and ethereal art style, a couple standing on a cliff overlooking a vast, otherworldly landscape; they are holding each other close, finding solace and strength in each other's presence; the setting sun casts a warm, golden light on their faces, a color palette of soft pastels, with hints of warm oranges and pinks, creating a sense of tranquility and hope amidst the unknown",
             "text_negative": "",
             "style": "base",
             "log_prompt": "No"
         },
         "class_type": "SDXLPromptStyler"
-    },
-    "148": {
-        "inputs": {
-            "upscale_method": "nearest-exact",
-            "scale_by": 4,
-            "image": [
-                "8",
-                0
-            ]
-        },
-        "class_type": "ImageScaleBy"
     },
     "153": {
         "inputs": {
@@ -274,6 +253,156 @@ prompt_text = """
             ]
         },
         "class_type": "LoraTagLoader"
+    },
+    "160": {
+        "inputs": {
+            "model_name": "RealESRGAN_x2.pth"
+        },
+        "class_type": "UpscaleModelLoader"
+    },
+    "163": {
+        "inputs": {
+            "upscale_model": [
+                "160",
+                0
+            ],
+            "image": [
+                "169",
+                0
+            ]
+        },
+        "class_type": "ImageUpscaleWithModel"
+    },
+    "165": {
+        "inputs": {
+            "filename_prefix": "ComfyUI",
+            "images": [
+                "163",
+                0
+            ]
+        },
+        "class_type": "SaveImage"
+    },
+    "169": {
+        "inputs": {
+            "guide_size": 256,
+            "guide_size_for": true,
+            "max_size": 768,
+            "seed": 784051626223992,
+            "steps": 20,
+            "cfg": 8,
+            "sampler_name": "euler_ancestral",
+            "scheduler": "normal",
+            "denoise": 0.5,
+            "feather": 5,
+            "noise_mask": true,
+            "force_inpaint": false,
+            "bbox_threshold": 0.5,
+            "bbox_dilation": 10,
+            "bbox_crop_factor": 3,
+            "sam_detection_hint": "center-1",
+            "sam_dilation": 0,
+            "sam_threshold": 0.93,
+            "sam_bbox_expansion": 0,
+            "sam_mask_hint_threshold": 0.7,
+            "sam_mask_hint_use_negative": "False",
+            "drop_size": 10,
+            "image": [
+                "173",
+                0
+            ],
+            "detailer_pipe": [
+                "173",
+                4
+            ]
+        },
+        "class_type": "FaceDetailerPipe"
+    },
+    "173": {
+        "inputs": {
+            "guide_size": 256,
+            "guide_size_for": true,
+            "max_size": 768,
+            "seed": 328905338460486,
+            "steps": 20,
+            "cfg": 8,
+            "sampler_name": "euler_ancestral",
+            "scheduler": "normal",
+            "denoise": 0.5,
+            "feather": 5,
+            "noise_mask": true,
+            "force_inpaint": true,
+            "bbox_threshold": 0.5,
+            "bbox_dilation": 10,
+            "bbox_crop_factor": 3,
+            "sam_detection_hint": "center-1",
+            "sam_dilation": 0,
+            "sam_threshold": 0.93,
+            "sam_bbox_expansion": 0,
+            "sam_mask_hint_threshold": 0.7,
+            "sam_mask_hint_use_negative": "False",
+            "drop_size": 10,
+            "wildcard": "",
+            "image": [
+                "188",
+                0
+            ],
+            "model": [
+                "4",
+                0
+            ],
+            "clip": [
+                "4",
+                1
+            ],
+            "vae": [
+                "4",
+                2
+            ],
+            "positive": [
+                "120",
+                0
+            ],
+            "negative": [
+                "81",
+                0
+            ],
+            "bbox_detector": [
+                "182",
+                0
+            ],
+            "sam_model_opt": [
+                "183",
+                0
+            ],
+            "segm_detector_opt": [
+                "182",
+                1
+            ]
+        },
+        "class_type": "FaceDetailer"
+    },
+    "182": {
+        "inputs": {
+            "model_name": "bbox/face_yolov8m.pt"
+        },
+        "class_type": "UltralyticsDetectorProvider"
+    },
+    "183": {
+        "inputs": {
+            "model_name": "sam_vit_b_01ec64.pth",
+            "device_mode": "AUTO"
+        },
+        "class_type": "SAMLoader"
+    },
+    "188": {
+        "inputs": {
+            "image": [
+                "8",
+                0
+            ]
+        },
+        "class_type": "ImpactImageBatchToImageList"
     }
 }
 """
