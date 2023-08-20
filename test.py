@@ -61,26 +61,28 @@ height_width_option = [
 ]
 
 
-async def height_width_autocomplete(ctx: discord.AutocompleteContext):
-    return [height_width for height_width in height_width_option]
-
-
-async def loras_autocomplete(ctx: discord.AutocompleteContext):
-    subfolder_name = 'loras'
-    # Walk through the directory tree rooted at root_folder
+def get_loras():
     for dirpath, dirnames, filenames in os.walk(folder_path):
+        subfolder_name = 'loras'
         # Check if the target subfolder is in the current directory
         if subfolder_name in dirnames:
             subfolder_path = os.path.join(dirpath, subfolder_name)
 
             # List files within the target subfolder
             subfolder_files = [file for file in os.listdir(subfolder_path)]
-            matching_files = [os.path.splitext(loras)[0] for loras in subfolder_files if
-                              loras.startswith(ctx.value.lower())]
+            matching_files = [os.path.splitext(loras)[0] for loras in subfolder_files]
             return sorted(matching_files)
-
     # If the target subfolder is not found
     return []
+
+
+async def loras_autocomplete(ctx: discord.AutocompleteContext):
+    loras = get_loras()
+    return [lora for lora in loras if lora.startswith(ctx.value.lower())]
+
+
+async def height_width_autocomplete(ctx: discord.AutocompleteContext):
+    return [height_width for height_width in height_width_option]
 
 
 async def models_autocomplete(ctx: discord.AutocompleteContext):
@@ -242,13 +244,7 @@ async def crazy(ctx):
     new_negative = None
     new_style = random.choice(style_names)
     new_height_width = random.choice(height_width_option)
-    lora_results = await loras_autocomplete(ctx)
-    if lora_results:
-        new_lora = random.choice(lora_results)
-        print("Random Lora:", new_lora)
-    else:
-        new_lora = None
-        print("No matching loras found.")
+    new_lora = random.choice(get_loras())
     model_name = None
     message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
