@@ -179,7 +179,7 @@ def get_lyrics(song, artist):
         return None
 
 
-async def form_message(
+def form_message(
         author_name: str,
         new_prompt: str,
         new_negative: str = None,
