@@ -279,7 +279,7 @@ prompt_text = """
     },
     "155": {
         "inputs": {
-            "model_name": "4x-UltraSharp.pth"
+            "model_name": "RealESRGAN_x2.pth"
         },
         "class_type": "UpscaleModelLoader"
     }
