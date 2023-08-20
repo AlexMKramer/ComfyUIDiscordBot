@@ -410,6 +410,7 @@ async def music(ctx,
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
+    await ctx.send("Got lyrics...")
     lines = [line for line in fixed_lyrics if '[' not in line and ']' not in line]
     random_lines = random.sample(lines, min(3, len(lines)))
     output_line = ', '.join(random_lines)
