@@ -102,7 +102,7 @@ async def models_autocomplete(ctx: discord.AutocompleteContext):
     return []
 
 
-async def form_message(
+def form_message(
         author_name: str,
         new_prompt: str,
         new_negative: str = None,
