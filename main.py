@@ -128,7 +128,7 @@ async def models_autocomplete(ctx: discord.AutocompleteContext):
             # List files within the target subfolder
             subfolder_files = [file for file in os.listdir(subfolder_path)]
             matching_files = [models for models in subfolder_files if models.startswith(ctx.value.lower())]
-            return sorted(matching_files)
+            return sorted([matching_files])
 
     # If the target subfolder is not found
     return []
@@ -258,6 +258,7 @@ async def interpret(ctx, song_name: str, artist_name: str, model_name: str):
             files=file_list)
         for file_path in file_paths:
             os.remove(file_path)
+
 
 @bot.event
 async def on_connect():
