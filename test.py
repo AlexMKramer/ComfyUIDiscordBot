@@ -335,24 +335,28 @@ async def crazy(ctx):
 
 @bot.slash_command(description="Interpret a song's lyrics using ChatGPT!")
 @option(
-    "Song",
+    "song",
     description="Enter the song name",
     required=True
 )
 @option(
-    "Artist",
+    "artist",
     description="Enter the artist name",
     required=True
 )
 @option(
-    "Model",
+    "model_name",
     description="Choose the model",
     autocomplete=models_autocomplete,
     required=False
 )
-async def interpret(ctx, song: str, artist: str, model_name: str = None):
-    author_name = ctx.author.mention
+async def interpret(ctx,
+                    song: str,
+                    artist: str,
+                    model_name: str = None
+                    ):
 
+    author_name = ctx.author.mention
     await ctx.respond(f"Getting lyrics for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
     if fixed_lyrics is None:
