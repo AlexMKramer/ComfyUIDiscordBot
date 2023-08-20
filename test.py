@@ -147,7 +147,7 @@ async def models_autocomplete(ctx: discord.AutocompleteContext):
     return []
 
 
-async def fix_lyrics(text):
+def fix_lyrics(text):
     keyword1 = "Lyrics"
     keyword2 = r"\d*Embed|Embed"
     start_index = text.find(keyword1)
@@ -168,7 +168,7 @@ async def fix_lyrics(text):
     return text
 
 
-async def get_lyrics(song, artist):
+def get_lyrics(song, artist):
     try:
         song = genius.search_song(song, artist)
         new_lyrics = song.lyrics
@@ -202,7 +202,7 @@ async def form_message(
     return message
 
 
-async def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
+def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
