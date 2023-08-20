@@ -243,7 +243,12 @@ async def crazy(ctx):
     new_style = random.choice(style_names)
     new_height_width = random.choice(height_width_option)
     lora_results = await loras_autocomplete(ctx)
-    new_lora = random.choice(lora_results)
+    if lora_results:
+        new_lora = random.choice(lora_results)
+        print("Random Lora:", new_lora)
+    else:
+        new_lora = None
+        print("No matching loras found.")
     model_name = None
     message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
