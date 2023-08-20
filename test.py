@@ -235,6 +235,7 @@ async def draw(
 
 @bot.slash_command(description='Go Crazy!')
 async def crazy(ctx):
+    await ctx.respond("Going crazy for " + ctx.author.mention)
     author_name = ctx.author.mention
 
     random_subject = random.choice(prompts_data["prompts"]["subjects"])
