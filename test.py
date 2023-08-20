@@ -381,4 +381,51 @@ async def interpret(ctx,
         await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
+@bot.slash_command(description="Generate images based on song lyrics!")
+@option(
+    "song",
+    description="Enter the song name",
+    required=True
+)
+@option(
+    "artist",
+    description="Enter the artist name",
+    required=True
+)
+@option(
+    "model_name",
+    description="Enter the model name",
+    autocomplete=models_autocomplete,
+    required=False
+)
+async def music(ctx,
+                song: str,
+                artist: str,
+                model_name: str
+                ):
+    author_name = ctx.author.mention
+    await ctx.respond(
+        f"Generating images for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
+    fixed_lyrics = get_lyrics(song, artist)
+    if fixed_lyrics is None:
+        await ctx.send("Lyrics not found. Please check your spelling try again.")
+        return
+    lines = [line for line in fixed_lyrics if '[' not in line and ']' not in line]
+    random_lines = random.sample(lines, min(3, len(lines)))
+    output_line = ', '.join(random_lines)
+    new_prompt = song + ", " + output_line + ", " + artist
+    new_negative = None
+    new_style = None
+    new_height_width = None
+    new_lora = None
+    new_model = model_name
+    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    try:
+        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        await ctx.send(message, files=file_list)
+    except Exception as e:
+        print(e)
+        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+
+
 bot.run(TOKEN)
