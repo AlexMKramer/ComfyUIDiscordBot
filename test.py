@@ -35,7 +35,7 @@ def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
     gpt_message = gpt_initial_prompt + [gpt_new_prompt]
     try:
-        completion = openai.Completion.create(
+        completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=gpt_message
         )
