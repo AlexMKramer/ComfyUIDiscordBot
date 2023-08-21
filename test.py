@@ -367,15 +367,14 @@ async def on_connect():
     autocomplete=models_autocomplete,
     required=False
 )
-async def draw(
-        ctx,
-        new_prompt: str,
-        new_negative: str = None,
-        new_style: str = None,
-        new_height_width: str = None,
-        new_lora: str = None,
-        model_name: str = None
-):
+async def draw(ctx,
+               new_prompt: str,
+               new_negative: str = None,
+               new_style: str = None,
+               new_height_width: str = None,
+               new_lora: str = None,
+               model_name: str = None
+               ):
     # Setup message
     author_name = ctx.author.mention
     message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
@@ -428,12 +427,11 @@ async def crazy(ctx):
     autocomplete=models_autocomplete,
     required=False
 )
-async def interpret(
-        ctx,
-        song: str,
-        artist: str,
-        model_name: str = None
-):
+async def interpret(ctx,
+                    song: str,
+                    artist: str,
+                    model_name: str = None
+                    ):
     author_name = ctx.author.mention
     await ctx.respond(f"Getting lyrics for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
@@ -538,19 +536,18 @@ async def music(ctx,
     autocomplete=models_autocomplete,
     required=False
 )
-async def redraw(
-        ctx,
-        new_prompt: str,
-        new_negative: str = None,
-        new_style: str = None,
-        new_lora: str = None,
-        model_name: str = None
-):
+async def redraw(ctx,
+                 new_prompt: str,
+                 new_negative: str = None,
+                 new_style: str = None,
+                 new_lora: str = None,
+                 model_name: str = None
+                 ):
     author_name = ctx.author.mention
     await ctx.respond(f"Generating image for {ctx.author.mention}\n**Prompt:** {new_prompt}")
 
-    if ctx.message.attachments[0].url:
-        for attachment in ctx.message.attachments[0].url:
+    if ctx.message.attachments:
+        for attachment in ctx.message.attachments:
             attachment_data = await attachment.read()
             file_type = magic_instance.from_buffer(attachment_data)
             if 'image' in file_type:
