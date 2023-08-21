@@ -547,9 +547,10 @@ async def redraw(
         model_name: str = None
 ):
     author_name = ctx.author.mention
+    await ctx.respond(f"Generating image for {ctx.author.mention}\n**Prompt:** {new_prompt}")
 
-    if ctx.message.attachments:
-        for attachment in ctx.message.attachments:
+    if ctx.message.attachments[0].url:
+        for attachment in ctx.message.attachments[0].url:
             attachment_data = await attachment.read()
             file_type = magic_instance.from_buffer(attachment_data)
             if 'image' in file_type:
