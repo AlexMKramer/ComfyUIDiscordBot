@@ -550,8 +550,7 @@ async def redraw(ctx,
         try:
             attachment_data = await attached_image.read()
             temp_image = discord.File(io.BytesIO(attachment_data))
-            file_type = magic_instance.from_buffer(temp_image.fp.read())
-            if 'image' in file_type:
+            if temp_image:
                 new_image_data, new_width, new_height = await resize_to_closest_option(attachment_data)
                 await ctx.send(f"Image resized to {new_width}x{new_height}")
                 new_size = f"{new_height} {new_width}"
