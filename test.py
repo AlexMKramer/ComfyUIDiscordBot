@@ -4,6 +4,7 @@ import queue
 import websocket
 import random
 import discord
+import magic
 from discord.ext import commands
 from discord import option
 import os
@@ -26,9 +27,11 @@ genius_token = os.getenv('GENIUS_TOKEN')
 genius = Genius(genius_token)
 openai.api_key = os.getenv('OPENAI_API_KEY')
 prompt = comfyAPI.prompt
+img2img_prompt = comfyAPI.img2img_prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
+magic_instance = magic.Magic()
 
 
 def gpt_integration(text):
@@ -94,21 +97,21 @@ async def style_autocomplete(ctx: discord.AutocompleteContext):
 
 
 height_width_option = [
-    {"height": 1024, "width": 1024},
-    {"height": 1152, "width": 896},
-    {"height": 896, "width": 1152},
-    {"height": 1216, "width": 832},
-    {"height": 832, "width": 1216},
-    {"height": 1344, "width": 768},
-    {"height": 768, "width": 1344},
-    {"height": 1536, "width": 640},
-    {"height": 640, "width": 1536},
+    {"height": 1024, "width": 1024, "aspect_ratio": 1},
+    {"height": 1152, "width": 896, "aspect_ratio": 1.2857142857142858},
+    {"height": 896, "width": 1152, "aspect_ratio": 0.7777777777777778},
+    {"height": 1216, "width": 832, "aspect_ratio": 1.4615384615384615},
+    {"height": 832, "width": 1216, "aspect_ratio": 0.6842105263157895},
+    {"height": 1344, "width": 768, "aspect_ratio": 1.75},
+    {"height": 768, "width": 1344, "aspect_ratio": 0.5714285714285714},
+    {"height": 1536, "width": 640, "aspect_ratio": 2.4},
+    {"height": 640, "width": 1536, "aspect_ratio": 0.4166666666666667},
 ]
 
 
 def get_loras():
     for dirpath, dirnames, filenames in os.walk(folder_path):
-        subfolder_name = 'loras'
+        subfolder_name = 'models/loras'
         # Check if the target subfolder is in the current directory
         if subfolder_name in dirnames:
             subfolder_path = os.path.join(dirpath, subfolder_name)
@@ -127,11 +130,11 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
 
 
 async def height_width_autocomplete(ctx: discord.AutocompleteContext):
-    return [height_width for height_width in height_width_option]
+    return [f"{hw['height']} {hw['width']}" for hw in height_width_option]
 
 
 async def models_autocomplete(ctx: discord.AutocompleteContext):
-    subfolder_name = 'checkpoints'
+    subfolder_name = 'models/checkpoints'
     # Walk through the directory tree rooted at root_folder
     for dirpath, dirnames, filenames in os.walk(folder_path):
         # Check if the target subfolder is in the current directory
@@ -252,17 +255,79 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
         return file_list
 
 
-async def process_image(image):
-    if image.filename.lower().endswith('.png', '.jpg', '.jpeg'):
-        image = Image.open(io.BytesIO(image))
-        w, h = image.size
-        image_aspect = w / h
-        closest_target = min(height_width_option, key=lambda target: abs(target["aspect_ratio"] - image_aspect))
-        target_width = closest_target[1]
-        target_height = closest_target[0]
-    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-        image.save(temp_file.name)
-        return temp_file.name
+def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
+    if new_lora is not None:
+        new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
+    img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
+
+    if new_negative is not None:
+        img2img_prompt["146"]["inputs"]["text_negative"] = new_negative
+    else:
+        img2img_prompt["146"]["inputs"]["text_negative"] = ''
+
+    if new_style is not None:
+        if new_style == 'random':
+            new_style = random.choice(style_names)
+        img2img_prompt["146"]["inputs"]["style"] = new_style
+    else:
+        img2img_prompt["146"]["inputs"]["style"] = 'base'
+
+    if new_model is not None:
+        img2img_prompt["10"]["inputs"]["ckpt_name"] = new_model
+    else:
+        img2img_prompt["10"]["inputs"]["ckpt_name"] = base_model
+
+    if new_size is not None:
+        height, width = new_size.split()
+        img2img_prompt["5"]["inputs"]["height"] = int(height)
+        img2img_prompt["5"]["inputs"]["width"] = int(width)
+    else:
+        img2img_prompt["5"]["inputs"]["height"] = 1024
+        img2img_prompt["5"]["inputs"]["width"] = 1024
+
+    seed = random.randint(0, 0xffffffffff)
+    img2img_prompt["22"]["inputs"]["noise_seed"] = int(seed)
+    img2img_prompt["23"]["inputs"]["noise_seed"] = int(seed)
+
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    images = comfyAPI.get_images(ws, img2img_prompt)
+    file_paths = []
+    for node_id in images:
+        for image_data in images[node_id]:
+            image = Image.open(io.BytesIO(image_data))
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                image.save(temp_file.name)
+                file_paths.append(temp_file.name)
+        file_list = [discord.File(file_path) for file_path in file_paths]
+        for file_path in file_paths:
+            os.remove(file_path)
+        return file_list
+
+
+async def resize_to_closest_option(image_data):
+    with Image.open(image_data) as img:
+        width, height = img.size
+        aspect_ratio = width / height
+
+        closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
+
+        new_width = closest_option["width"]
+        new_height = closest_option["height"]
+
+        new_img = img.resize((new_width, new_height), Image.ANTIALIAS)
+
+        new_image_data = await save_image_to_bytes(new_img, format="JPEG")
+        new_img.save("input/temp_image.jpg")
+
+        return new_image_data, new_width, new_height
+
+
+async def save_image_to_bytes(image, format):
+    output = io.BytesIO()
+    image.save(output, format=format)  # You can adjust the format if needed
+    output.seek(0)
+    return output.getvalue()
 
 
 @bot.event
@@ -275,29 +340,34 @@ async def on_connect():
 @bot.slash_command(description='Generate images using only words!')
 @option(
     "new_prompt",
+    name_localizations={"en-US": "Prompt"},
     description="Enter the prompt",
     required=True
 )
 @option(
     "new_style",
+    name_localizations={"en-US": "Style"},
     description="Enter the style",
     autocomplete=style_autocomplete,
     required=False
 )
 @option(
     "new_height_width",
+    name_localizations={"en-US": "Height/Width"},
     description="Choose the height and width",
     autocomplete=height_width_autocomplete,
     required=False
 )
 @option(
     "new_lora",
+    name_localizations={"en-US": "Lora"},
     description="Choose the Lora model",
     autocomplete=loras_autocomplete,
     required=False
 )
 @option(
     "model_name",
+    name_localizations={"en-US": "Model Name"},
     description="Enter the model name",
     autocomplete=models_autocomplete,
     required=False
@@ -368,8 +438,7 @@ async def interpret(
         song: str,
         artist: str,
         model_name: str = None
-        ):
-
+):
     author_name = ctx.author.mention
     await ctx.respond(f"Getting lyrics for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
@@ -483,10 +552,27 @@ async def redraw(
         model_name: str = None
 ):
     author_name = ctx.author.mention
+
     if ctx.message.attachments:
         for attachment in ctx.message.attachments:
-            if attachment.filename.lower().endswith('.png', '.jpg', '.jpeg'):
-                image = comfyAPI.get_image(attachment.filename, attachment.url)
+            attachment_data = await attachment.read()
+            file_type = magic_instance.from_buffer(attachment_data)
+            if 'image' in file_type:
+                new_image_data, new_width, new_height = await resize_to_closest_option(attachment_data)
+                await ctx.send(f"Image resized to {new_width}x{new_height}")
+                new_size = f"{new_height} {new_width}"
+                message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
+                                       model_name)
+                try:
+                    file_list = generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora,
+                                                 model_name)
+                    await ctx.send(message, files=file_list)
+                except Exception as e:
+                    print(e)
+                    await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+
+            return
+    await ctx.send("No valid image attachment found.")
 
 
 bot.run(TOKEN)
