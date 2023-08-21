@@ -548,8 +548,8 @@ async def redraw(ctx,
 
     if attached_image:
         try:
-            attachment_data = await attached_image.to_file()
-            file_type = magic_instance.from_file(attachment_data.filename)
+            attachment_data = await attached_image.read()
+            file_type = magic_instance.from_buffer(attachment_data)
             if 'image' in file_type:
                 new_image_data, new_width, new_height = await resize_to_closest_option(attachment_data)
                 await ctx.send(f"Image resized to {new_width}x{new_height}")
