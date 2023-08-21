@@ -94,15 +94,15 @@ async def style_autocomplete(ctx: discord.AutocompleteContext):
 
 
 height_width_option = [
-    "1024 1024",
-    "1152 896",
-    "896 1152",
-    "1216 832",
-    "832 1216",
-    "1344 768",
-    "768 1344",
-    "1536 640",
-    "640 1536"
+    {"height": 1024, "width": 1024},
+    {"height": 1152, "width": 896},
+    {"height": 896, "width": 1152},
+    {"height": 1216, "width": 832},
+    {"height": 832, "width": 1216},
+    {"height": 1344, "width": 768},
+    {"height": 768, "width": 1344},
+    {"height": 1536, "width": 640},
+    {"height": 640, "width": 1536},
 ]
 
 
@@ -252,6 +252,19 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
         return file_list
 
 
+async def process_image(image):
+    if image.filename.lower().endswith('.png', '.jpg', '.jpeg'):
+        image = Image.open(io.BytesIO(image))
+        w, h = image.size
+        image_aspect = w / h
+        closest_target = min(height_width_option, key=lambda target: abs(target["aspect_ratio"] - image_aspect))
+        target_width = closest_target[1]
+        target_height = closest_target[0]
+    with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+        image.save(temp_file.name)
+        return temp_file.name
+
+
 @bot.event
 async def on_connect():
     if bot.auto_sync_commands:
@@ -350,11 +363,12 @@ async def crazy(ctx):
     autocomplete=models_autocomplete,
     required=False
 )
-async def interpret(ctx,
-                    song: str,
-                    artist: str,
-                    model_name: str = None
-                    ):
+async def interpret(
+        ctx,
+        song: str,
+        artist: str,
+        model_name: str = None
+        ):
 
     author_name = ctx.author.mention
     await ctx.respond(f"Getting lyrics for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
@@ -429,6 +443,50 @@ async def music(ctx,
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+
+
+@bot.slash_command(description='Generate an image using an image and words!')
+@option(
+    "new_prompt",
+    description="Enter the prompt",
+    required=True
+)
+@option(
+    "new_negative",
+    description="Enter things you don't want to see in the image",
+    required=False
+)
+@option(
+    "new_style",
+    description="Enter the style",
+    autocomplete=style_autocomplete,
+    required=False
+)
+@option(
+    "new_lora",
+    description="Choose the Lora model",
+    autocomplete=loras_autocomplete,
+    required=False
+)
+@option(
+    "model_name",
+    description="Enter the model name",
+    autocomplete=models_autocomplete,
+    required=False
+)
+async def redraw(
+        ctx,
+        new_prompt: str,
+        new_negative: str = None,
+        new_style: str = None,
+        new_lora: str = None,
+        model_name: str = None
+):
+    author_name = ctx.author.mention
+    if ctx.message.attachments:
+        for attachment in ctx.message.attachments:
+            if attachment.filename.lower().endswith('.png', '.jpg', '.jpeg'):
+                image = comfyAPI.get_image(attachment.filename, attachment.url)
 
 
 bot.run(TOKEN)
