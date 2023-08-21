@@ -549,7 +549,8 @@ async def redraw(ctx,
     if attached_image:
         try:
             attachment_data = await attached_image.read()
-            file_type = magic_instance.from_buffer(attachment_data)
+            temp_image = discord.File(io.BytesIO(attachment_data))
+            file_type = magic_instance.from_buffer(temp_image.fp.read())
             if 'image' in file_type:
                 new_image_data, new_width, new_height = await resize_to_closest_option(attachment_data)
                 await ctx.send(f"Image resized to {new_width}x{new_height}")
@@ -574,7 +575,7 @@ async def redraw(ctx,
 @bot.slash_command()
 async def send_image(ctx, attached_image: discord.Attachment):
     image_bytes = await attached_image.read()
-    await ctx.send(f"Hey {ctx.author.mention}, here's your image:")
+    await ctx.respond(f"Hey {ctx.author.mention}, here's your image:")
     await ctx.send(file=discord.File(io.BytesIO(image_bytes), filename="image.png"))
 
 
