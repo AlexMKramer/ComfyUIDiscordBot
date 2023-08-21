@@ -477,7 +477,7 @@ async def interpret(ctx,
 async def music(ctx,
                 song: str,
                 artist: str,
-                model_name: str
+                model_name: str = None
                 ):
     author_name = ctx.author.mention
     await ctx.respond(
@@ -497,7 +497,6 @@ async def music(ctx,
     new_style = None
     new_height_width = None
     new_lora = None
-    new_model = model_name
     message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
@@ -537,6 +536,7 @@ async def music(ctx,
     required=False
 )
 async def redraw(ctx,
+                 attached_image: discord.Attachment,
                  new_prompt: str,
                  new_negative: str = None,
                  new_style: str = None,
@@ -546,9 +546,9 @@ async def redraw(ctx,
     author_name = ctx.author.mention
     await ctx.respond(f"Generating image for {ctx.author.mention}\n**Prompt:** {new_prompt}")
 
-    if ctx.message.attachments:
-        for attachment in ctx.message.attachments:
-            attachment_data = await attachment.read()
+    if attached_image:
+        try:
+            attachment_data = await attached_image.read()
             file_type = magic_instance.from_buffer(attachment_data)
             if 'image' in file_type:
                 new_image_data, new_width, new_height = await resize_to_closest_option(attachment_data)
@@ -564,8 +564,11 @@ async def redraw(ctx,
                     print(e)
                     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
-            return
-    await ctx.send("No valid image attachment found.")
+        except Exception as e:
+            print(e)
+            await ctx.send("Something went wrong. Please try again.")
+    else:
+        await ctx.send("No valid image attachment found.")
 
 
 bot.run(TOKEN)
