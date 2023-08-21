@@ -572,15 +572,9 @@ async def redraw(ctx,
 
 
 @bot.slash_command()
-async def send_image(ctx):
-    image = ctx.interaction.options.get("image").value  # Get the image from the slash command's options
-    user_mention = ctx.author.mention
-
-    if image.content_type.startswith("image/"):
-        # Send the image back to the user along with a mention
-        await ctx.send(content=user_mention, file=discord.File(io.BytesIO(image), filename="image.png"))
-    else:
-        await ctx.send("Please provide a valid image.")
+async def send_image(ctx, image: discord.File):
+    await ctx.send(f"Hey {ctx.author.mention}, here's your image:")
+    await ctx.send(file=image)
 
 
 bot.run(TOKEN)
