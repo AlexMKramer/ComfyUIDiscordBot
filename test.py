@@ -563,11 +563,11 @@ async def redraw(ctx,
                     await ctx.send(message, files=file_list)
                 except Exception as e:
                     print(e)
-                    await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+                    await ctx.send(ctx.author.mention + "img2img issue.")
 
         except Exception as e:
             print(e)
-            await ctx.send("Something went wrong. Please try again.")
+            await ctx.send("Resize issue.")
     else:
         await ctx.send("No valid image attachment found.")
 
