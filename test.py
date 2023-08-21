@@ -572,9 +572,10 @@ async def redraw(ctx,
 
 
 @bot.slash_command()
-async def send_image(ctx, image_url: str):
+async def send_image(ctx, attached_image: discord.Attachment):
+    image = await attached_image.read()
     await ctx.send(f"Hey {ctx.author.mention}, here's your image:")
-    await ctx.send(image_url)
+    await ctx.send(file=discord.File(image, filename="image.png"))
 
 
 bot.run(TOKEN)
