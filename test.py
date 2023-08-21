@@ -548,11 +548,11 @@ async def redraw(ctx,
 
     if attached_image:
         try:
-            attachment_data = await attached_image.read()
-            temp_image = discord.File(io.BytesIO(attachment_data))
+            image_bytes = await attached_image.read()
+            temp_image = discord.File(io.BytesIO(image_bytes), filename="image.png")
             await ctx.send(file=temp_image)
             if temp_image:
-                new_image_data, new_width, new_height = await resize_to_closest_option(attachment_data)
+                new_image_data, new_width, new_height = await resize_to_closest_option(temp_image)
                 await ctx.send(f"Image resized to {new_width}x{new_height}")
                 new_size = f"{new_height} {new_width}"
                 message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
