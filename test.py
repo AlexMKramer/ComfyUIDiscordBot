@@ -309,6 +309,7 @@ async def resize_to_closest_option(image_data):
     with Image.open(image_data) as img:
         width, height = img.size
         aspect_ratio = width / height
+        ctx.send(f"Image aspect ratio: {aspect_ratio}")
 
         closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
 
