@@ -340,34 +340,29 @@ async def on_connect():
 @bot.slash_command(description='Generate images using only words!')
 @option(
     "new_prompt",
-    name_localizations={"en-US": "Prompt"},
     description="Enter the prompt",
     required=True
 )
 @option(
     "new_style",
-    name_localizations={"en-US": "Style"},
     description="Enter the style",
     autocomplete=style_autocomplete,
     required=False
 )
 @option(
     "new_height_width",
-    name_localizations={"en-US": "Height/Width"},
     description="Choose the height and width",
     autocomplete=height_width_autocomplete,
     required=False
 )
 @option(
     "new_lora",
-    name_localizations={"en-US": "Lora"},
     description="Choose the Lora model",
     autocomplete=loras_autocomplete,
     required=False
 )
 @option(
     "model_name",
-    name_localizations={"en-US": "Model Name"},
     description="Enter the model name",
     autocomplete=models_autocomplete,
     required=False
