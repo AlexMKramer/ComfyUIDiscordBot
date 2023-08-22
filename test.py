@@ -558,7 +558,6 @@ async def redraw(ctx,
         try:
             image_bytes = await attached_image.read()
             image = Image.open(io.BytesIO(image_bytes))
-            await ctx.send(file=image)
             new_image_data, new_width, new_height = await resize_to_closest_option(image)
             await ctx.send(f"Image resized to {new_width}x{new_height}")
             new_size = f"{new_height} {new_width}"
