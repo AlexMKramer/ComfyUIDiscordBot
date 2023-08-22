@@ -110,8 +110,8 @@ height_width_option = [
 
 
 def get_loras():
-    for dirpath, dirnames, filenames in os.walk(folder_path):
-        subfolder_name = '/models/loras'
+    for dirpath, dirnames, filenames in os.walk(folder_path + '/models/'):
+        subfolder_name = 'loras'
         # Check if the target subfolder is in the current directory
         if subfolder_name in dirnames:
             subfolder_path = os.path.join(dirpath, subfolder_name)
@@ -134,9 +134,9 @@ async def height_width_autocomplete(ctx: discord.AutocompleteContext):
 
 
 async def models_autocomplete(ctx: discord.AutocompleteContext):
-    subfolder_name = '/models/checkpoints'
+    subfolder_name = 'checkpoints'
     # Walk through the directory tree rooted at root_folder
-    for dirpath, dirnames, filenames in os.walk(folder_path):
+    for dirpath, dirnames, filenames in os.walk(folder_path + '/models/'):
         # Check if the target subfolder is in the current directory
         if subfolder_name in dirnames:
             subfolder_path = os.path.join(dirpath, subfolder_name)
