@@ -37,8 +37,9 @@ request_queue = asyncio.Queue()
 async def queue_position(ctx):
     position = request_queue.qsize()  # Get the current queue size (position in the queue)
     if position == 0:
+        await ctx.send(f"Generating image for {ctx.author.mention}")
         return
-    await ctx.respond(f"You are in position {position} in the queue.")
+    await ctx.send(f"You are in position {position} in the queue.")
 
 
 async def process_requests():
@@ -382,7 +383,8 @@ async def draw(ctx,
                model_name: str = None
                ):
     includes_image = False
-    await ctx.respond(f"Generating image for {ctx.author.mention}")
+    await ctx.defer()
+    await queue_position(ctx)
     await request_queue.put((ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
 
 
