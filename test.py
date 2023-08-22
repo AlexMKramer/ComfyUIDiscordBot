@@ -1,6 +1,4 @@
-import asyncio
 import json
-import queue
 import websocket
 import random
 import discord
@@ -12,7 +10,6 @@ from PIL import Image
 import io
 import tempfile
 import comfyAPI
-from typing import Optional
 from dotenv import load_dotenv
 import re
 from lyricsgenius import Genius
@@ -79,7 +76,7 @@ gpt_initial_prompt = [{'role': 'user',
                                   "celebrating under the city lights}, {joyful, urban, rhythm}, {bold and lively "
                                   "colors, with splashes of neon blues and pinks}"}, ]
 
-with open("prompts.json", 'r') as sdxl_prompts:
+with open('prompts.json', 'r') as sdxl_prompts:
     prompts_data = json.load(sdxl_prompts)
 
 example_subjects = prompts_data["prompts"]["subjects"]
@@ -302,9 +299,6 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
         for file_path in file_paths:
             os.remove(file_path)
         return file_list
-
-
-
 
 
 @bot.event
