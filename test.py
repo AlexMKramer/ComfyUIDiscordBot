@@ -259,13 +259,11 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
-    print(new_prompt)
 
     if new_negative is not None:
         img2img_prompt["146"]["inputs"]["text_negative"] = new_negative
     else:
         img2img_prompt["146"]["inputs"]["text_negative"] = ''
-    print(new_negative)
 
     if new_style is not None:
         if new_style == 'random':
@@ -273,13 +271,11 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
         img2img_prompt["146"]["inputs"]["style"] = new_style
     else:
         img2img_prompt["146"]["inputs"]["style"] = 'base'
-    print(new_style)
 
     if new_model is not None:
         img2img_prompt["10"]["inputs"]["ckpt_name"] = new_model
     else:
         img2img_prompt["10"]["inputs"]["ckpt_name"] = base_model
-    print(new_model)
 
     if new_size is not None:
         height, width = new_size.split()
@@ -288,12 +284,9 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
     else:
         img2img_prompt["160"]["inputs"]["height"] = 1024
         img2img_prompt["160"]["inputs"]["width"] = 1024
-    print(new_size)
 
     seed = random.randint(0, 0xffffffffff)
     img2img_prompt["22"]["inputs"]["noise_seed"] = int(seed)
-    img2img_prompt["23"]["inputs"]["noise_seed"] = int(seed)
-    print(seed)
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
@@ -555,7 +548,6 @@ async def redraw(ctx,
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
     print(f'New image saved to input/temp_image.png')
-    await ctx.send(f"Image resized to {new_width}x{new_height}")
     # convert width and height back to new_size string
     new_size = str(new_height) + " " + str(new_width)
     print(f'New size: {new_size}')
@@ -564,7 +556,8 @@ async def redraw(ctx,
     try:
         file_list = generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora,
                                      model_name)
-        await ctx.send(message, files=file_list)
+        await ctx.send(message, "Original file:", file=discord.File(output))
+        await ctx.send("New File:", files=file_list)
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "img2img issue.")
