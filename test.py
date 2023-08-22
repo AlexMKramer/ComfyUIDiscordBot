@@ -511,6 +511,11 @@ async def music(ctx,
 
 @bot.slash_command(description='Generate an image using an image and words!')
 @option(
+    "attached_image",
+    description="Attach an image",
+    required=True
+)
+@option(
     "new_prompt",
     description="Enter the prompt",
     required=True
