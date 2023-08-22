@@ -382,7 +382,7 @@ async def draw(ctx,
                model_name: str = None
                ):
     includes_image = False
-    ctx.respond(f"Generating image for {ctx.author.mention}")
+    await ctx.respond(f"Generating image for {ctx.author.mention}")
     await request_queue.put((ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
 
 
