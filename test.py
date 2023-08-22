@@ -305,32 +305,7 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
         return file_list
 
 
-async def resize_to_closest_option(image_data):
-    with Image.open(image_data) as img:
-        width, height = img.size
-        aspect_ratio = width / height
-        print(f"Image aspect ratio: {aspect_ratio}")
 
-        closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
-
-        new_width = closest_option["width"]
-        new_height = closest_option["height"]
-
-        new_img = img.resize((new_width, new_height), Image.ANTIALIAS)
-        print(f'New image size: {new_img.size}')
-
-        new_image_data = await save_image_to_bytes(new_img, format="JPEG")
-        new_img.save("input/temp_image.jpg")
-        print(f'New image saved to input/temp_image.jpg')
-
-        return new_image_data, new_width, new_height
-
-
-async def save_image_to_bytes(image, format):
-    output = io.BytesIO()
-    image.save(output, format=format)  # You can adjust the format if needed
-    output.seek(0)
-    return output.getvalue()
 
 
 @bot.event
@@ -584,17 +559,26 @@ async def test(ctx, attached_image: discord.Attachment):
 
     # Process the image using PIL
     image = Image.open(io.BytesIO(image_bytes))
-    # Perform your image processing operations here
-    # For example, let's resize the image to half its size
-    resized_image = image.resize((image.width // 2, image.height // 2))
+    width, height = image.size
+    aspect_ratio = width / height
+    print(f"Image aspect ratio: {aspect_ratio}")
 
-    # Convert the processed image back to bytes
-    processed_image_bytes = io.BytesIO()
-    resized_image.save(processed_image_bytes, format="PNG")
-    processed_image_bytes.seek(0)
+    closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
+
+    new_width = closest_option["width"]
+    new_height = closest_option["height"]
+
+    new_img = image.resize((new_width, new_height), Image.ANTIALIAS)
+    print(f'New image size: {new_img.size}')
+    output = io.BytesIO()
+    image.save(output, format='PNG')  # You can adjust the format if needed
+    output.seek(0)
+    print(f'New image saved to input/temp_image.jpg')
+    await ctx.send(f"Image resized to {new_width}x{new_height}")
+    new_size = f"{new_height} {new_width}"
 
     await ctx.respond(f"Hey {ctx.author.mention}, here's your processed image:")
-    await ctx.send(file=discord.File(processed_image_bytes, filename="processed_image.png"))
+    await ctx.send(file=discord.File(output, filename="processed_image.png"))
 
 
 bot.run(TOKEN)
