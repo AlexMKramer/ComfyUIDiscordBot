@@ -187,7 +187,7 @@ def form_message(
         new_prompt: str,
         new_negative: str = None,
         new_style: str = None,
-        new_height_width: str = None,
+        new_size: str = None,
         new_lora: str = None,
         model_name: str = None
 ):
@@ -198,8 +198,8 @@ def form_message(
         message = message + f"\n**Lora:** {new_lora}"
     if new_style is not None:
         message = message + f"\n**Style:** {new_style}"
-    if new_height_width is not None:
-        message = message + f"\n**Height/Width:** {new_height_width}"
+    if new_size is not None:
+        message = message + f"\n**Height/Width:** {new_size}"
     if model_name is not None:
         message = message + f"\n**Model:** {model_name}"
     return message
@@ -543,7 +543,7 @@ async def redraw(ctx,
         new_width = closest_option["width"]
         new_height = closest_option["height"]
 
-        new_img = image.resize((new_width, new_height), Image.ANTIALIAS)
+        new_img = image.resize((new_width, new_height), Image.LANCZOS)
         print(f'New image size: {new_img.size}')
         image.save(folder_path + '/input/temp_image.png')
         output = io.BytesIO()
@@ -553,6 +553,7 @@ async def redraw(ctx,
         await ctx.send(f"Image resized to {new_width}x{new_height}")
         # convert width and height back to new_size string
         new_size = str(new_height) + " " + str(new_width)
+        print(f'New size: {new_size}')
         message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
                                model_name)
         try:
