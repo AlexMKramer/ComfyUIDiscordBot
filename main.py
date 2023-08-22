@@ -30,11 +30,13 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
 magic_instance = magic.Magic()
 
+
 @bot.event
 async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
+
 
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})

@@ -1,6 +1,7 @@
 import json
 import websocket
 import random
+import asyncio
 import discord
 import magic
 from discord.ext import commands
@@ -29,6 +30,47 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
 magic_instance = magic.Magic()
+
+request_queue = asyncio.Queue()
+
+
+async def queue_position(ctx):
+    position = request_queue.qsize()  # Get the current queue size (position in the queue)
+    if position == 0:
+        return
+    await ctx.respond(f"You are in position {position} in the queue.")
+
+
+async def process_requests():
+    while True:
+        ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image = await request_queue.get()  # Dequeue the next request
+        await process_request(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
+        request_queue.task_done()  # Mark the request as done
+
+
+async def process_request(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
+    try:
+        message = form_message(ctx.author.mention, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+        if includes_image:
+            file_list = generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
+        else:
+            file_list = generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
+        await ctx.respond(message, files=file_list)
+    except Exception as e:
+        print(e)
+        await ctx.respond(ctx.author.mention + " Something went wrong. Please try again.")
+
+
+@bot.event
+async def on_connect():
+    if bot.auto_sync_commands:
+        await bot.sync_commands()
+    print(f'Logged in as {bot.user.name}')
+
+
+@bot.event
+async def on_ready():
+    bot.loop.create_task(process_requests())
 
 
 def gpt_integration(text):
@@ -202,7 +244,7 @@ def form_message(
     return message
 
 
-def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
+def generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -219,8 +261,8 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
     else:
         prompt["146"]["inputs"]["style"] = 'base'
 
-    if new_model is not None:
-        prompt["10"]["inputs"]["ckpt_name"] = new_model
+    if model_name is not None:
+        prompt["10"]["inputs"]["ckpt_name"] = model_name
     else:
         prompt["10"]["inputs"]["ckpt_name"] = base_model
 
@@ -252,7 +294,7 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
         return file_list
 
 
-def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
+def generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -269,8 +311,8 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
     else:
         img2img_prompt["146"]["inputs"]["style"] = 'base'
 
-    if new_model is not None:
-        img2img_prompt["10"]["inputs"]["ckpt_name"] = new_model
+    if model_name is not None:
+        img2img_prompt["10"]["inputs"]["ckpt_name"] = model_name
     else:
         img2img_prompt["10"]["inputs"]["ckpt_name"] = base_model
 
@@ -301,13 +343,6 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
         return file_list
 
 
-@bot.event
-async def on_connect():
-    if bot.auto_sync_commands:
-        await bot.sync_commands()
-    print(f'Logged in as {bot.user.name}')
-
-
 @bot.slash_command(description='Generate images using only words!')
 @option(
     "new_prompt",
@@ -321,7 +356,7 @@ async def on_connect():
     required=False
 )
 @option(
-    "new_height_width",
+    "new_size",
     description="Choose the height and width",
     autocomplete=height_width_autocomplete,
     required=False
@@ -342,20 +377,12 @@ async def draw(ctx,
                new_prompt: str,
                new_negative: str = None,
                new_style: str = None,
-               new_height_width: str = None,
+               new_size: str = None,
                new_lora: str = None,
                model_name: str = None
                ):
-    # Setup message
-    author_name = ctx.author.mention
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
-    await ctx.respond(message)
-    try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
-        await ctx.send(message, files=file_list)
-    except Exception as e:
-        print(e)
-        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+    includes_image = False
+    await request_queue.put((ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
 
 
 @bot.slash_command(description='Go Crazy!')
@@ -369,12 +396,13 @@ async def crazy(ctx):
     new_prompt = f"{random_subject} {random_verb} {random_location}"
     new_negative = None
     new_style = random.choice(style_names)
-    new_height_width = random.choice(height_width_option)
+    new_size = random.choice(height_width_option)
     new_lora = random.choice(get_loras())
     model_name = None
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    includes_image = False
+    message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        file_list = generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -416,12 +444,12 @@ async def interpret(ctx,
         return
     new_negative = None
     new_style = None
-    new_height_width = "1344 768"
+    new_size = "1344 768"
     new_lora = None
-    new_model = model_name
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    includes_image = False
+    message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        file_list = generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -466,11 +494,12 @@ async def music(ctx,
     new_prompt = song + ", " + output_line + ", " + artist
     new_negative = None
     new_style = None
-    new_height_width = None
+    new_size = None
     new_lora = None
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    includes_image = False
+    message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        file_list = generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -546,11 +575,12 @@ async def redraw(ctx,
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
     print(f'New size: {new_size}')
+    includes_image = True
     message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
                            model_name)
     try:
-        file_list = generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora,
-                                     model_name)
+        file_list = generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora,
+                                     model_name, includes_image)
         await ctx.send(message)
         await ctx.send("New image:", files=file_list)
     except Exception as e:
