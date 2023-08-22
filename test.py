@@ -545,10 +545,11 @@ async def redraw(ctx,
 
         new_img = image.resize((new_width, new_height), Image.ANTIALIAS)
         print(f'New image size: {new_img.size}')
+        image.save(folder_path + '/input/temp_image.png')
         output = io.BytesIO()
         image.save(output, format='PNG')  # You can adjust the format if needed
         output.seek(0)
-        print(f'New image saved to input/temp_image.jpg')
+        print(f'New image saved to input/temp_image.png')
         await ctx.send(f"Image resized to {new_width}x{new_height}")
         new_size = f"{new_height} {new_width}"
         message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
