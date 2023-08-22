@@ -111,7 +111,7 @@ height_width_option = [
 
 def get_loras():
     for dirpath, dirnames, filenames in os.walk(folder_path):
-        subfolder_name = 'models/loras'
+        subfolder_name = '/models/loras'
         # Check if the target subfolder is in the current directory
         if subfolder_name in dirnames:
             subfolder_path = os.path.join(dirpath, subfolder_name)
@@ -134,7 +134,7 @@ async def height_width_autocomplete(ctx: discord.AutocompleteContext):
 
 
 async def models_autocomplete(ctx: discord.AutocompleteContext):
-    subfolder_name = 'models/checkpoints'
+    subfolder_name = '/models/checkpoints'
     # Walk through the directory tree rooted at root_folder
     for dirpath, dirnames, filenames in os.walk(folder_path):
         # Check if the target subfolder is in the current directory
@@ -522,7 +522,6 @@ async def redraw(ctx,
                  new_prompt: str,
                  new_negative: str = None,
                  new_style: str = None,
-                 new_size: str = None,
                  new_lora: str = None,
                  model_name: str = None
                  ):
@@ -550,7 +549,7 @@ async def redraw(ctx,
     await ctx.send(f"Original image:")
     await ctx.send(file=discord.File(output, filename="original_image.png"))
     print(f'New image saved to input/temp_image.png')
-    # convert width and height back to new_size string
+    # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
     print(f'New size: {new_size}')
     message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
@@ -563,34 +562,6 @@ async def redraw(ctx,
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "img2img issue.")
-
-
-@bot.slash_command(description='This is a test!')
-async def test(ctx, attached_image: discord.Attachment):
-    image_bytes = await attached_image.read()
-
-    # Process the image using PIL
-    image = Image.open(io.BytesIO(image_bytes))
-    width, height = image.size
-    aspect_ratio = width / height
-    print(f"Image aspect ratio: {aspect_ratio}")
-
-    closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
-
-    new_width = closest_option["width"]
-    new_height = closest_option["height"]
-
-    new_img = image.resize((new_width, new_height), Image.ANTIALIAS)
-    print(f'New image size: {new_img.size}')
-    output = io.BytesIO()
-    image.save(output, format='PNG')  # You can adjust the format if needed
-    output.seek(0)
-    print(f'New image saved to input/temp_image.jpg')
-    await ctx.send(f"Image resized to {new_width}x{new_height}")
-    new_size = f"{new_height} {new_width}"
-
-    await ctx.respond(f"Hey {ctx.author.mention}, here's your processed image:")
-    await ctx.send(file=discord.File(output, filename="processed_image.png"))
 
 
 bot.run(TOKEN)
