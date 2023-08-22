@@ -283,11 +283,11 @@ def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, ne
 
     if new_size is not None:
         height, width = new_size.split()
-        img2img_prompt["5"]["inputs"]["height"] = int(height)
-        img2img_prompt["5"]["inputs"]["width"] = int(width)
+        img2img_prompt["160"]["inputs"]["height"] = int(height)
+        img2img_prompt["160"]["inputs"]["width"] = int(width)
     else:
-        img2img_prompt["5"]["inputs"]["height"] = 1024
-        img2img_prompt["5"]["inputs"]["width"] = 1024
+        img2img_prompt["160"]["inputs"]["height"] = 1024
+        img2img_prompt["160"]["inputs"]["width"] = 1024
     print(new_size)
 
     seed = random.randint(0, 0xffffffffff)
