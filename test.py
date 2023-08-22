@@ -578,11 +578,22 @@ async def redraw(ctx,
         await ctx.send("No valid image attachment found.")
 
 
-@bot.slash_command()
 async def send_image(ctx, attached_image: discord.Attachment):
     image_bytes = await attached_image.read()
-    await ctx.respond(f"Hey {ctx.author.mention}, here's your image:")
-    await ctx.send(file=discord.File(io.BytesIO(image_bytes), filename="image.png"))
+
+    # Process the image using PIL
+    image = Image.open(io.BytesIO(image_bytes))
+    # Perform your image processing operations here
+    # For example, let's resize the image to half its size
+    resized_image = image.resize((image.width // 2, image.height // 2))
+
+    # Convert the processed image back to bytes
+    processed_image_bytes = io.BytesIO()
+    resized_image.save(processed_image_bytes, format="PNG")
+    processed_image_bytes.seek(0)
+
+    await ctx.respond(f"Hey {ctx.author.mention}, here's your processed image:")
+    await ctx.send(file=discord.File(processed_image_bytes, filename="processed_image.png"))
 
 
 bot.run(TOKEN)
