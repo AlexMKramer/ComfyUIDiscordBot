@@ -532,8 +532,24 @@ async def redraw(ctx,
     if attached_image:
         try:
             image_bytes = await attached_image.read()
+
+            # Process the image using PIL
             image = Image.open(io.BytesIO(image_bytes))
-            new_image_data, new_width, new_height = await resize_to_closest_option(image)
+            width, height = image.size
+            aspect_ratio = width / height
+            print(f"Image aspect ratio: {aspect_ratio}")
+
+            closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
+
+            new_width = closest_option["width"]
+            new_height = closest_option["height"]
+
+            new_img = image.resize((new_width, new_height), Image.ANTIALIAS)
+            print(f'New image size: {new_img.size}')
+            output = io.BytesIO()
+            image.save(output, format='PNG')  # You can adjust the format if needed
+            output.seek(0)
+            print(f'New image saved to input/temp_image.jpg')
             await ctx.send(f"Image resized to {new_width}x{new_height}")
             new_size = f"{new_height} {new_width}"
             message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
