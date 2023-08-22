@@ -551,7 +551,8 @@ async def redraw(ctx,
         output.seek(0)
         print(f'New image saved to input/temp_image.png')
         await ctx.send(f"Image resized to {new_width}x{new_height}")
-        new_size = f"{new_height} {new_width}"
+        # convert width and height back to new_size string
+        new_size = str(new_height) + " " + str(new_width)
         message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
                                model_name)
         try:
