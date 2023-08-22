@@ -384,7 +384,6 @@ async def draw(ctx,
                ):
     includes_image = False
     await ctx.defer()
-    await queue_position(ctx)
     await request_queue.put((ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
 
 
