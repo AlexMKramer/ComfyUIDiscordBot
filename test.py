@@ -557,7 +557,8 @@ async def redraw(ctx,
         file_list = generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora,
                                      model_name)
         await ctx.send(message)
-        await ctx.send("Original file:", file=(folder_path + '/input/temp_image.png'))
+        original_image = folder_path + '/input/temp_image.png'
+        await ctx.send("Original file:", file=original_image)
         await ctx.send("New File:", files=file_list)
     except Exception as e:
         print(e)
