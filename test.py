@@ -547,6 +547,7 @@ async def redraw(ctx,
     output = io.BytesIO()
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
+    await ctx.send(f"Original image:")
     await ctx.send(file=discord.File(output, filename="original_image.png"))
     print(f'New image saved to input/temp_image.png')
     # convert width and height back to new_size string
