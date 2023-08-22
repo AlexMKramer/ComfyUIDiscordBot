@@ -55,10 +55,10 @@ async def process_request(ctx, new_prompt, new_negative, new_style, new_size, ne
             file_list = generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
         else:
             file_list = generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
-        await ctx.respond(message, files=file_list)
+        await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
-        await ctx.respond(ctx.author.mention + " Something went wrong. Please try again.")
+        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.event
@@ -382,6 +382,7 @@ async def draw(ctx,
                model_name: str = None
                ):
     includes_image = False
+    ctx.respond(f"Generating image for {ctx.author.mention}")
     await request_queue.put((ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
 
 
