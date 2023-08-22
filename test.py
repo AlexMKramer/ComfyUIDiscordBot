@@ -51,11 +51,11 @@ async def process_requests():
 
 async def process_request(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
     try:
-        message = form_message(ctx.author.mention, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+        message = await form_message(ctx.author.mention, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
         if includes_image:
-            file_list = generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
+            file_list = await generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
         else:
-            file_list = generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
+            file_list = await generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -222,7 +222,7 @@ def get_lyrics(song, artist):
         return None
 
 
-def form_message(
+async def form_message(
         author_name: str,
         new_prompt: str,
         new_negative: str = None,
@@ -245,7 +245,7 @@ def form_message(
     return message
 
 
-def generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
+async def generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -295,7 +295,7 @@ def generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora,
         return file_list
 
 
-def generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
+async def generate_img2img(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
