@@ -533,7 +533,7 @@ async def redraw(ctx,
     # Process the image using PIL
     image = Image.open(io.BytesIO(image_bytes))
     width, height = image.size
-    aspect_ratio = width / height
+    aspect_ratio = height / width
     print(f"Image aspect ratio: {aspect_ratio}")
 
     closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
