@@ -578,6 +578,12 @@ async def redraw(ctx,
         await ctx.send("No valid image attachment found.")
 
 
+@bot.slash_command(description='Generate an image using an image and words!')
+@option(
+    "attached_image",
+    description="Attach an image",
+    required=True
+)
 async def send_image(ctx, attached_image: discord.Attachment):
     image_bytes = await attached_image.read()
 
