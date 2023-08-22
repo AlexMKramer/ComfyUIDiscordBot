@@ -547,6 +547,7 @@ async def redraw(ctx,
     output = io.BytesIO()
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
+    await ctx.send(file=discord.File(output, filename="original_image.png"))
     print(f'New image saved to input/temp_image.png')
     # convert width and height back to new_size string
     new_size = str(new_height) + " " + str(new_width)
@@ -557,9 +558,7 @@ async def redraw(ctx,
         file_list = generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora,
                                      model_name)
         await ctx.send(message)
-        original_image = folder_path + '/input/temp_image.png'
-        await ctx.send("Original file:", file=original_image)
-        await ctx.send("New File:", files=file_list)
+        await ctx.send("New image:", files=file_list)
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "img2img issue.")
