@@ -523,6 +523,7 @@ async def redraw(ctx,
                  new_prompt: str,
                  new_negative: str = None,
                  new_style: str = None,
+                 new_size: str = None,
                  new_lora: str = None,
                  model_name: str = None
                  ):
