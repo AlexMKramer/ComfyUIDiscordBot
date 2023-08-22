@@ -309,7 +309,7 @@ async def resize_to_closest_option(image_data):
     with Image.open(image_data) as img:
         width, height = img.size
         aspect_ratio = width / height
-        ctx.send(f"Image aspect ratio: {aspect_ratio}")
+        print(f"Image aspect ratio: {aspect_ratio}")
 
         closest_option = min(height_width_option, key=lambda option: abs(option["aspect_ratio"] - aspect_ratio))
 
@@ -317,9 +317,11 @@ async def resize_to_closest_option(image_data):
         new_height = closest_option["height"]
 
         new_img = img.resize((new_width, new_height), Image.ANTIALIAS)
+        print(f'New image size: {new_img.size}')
 
         new_image_data = await save_image_to_bytes(new_img, format="JPEG")
         new_img.save("input/temp_image.jpg")
+        print(f'New image saved to input/temp_image.jpg')
 
         return new_image_data, new_width, new_height
 
