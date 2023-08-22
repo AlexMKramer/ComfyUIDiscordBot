@@ -317,12 +317,12 @@ img2img_prompt_text = """
     "inputs": {
       "add_noise": "enable",
       "noise_seed": 860377617572938,
-      "steps": 20,
+      "steps": 30,
       "cfg": 7.5,
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
       "start_at_step": 0,
-      "end_at_step": 13,
+      "end_at_step": 18,
       "return_with_leftover_noise": "enable",
       "model": [
         "153",
@@ -347,13 +347,13 @@ img2img_prompt_text = """
     "inputs": {
       "add_noise": "disable",
       "noise_seed": 860377617572938,
-      "steps": 20,
+      "steps": 30,
       "cfg": 7.5,
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
-      "start_at_step": 13,
-      "end_at_step": 20,
-      "return_with_leftover_noise": "disable",
+      "start_at_step": 18,
+      "end_at_step": 24,
+      "return_with_leftover_noise": "enable",
       "model": [
         "4",
         0
