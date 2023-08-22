@@ -579,7 +579,7 @@ async def redraw(ctx,
 
 
 @bot.slash_command(description='This is a test!')
-async def send_image(ctx, attached_image: discord.Attachment):
+async def test(ctx, attached_image: discord.Attachment):
     image_bytes = await attached_image.read()
 
     # Process the image using PIL
