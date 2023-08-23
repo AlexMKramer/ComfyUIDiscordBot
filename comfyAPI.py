@@ -321,7 +321,7 @@ img2img_prompt_text = """
       "cfg": 7.5,
       "sampler_name": "dpmpp_2m",
       "scheduler": "karras",
-      "start_at_step": 10,
+      "start_at_step": 20,
       "end_at_step": 42,
       "return_with_leftover_noise": "enable",
       "model": [
