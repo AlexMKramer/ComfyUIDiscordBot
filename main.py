@@ -189,13 +189,16 @@ def get_lyrics(song, artist):
 def form_message(
         author_name: str,
         new_prompt: str,
+        percent_of_original: int = None,
         new_negative: str = None,
         new_style: str = None,
         new_size: str = None,
         new_lora: str = None,
         model_name: str = None
 ):
-    message = f"Generating images for {author_name}\n**Prompt:** {new_prompt}"
+    message = f"Generated images for {author_name}\n**Prompt:** {new_prompt}"
+    if percent_of_original is not None:
+        message = message + f"\n**Percent of Original:** {percent_of_original}%"
     if new_negative is not None:
         message = message + f"\n**Negative Prompt:** {new_negative}"
     if new_lora is not None:
