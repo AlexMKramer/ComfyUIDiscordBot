@@ -124,26 +124,24 @@ async def queue_position(ctx):
 
 async def process_requests():
     while True:
-        ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image = await request_queue.get()  # Dequeue the next request
+        server, author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image = await request_queue.get()  # Dequeue the next request
         async with processing_lock:  # Acquire the lock before processing
-            await process_request(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name,
+            await process_request(server, author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name,
                                   includes_image)
             request_queue.task_done()  # Mark the request as done
 
 
-async def process_request(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
+async def process_request(server, author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
     try:
-        message = await form_message(ctx.author.mention, new_prompt, new_negative, new_style, new_size, new_lora,
-                                     model_name)
         if includes_image:
-            file_list = None
+            message, file_list = None, None
         else:
-            file_list = await generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name,
+            message, file_list = await generate_image(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name,
                                              includes_image)
-        await ctx.send(message, files=file_list)
+        await bot.get_guild(server).text_channels[0].send(message, files=file_list)
     except Exception as e:
         print(e)
-        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+        await bot.get_guild(server).text_channels[0].send(author_name + " Something went wrong. Please try again.")
 
 
 @bot.event
@@ -174,7 +172,8 @@ async def form_message(
     return message
 
 
-async def generate_image(ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
+async def generate_image(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image):
+    message = await form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -221,7 +220,7 @@ async def generate_image(ctx, new_prompt, new_negative, new_style, new_size, new
         file_list = [discord.File(file_path) for file_path in file_paths]
         for file_path in file_paths:
             os.remove(file_path)
-        return file_list
+        return message, file_list
 
 
 @bot.slash_command(description='Generate images using only words!')
@@ -263,10 +262,12 @@ async def draw(ctx,
                model_name: str = None
                ):
     includes_image = False
+    author_name = ctx.author.mention
+    server = ctx.guild.id
     await ctx.defer()
     async with processing_lock:  # Acquire the lock
         await request_queue.put(
-            (ctx, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
+            (server, author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name, includes_image))
 
 
 @bot.slash_command(description='Go Crazy!')
