@@ -209,7 +209,7 @@ def form_message(
     return message
 
 
-def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
+def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -226,8 +226,8 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
     else:
         prompt["146"]["inputs"]["style"] = 'base'
 
-    if new_model is not None:
-        prompt["10"]["inputs"]["ckpt_name"] = new_model
+    if model_name is not None:
+        prompt["10"]["inputs"]["ckpt_name"] = model_name
     else:
         prompt["10"]["inputs"]["ckpt_name"] = base_model
 
@@ -259,7 +259,7 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
         return file_list
 
 
-def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, new_model):
+def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
@@ -279,8 +279,8 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
     else:
         img2img_prompt["146"]["inputs"]["style"] = 'base'
 
-    if new_model is not None:
-        img2img_prompt["10"]["inputs"]["ckpt_name"] = new_model
+    if model_name is not None:
+        img2img_prompt["10"]["inputs"]["ckpt_name"] = model_name
     else:
         img2img_prompt["10"]["inputs"]["ckpt_name"] = base_model
 
@@ -428,7 +428,6 @@ async def interpret(ctx,
     new_style = None
     new_height_width = "1344 768"
     new_lora = None
-    new_model = model_name
     message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
@@ -565,7 +564,7 @@ async def redraw(ctx,
     message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
                            model_name)
     try:
-        file_list = generate_img2img(new_prompt, percent_of_original, new_style, new_size, new_lora,
+        file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                                      model_name)
         await ctx.send(message)
         await ctx.send("New image:", files=file_list)
