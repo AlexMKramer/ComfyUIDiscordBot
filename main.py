@@ -361,7 +361,8 @@ async def draw(ctx,
                ):
     # Setup message
     author_name = ctx.author.mention
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+    percent_of_original = None
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     await ctx.respond(message)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
@@ -380,12 +381,13 @@ async def crazy(ctx):
     random_verb = random.choice(prompts_data["prompts"]["verbs"])
     random_location = random.choice(prompts_data["prompts"]["locations"])
     new_prompt = f"{random_subject} {random_verb} {random_location}"
+    percent_of_original = None
     new_negative = None
     new_style = random.choice(style_names)
     new_height_width = random.choice(height_width_option)
     new_lora = random.choice(get_loras())
     model_name = None
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
         await ctx.send(message, files=file_list)
@@ -431,7 +433,8 @@ async def interpret(ctx,
     new_style = None
     new_height_width = "1344 768"
     new_lora = None
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    percent_of_original = None
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
         await ctx.send(message, files=file_list)
@@ -480,7 +483,8 @@ async def music(ctx,
     new_style = None
     new_height_width = None
     new_lora = None
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+    percent_of_original = None
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_height_width, new_lora, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
         await ctx.send(message, files=file_list)
@@ -564,7 +568,7 @@ async def redraw(ctx,
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
     print(f'New size: {new_size}')
-    message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            model_name)
     try:
         file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
