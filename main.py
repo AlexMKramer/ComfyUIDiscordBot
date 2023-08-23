@@ -259,11 +259,14 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, new_
         return file_list
 
 
-def generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora, new_model):
+def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, new_model):
     if new_lora is not None:
         new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
-
+    if percent_of_original >= 85:
+        percent_of_original = 84
+    percent_of_original = percent_of_original / 2
+    img2img_prompt["22"]["inputs"]["start_at_step"] = int(percent_of_original)
     if new_negative is not None:
         img2img_prompt["146"]["inputs"]["text_negative"] = new_negative
     else:
@@ -496,6 +499,11 @@ async def music(ctx,
     required=True
 )
 @option(
+    "percent_of_original",
+    description="How close to the original image should the new image be?",
+    required=True
+)
+@option(
     "new_negative",
     description="Enter things you don't want to see in the image",
     required=False
@@ -521,6 +529,7 @@ async def music(ctx,
 async def redraw(ctx,
                  attached_image: discord.Attachment,
                  new_prompt: str,
+                 percent_of_original: int,
                  new_negative: str = None,
                  new_style: str = None,
                  new_lora: str = None,
@@ -556,7 +565,7 @@ async def redraw(ctx,
     message = form_message(author_name, new_prompt, new_negative, new_style, new_size, new_lora,
                            model_name)
     try:
-        file_list = generate_img2img(new_prompt, new_negative, new_style, new_size, new_lora,
+        file_list = generate_img2img(new_prompt, percent_of_original, new_style, new_size, new_lora,
                                      model_name)
         await ctx.send(message)
         await ctx.send("New image:", files=file_list)
