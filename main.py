@@ -419,12 +419,12 @@ async def interpret(ctx,
                     model_name: str = None
                     ):
     author_name = ctx.author.mention
-    await ctx.respond(f"Getting lyrics for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
+    await ctx.respond(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.send("Interpreting lyrics...")
+    await ctx.append("Interpreting lyrics...")
     new_prompt = gpt_integration(fixed_lyrics)
     if new_prompt is None:
         await ctx.send("Something went wrong. Please try again.")
@@ -467,12 +467,12 @@ async def music(ctx,
                 ):
     author_name = ctx.author.mention
     await ctx.respond(
-        f"Generating images for {ctx.author.mention}\n**Song:** {song}\n**Artist:** {artist}")
+        f"Generating images:\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.send("Got lyrics...")
+    await ctx.append("Got lyrics...")
     lines = fixed_lyrics.split('\n')
     lines = [line for line in lines if line.strip()]
     lines = [line for line in lines if '[' not in line and ']' not in line]
@@ -542,7 +542,7 @@ async def redraw(ctx,
                  model_name: str = None
                  ):
     author_name = ctx.author.mention
-    await ctx.respond(f"Generating image for {ctx.author.mention}\n**Prompt:** {new_prompt}")
+    await ctx.respond(f"Generating image:\n**Prompt:** {new_prompt}")
     image_bytes = await attached_image.read()
 
     # Process the image using PIL
@@ -563,7 +563,7 @@ async def redraw(ctx,
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
     await ctx.send(f"Original image:")
-    await ctx.send(file=discord.File(output, filename="original_image.png"))
+    await ctx.append(file=discord.File(output, filename="original_image.png"))
     print(f'New image saved to input/temp_image.png')
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
@@ -574,7 +574,7 @@ async def redraw(ctx,
         file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                                      model_name)
         await ctx.send(message)
-        await ctx.send("New image:", files=file_list)
+        await ctx.append("New image:", files=file_list)
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "img2img issue.")
