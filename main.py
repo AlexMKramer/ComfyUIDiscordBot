@@ -1,4 +1,5 @@
 import json
+import asyncio
 
 import PIL.Image
 import websocket
@@ -39,6 +40,12 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
+
+
+@bot.event
+async def on_disconnect():
+    print(f'Disconnected from {bot.user.name}')
+    await bot.connect(reconnect=True)
 
 
 def gpt_integration(text):
@@ -332,14 +339,6 @@ def generate_upscale():
         for file_path in file_paths:
             os.remove(file_path)
         return file_list
-
-
-
-@bot.event
-async def on_connect():
-    if bot.auto_sync_commands:
-        await bot.sync_commands()
-    print(f'Logged in as {bot.user.name}')
 
 
 @bot.slash_command(description='Generate images using only words!')
