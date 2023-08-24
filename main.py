@@ -384,7 +384,7 @@ async def draw(ctx,
     author_name = ctx.author.mention
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
-    await ctx.respond(message)
+    await ctx.respond("Generating images...")
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
         await ctx.send(message, files=file_list)
