@@ -1,4 +1,6 @@
 import json
+
+import PIL.Image
 import websocket
 import random
 import discord
@@ -615,6 +617,7 @@ async def upscale(ctx, attached_image: discord.Attachment):
     image.save(folder_path + '/input/temp_upscale.png')
     message = "Upscaled image for " + author_name + ":"
     try:
+        PIL.Image.MAX_IMAGE_PIXELS = None
         file_list = generate_upscale()
         await ctx.send(message, files=file_list)
     except Exception as e:
