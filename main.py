@@ -619,7 +619,7 @@ async def upscale(ctx, attached_image: discord.Attachment):
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
-        await ctx.send(ctx.author.mention + "img2img issue.")
+        await ctx.send(ctx.author.mention + "upscale issue.")
 
 
 bot.run(TOKEN)
