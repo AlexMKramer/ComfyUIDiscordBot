@@ -424,7 +424,7 @@ async def interpret(ctx,
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.Message.append("Interpreting lyrics...")
+    await ctx.send("Interpreting lyrics...")
     new_prompt = gpt_integration(fixed_lyrics)
     if new_prompt is None:
         await ctx.send("Something went wrong. Please try again.")
@@ -472,7 +472,7 @@ async def music(ctx,
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.append("Got lyrics...")
+    await ctx.send("Got lyrics...")
     lines = fixed_lyrics.split('\n')
     lines = [line for line in lines if line.strip()]
     lines = [line for line in lines if '[' not in line and ']' not in line]
@@ -563,7 +563,7 @@ async def redraw(ctx,
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
     await ctx.send(f"Original image:")
-    await ctx.append(file=discord.File(output, filename="original_image.png"))
+    await ctx.send(file=discord.File(output, filename="original_image.png"))
     print(f'New image saved to input/temp_image.png')
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
@@ -574,7 +574,7 @@ async def redraw(ctx,
         file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                                      model_name)
         await ctx.send(message)
-        await ctx.append("New image:", files=file_list)
+        await ctx.send("New image:", files=file_list)
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "img2img issue.")
