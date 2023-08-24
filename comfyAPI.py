@@ -542,6 +542,49 @@ img2img_prompt_text = """
 }
 """
 
+upscale_prompt_text = """
+{
+  "1": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader"
+  },
+  "2": {
+    "inputs": {
+      "upscale_model": [
+        "1",
+        0
+      ],
+      "image": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel"
+  },
+  "3": {
+    "inputs": {
+      "image": "temp_upscale.png",
+      "choose file to upload": "image"
+    },
+    "class_type": "LoadImage"
+  },
+  "4": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "2",
+        0
+      ]
+    },
+    "class_type": "SaveImage"
+  }
+}
+"""
+
 prompt = json.loads(prompt_text)
 
 img2img_prompt = json.loads(img2img_prompt_text)
+
+upscale_prompt = json.loads(upscale_prompt_text)

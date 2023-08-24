@@ -25,6 +25,7 @@ genius = Genius(genius_token)
 openai.api_key = os.getenv('OPENAI_API_KEY')
 prompt = comfyAPI.prompt
 img2img_prompt = comfyAPI.img2img_prompt
+upscale_prompt = comfyAPI.upscale_prompt
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
@@ -314,6 +315,24 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
         return file_list
 
 
+def generate_upscale():
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    images = comfyAPI.get_images(ws, upscale_prompt)
+    file_paths = []
+    for node_id in images:
+        for image_data in images[node_id]:
+            image = Image.open(io.BytesIO(image_data))
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                image.save(temp_file.name)
+                file_paths.append(temp_file.name)
+        file_list = [discord.File(file_path) for file_path in file_paths]
+        for file_path in file_paths:
+            os.remove(file_path)
+        return file_list
+
+
+
 @bot.event
 async def on_connect():
     if bot.auto_sync_commands:
@@ -334,7 +353,7 @@ async def on_connect():
     required=False
 )
 @option(
-    "new_height_width",
+    "new_size",
     description="Choose the height and width",
     autocomplete=height_width_autocomplete,
     required=False
@@ -384,12 +403,12 @@ async def crazy(ctx):
     percent_of_original = None
     new_negative = None
     new_style = random.choice(style_names)
-    new_height_width = random.choice(height_width_option)
+    new_size = random.choice(height_width_option)
     new_lora = random.choice(get_loras())
     model_name = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_height_width, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -431,12 +450,12 @@ async def interpret(ctx,
         return
     new_negative = None
     new_style = None
-    new_height_width = "1344 768"
+    new_size = "1344 768"
     new_lora = None
     percent_of_original = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_height_width, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -481,12 +500,12 @@ async def music(ctx,
     new_prompt = song + ", " + output_line + ", " + artist
     new_negative = None
     new_style = None
-    new_height_width = None
+    new_size = None
     new_lora = None
     percent_of_original = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_height_width, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_height_width, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -575,6 +594,29 @@ async def redraw(ctx,
                                      model_name)
         await ctx.send(message)
         await ctx.send("New image:", files=file_list)
+    except Exception as e:
+        print(e)
+        await ctx.send(ctx.author.mention + "img2img issue.")
+
+
+@bot.slash_command(description='Upscale an image!')
+@option(
+    "attached_image",
+    description="Attach an image",
+    required=True
+)
+async def upscale(ctx, attached_image: discord.Attachment):
+    author_name = ctx.author.mention
+    await ctx.respond(f"Upscaling image...")
+    image_bytes = await attached_image.read()
+
+    # Convert image to png
+    image = Image.open(io.BytesIO(image_bytes))
+    image.save(folder_path + '/input/temp_upscale.png')
+    message = "Upscaled image for " + author_name + ":"
+    try:
+        file_list = generate_upscale()
+        await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "img2img issue.")
