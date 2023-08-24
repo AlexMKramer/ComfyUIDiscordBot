@@ -424,7 +424,7 @@ async def interpret(ctx,
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.append("Interpreting lyrics...")
+    await ctx.Message.append("Interpreting lyrics...")
     new_prompt = gpt_integration(fixed_lyrics)
     if new_prompt is None:
         await ctx.send("Something went wrong. Please try again.")
