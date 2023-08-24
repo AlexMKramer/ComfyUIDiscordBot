@@ -601,7 +601,7 @@ async def redraw(ctx,
         await ctx.send(ctx.author.mention + "img2img issue.")
 
 
-@bot.slash_command(description='Upscale an image!')
+"""@bot.slash_command(description='Upscale an image!')
 @option(
     "attached_image",
     description="Attach an image",
@@ -622,7 +622,7 @@ async def upscale(ctx, attached_image: discord.Attachment):
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
-        await ctx.send(ctx.author.mention + "upscale issue.")
+        await ctx.send(ctx.author.mention + "upscale issue.")"""
 
 
 bot.run(TOKEN)
