@@ -404,7 +404,8 @@ async def crazy(ctx):
     percent_of_original = None
     new_negative = None
     new_style = random.choice(style_names)
-    new_size = random.choice(height_width_option)
+    random_size = random.choice(height_width_option)
+    new_size = str(random_size["height"]) + " " + str(random_size["width"])
     new_lora = random.choice(get_loras())
     model_name = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
