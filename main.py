@@ -429,7 +429,7 @@ async def draw(ctx,
 
 @bot.slash_command(description='Go Crazy!')
 async def crazy(ctx):
-    await ctx.respond("Going crazy for " + ctx.author.mention)
+    await ctx.respond(random_message() + "\nGoing crazy for " + ctx.author.mention)
     author_name = ctx.author.mention
 
     random_subject = random.choice(prompts_data["prompts"]["subjects"])
@@ -481,7 +481,7 @@ async def interpret(ctx,
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.send("Interpreting lyrics...")
+    await ctx.send(random_message() + "\nInterpreting lyrics...")
     new_prompt = gpt_integration(fixed_lyrics)
     if new_prompt is None:
         await ctx.send("Something went wrong. Please try again.")
@@ -530,7 +530,7 @@ async def music(ctx,
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.send("Got lyrics...")
+    await ctx.send(random_message() + "\nGot lyrics...")
     lines = fixed_lyrics.split('\n')
     lines = [line for line in lines if line.strip()]
     lines = [line for line in lines if '[' not in line and ']' not in line]
@@ -607,7 +607,7 @@ async def redraw(ctx,
                  model_name: str = None
                  ):
     author_name = ctx.author.mention
-    await ctx.respond(f"Generating image:\n**Prompt:** {new_prompt}")
+    await ctx.respond(random_message() + f"\nGenerating image:\n**Prompt:** {new_prompt}")
     image_bytes = await attached_image.read()
 
     # Process the image using PIL
