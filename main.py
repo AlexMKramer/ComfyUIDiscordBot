@@ -143,6 +143,19 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
     return [lora for lora in loras if lora.startswith(ctx.value.lower())]
 
 
+async def fix_lora_strength(lora_strength):
+    if lora_strength is not None:
+        if 10 < lora_strength < 100:
+            lora_strength = lora_strength / 100
+        if 0 < lora_strength < 10:
+            lora_strength = lora_strength / 10
+        else:
+            lora_strength = 0.5
+        return lora_strength
+    else:
+        return 0.5
+
+
 async def height_width_autocomplete(ctx: discord.AutocompleteContext):
     return [f"{hw['height']} {hw['width']}" for hw in height_width_option]
 
@@ -222,9 +235,10 @@ def form_message(
     return message
 
 
-def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name):
+def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name):
     if new_lora is not None:
-        new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
+        lora_strength = fix_lora_strength(lora_strength)
+        new_prompt = " <lora:" + new_lora + ":" + str(lora_strength) + ">, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
 
     if new_negative is not None:
@@ -272,9 +286,10 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, mode
         return file_list
 
 
-def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name):
+def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name):
     if new_lora is not None:
-        new_prompt = " <lora:" + new_lora + ":0.5>, " + new_prompt
+        lora_strength = fix_lora_strength(lora_strength)
+        new_prompt = " <lora:" + new_lora + ":" + str(lora_strength) + ">, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
     if percent_of_original >= 85:
         percent_of_original = 84
@@ -366,6 +381,11 @@ def generate_upscale():
     required=False
 )
 @option(
+    "lora_strength",
+    description="Strength 1-10",
+    required=False
+)
+@option(
     "model_name",
     description="Enter the model name",
     autocomplete=models_autocomplete,
@@ -377,6 +397,7 @@ async def draw(ctx,
                new_style: str = None,
                new_size: str = None,
                new_lora: str = None,
+               lora_strength: int = None,
                model_name: str = None
                ):
     # Setup message
@@ -385,7 +406,7 @@ async def draw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     await ctx.respond("Generating images...")
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -407,10 +428,11 @@ async def crazy(ctx):
     random_size = random.choice(height_width_option)
     new_size = str(random_size["height"]) + " " + str(random_size["width"])
     new_lora = None
+    lora_strength = None
     model_name = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -454,10 +476,11 @@ async def interpret(ctx,
     new_style = None
     new_size = "1344 768"
     new_lora = None
+    lora_strength = None
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -504,10 +527,11 @@ async def music(ctx,
     new_style = None
     new_size = None
     new_lora = None
+    lora_strength = None
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
     try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, model_name)
+        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
     except Exception as e:
         print(e)
@@ -548,6 +572,11 @@ async def music(ctx,
     required=False
 )
 @option(
+    "lora_strength",
+    description="Strength 1-10",
+    required=False
+)
+@option(
     "model_name",
     description="Enter the model name",
     autocomplete=models_autocomplete,
@@ -560,6 +589,7 @@ async def redraw(ctx,
                  new_negative: str = None,
                  new_style: str = None,
                  new_lora: str = None,
+                 lora_strength: int = None,
                  model_name: str = None
                  ):
     author_name = ctx.author.mention
@@ -593,7 +623,7 @@ async def redraw(ctx,
                            model_name)
     try:
         file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
-                                     model_name)
+                                     lora_strength, model_name)
         await ctx.send(message)
         await ctx.send("New image:", files=file_list)
     except Exception as e:
