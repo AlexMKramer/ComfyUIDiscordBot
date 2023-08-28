@@ -1,6 +1,6 @@
 import json
 import asyncio
-
+import csv
 import PIL.Image
 import websocket
 import random
@@ -33,6 +33,17 @@ intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
 magic_instance = magic.Magic()
+wait_message = []
+
+
+def random_message():
+    with open('resources/messages.csv', encoding='UTF-8') as csv_file:
+        message_data = list(csv.reader(csv_file, delimiter='|'))
+        for row in message_data:
+            wait_message.append(row[0])
+    wait_message_count = len(wait_message) - 1
+    text = wait_message[random.randint(0, wait_message_count)]
+    return text
 
 
 @bot.event
@@ -407,7 +418,7 @@ async def draw(ctx,
     author_name = ctx.author.mention
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
-    await ctx.respond("Generating images...")
+    await ctx.respond(random_message() + "\nGenerating images...")
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
