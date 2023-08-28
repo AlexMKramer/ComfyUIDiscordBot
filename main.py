@@ -143,7 +143,7 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
     return [lora for lora in loras if lora.startswith(ctx.value.lower())]
 
 
-async def fix_lora_strength(lora_strength):
+def fix_lora_strength(lora_strength):
     if lora_strength is not None:
         if 10 < lora_strength < 100:
             lora_strength = lora_strength / 100
