@@ -217,6 +217,7 @@ def form_message(
         new_style: str = None,
         new_size: str = None,
         new_lora: str = None,
+        lora_strength: int = None,
         model_name: str = None
 ):
     message = f"Generated images for {author_name}\n**Prompt:** {new_prompt}"
@@ -226,6 +227,8 @@ def form_message(
         message = message + f"\n**Negative Prompt:** {new_negative}"
     if new_lora is not None:
         message = message + f"\n**Lora:** {new_lora}"
+        if lora_strength is not None:
+            message = message + f"\n**Lora Strength:** {lora_strength}"
     if new_style is not None:
         message = message + f"\n**Style:** {new_style}"
     if new_size is not None:
@@ -403,7 +406,7 @@ async def draw(ctx,
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
     await ctx.respond("Generating images...")
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
@@ -430,7 +433,7 @@ async def crazy(ctx):
     new_lora = None
     lora_strength = None
     model_name = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
@@ -478,7 +481,7 @@ async def interpret(ctx,
     new_lora = None
     lora_strength = None
     percent_of_original = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
@@ -529,7 +532,7 @@ async def music(ctx,
     new_lora = None
     lora_strength = None
     percent_of_original = None
-    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, model_name)
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
     try:
         file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name)
         await ctx.send(message, files=file_list)
@@ -620,7 +623,7 @@ async def redraw(ctx,
     new_size = str(new_height) + " " + str(new_width)
     print(f'New size: {new_size}')
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
-                           model_name)
+                           lora_strength, model_name)
     try:
         file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                                      lora_strength, model_name)
