@@ -155,19 +155,6 @@ async def loras_autocomplete(ctx: discord.AutocompleteContext):
     return [lora for lora in loras if lora.startswith(ctx.value.lower())]
 
 
-def fix_lora_strength(lora_strength):
-    if lora_strength is not None:
-        if 10 < lora_strength < 100:
-            lora_strength = lora_strength / 100
-        if 0 < lora_strength < 10:
-            lora_strength = lora_strength / 10
-        else:
-            lora_strength = 0.5
-        return lora_strength
-    else:
-        return 0.5
-
-
 async def height_width_autocomplete(ctx: discord.AutocompleteContext):
     return [f"{hw['height']} {hw['width']}" for hw in height_width_option]
 
