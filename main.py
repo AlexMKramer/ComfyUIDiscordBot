@@ -252,7 +252,9 @@ def form_message(
 
 def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, model_name):
     if new_lora is not None:
-        lora_strength = fix_lora_strength(lora_strength)
+        if lora_strength is None:
+            lora_strength = 0.5
+        else: lora_strength = lora_strength / 10
         new_prompt = " <lora:" + new_lora + ":" + str(lora_strength) + ">, " + new_prompt
     prompt["146"]["inputs"]["text_positive"] = new_prompt
 
@@ -303,7 +305,9 @@ def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora
 
 def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, model_name):
     if new_lora is not None:
-        lora_strength = fix_lora_strength(lora_strength)
+        if lora_strength is None:
+            lora_strength = 0.5
+        else: lora_strength = lora_strength / 10
         new_prompt = " <lora:" + new_lora + ":" + str(lora_strength) + ">, " + new_prompt
     img2img_prompt["146"]["inputs"]["text_positive"] = new_prompt
     if percent_of_original >= 85:
@@ -589,6 +593,8 @@ async def music(ctx,
 @option(
     "lora_strength",
     description="Strength 1-10",
+    min_value=1,
+    max_value=10,
     required=False
 )
 @option(
