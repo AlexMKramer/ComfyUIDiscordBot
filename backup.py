@@ -44,14 +44,14 @@ height_width_option = [
 ]
 
 #  Style Json parse
-with open("sdxl_styles.json", 'r') as sdxl_styles:
+with open("resources/sdxl_styles.json", 'r') as sdxl_styles:
     data = json.load(sdxl_styles)
 
 # Parse Style names from sd_xl_styles.json
 style_names = [entry["name"] for entry in data]
 
 #  Prompts Json parse
-with open("prompts.json", 'r') as sdxl_prompts:
+with open("resources/prompts.json", 'r') as sdxl_prompts:
     prompts_data = json.load(sdxl_prompts)
 
 example_subjects = prompts_data["prompts"]["subjects"]

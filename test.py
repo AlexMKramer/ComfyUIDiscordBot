@@ -39,14 +39,14 @@ async def on_connect():
     print(f'Logged in as {bot.user.name}')
 
 
-with open('prompts.json', 'r') as sdxl_prompts:
+with open('resources/prompts.json', 'r') as sdxl_prompts:
     prompts_data = json.load(sdxl_prompts)
 
 example_subjects = prompts_data["prompts"]["subjects"]
 example_verbs = prompts_data["prompts"]["verbs"]
 example_locations = prompts_data["prompts"]["locations"]
 
-with open("sdxl_styles.json", 'r') as sdxl_styles:
+with open("resources/sdxl_styles.json", 'r') as sdxl_styles:
     data = json.load(sdxl_styles)
 # Parse Style names from sd_xl_styles.json
 style_names = [entry["name"] for entry in data]
