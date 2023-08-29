@@ -402,6 +402,8 @@ def generate_upscale():
 @option(
     "lora_strength",
     description="Strength 1-10",
+    min_value=1,
+    max_value=10,
     required=False
 )
 @option(
