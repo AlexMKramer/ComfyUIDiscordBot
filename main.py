@@ -23,15 +23,16 @@ TOKEN = os.getenv('TOKEN')
 folder_path = os.getenv('FOLDER_PATH')
 base_model = 'sd_xl_base_1.0_0.9vae.safetensors'
 refiner_model = 'sd_xl_refiner_1.0_0.9vae.safetensors'
-genius_token = os.getenv('GENIUS_TOKEN')
-genius = Genius(genius_token)
+genius = Genius(os.getenv('GENIUS_TOKEN'))
 openai.api_key = os.getenv('OPENAI_API_KEY')
 prompt = comfyAPI.prompt
 img2img_prompt = comfyAPI.img2img_prompt
 upscale_prompt = comfyAPI.upscale_prompt
+
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
+
 magic_instance = magic.Magic()
 wait_message = []
 
