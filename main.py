@@ -470,12 +470,12 @@ async def interpret(ctx,
                     model_name: str = None
                     ):
     author_name = ctx.author.mention
-    await ctx.respond(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+    await ctx.respond(random_message() + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.send(random_message() + "\nInterpreting lyrics...")
+    await ctx.send("Interpreting lyrics...")
     new_prompt = gpt_integration(fixed_lyrics)
     if new_prompt is None:
         await ctx.send("Something went wrong. Please try again.")
