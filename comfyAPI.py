@@ -11,7 +11,7 @@ client_id = str(uuid.uuid4())
 def queue_prompt(prompt):
     p = {"prompt": prompt, "client_id": client_id}
     data = json.dumps(p).encode('utf-8')
-    req =  urllib.request.Request("http://{}/prompt".format(server_address), data=data)
+    req = urllib.request.Request("http://{}/prompt".format(server_address), data=data)
     return json.loads(urllib.request.urlopen(req).read())
 
 
