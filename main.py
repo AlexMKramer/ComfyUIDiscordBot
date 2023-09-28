@@ -119,12 +119,7 @@ style_names = [entry["name"] for entry in data]
 
 
 async def style_autocomplete(ctx: discord.AutocompleteContext):
-    ## return [name for name in style_names if name.startswith(ctx.value.lower())]
-    print(f"Input value: {ctx.value}")
-    print(f"Style names: {style_names}")
-    results = [name for name in style_names if name.startswith(ctx.value.lower())]
-    print(f"Matching results: {results}")
-    return results
+    return [name for name in style_names if name.startswith(ctx.value.lower())]
 
 
 with open("resources/artists.json", 'r') as sdxl_artists:
@@ -134,11 +129,7 @@ artist_names = [entry["name"] for entry in artists]
 
 
 async def artist_autocomplete(ctx: discord.AutocompleteContext):
-    print(f"Input value: {ctx.value}")
-    print(f"Artist names: {artist_names}")
-    results = [name for name in artist_names if name.startswith(ctx.value.capitalize())]
-    print(f"Matching results: {results}")
-    return results
+    return [name for name in artist_names if name.startswith(ctx.value.capitalize())]
 
 
 height_width_option = [
