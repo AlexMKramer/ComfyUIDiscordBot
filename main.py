@@ -123,9 +123,9 @@ async def style_autocomplete(ctx: discord.AutocompleteContext):
 
 
 with open("resources/artists.json", 'r') as sdxl_artists:
-    data = json.load(sdxl_artists)
+    artists = json.load(sdxl_artists)
 # Parse Style names from sd_xl_styles.json
-artist_names = [entry["name"] for entry in data]
+artist_names = [entry["name"] for entry in artists]
 
 
 async def artist_autocomplete(ctx: discord.AutocompleteContext):
