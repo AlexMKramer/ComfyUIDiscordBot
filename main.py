@@ -122,7 +122,7 @@ async def style_autocomplete(ctx: discord.AutocompleteContext):
     return [name for name in style_names if name.startswith(ctx.value.lower())]
 
 
-with open("resources/artist.json", 'r') as sdxl_artists:
+with open("resources/artists.json", 'r') as sdxl_artists:
     data = json.load(sdxl_artists)
 # Parse Style names from sd_xl_styles.json
 artist_names = [entry["name"] for entry in data]
