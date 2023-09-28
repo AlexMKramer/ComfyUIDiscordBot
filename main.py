@@ -114,7 +114,7 @@ example_locations = prompts_data["prompts"]["locations"]
 
 with open("resources/sdxl_styles.json", 'r') as sdxl_styles:
     data = json.load(sdxl_styles)
-# Parse Style names from sd_xl_styles.json
+# Parse Style names from sdxl_styles.json
 style_names = [entry["name"] for entry in data]
 
 
@@ -124,12 +124,17 @@ async def style_autocomplete(ctx: discord.AutocompleteContext):
 
 with open("resources/artists.json", 'r') as sdxl_artists:
     artists = json.load(sdxl_artists)
-# Parse Style names from sd_xl_styles.json
+# Parse Style names from artists.json
 artist_names = [entry["name"] for entry in artists]
 
 
 async def artist_autocomplete(ctx: discord.AutocompleteContext):
-    return [name for name in artist_names if name.startswith(ctx.value.lower())]
+    print(f"Input value: {ctx.value}")
+    print(f"Artist names: {artist_names}")
+    results = [name for name in artist_names if name.startswith(ctx.value.lower())]
+    print(f"Matching results: {results}")
+    return results
+
 
 
 height_width_option = [
