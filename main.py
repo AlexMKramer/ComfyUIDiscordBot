@@ -136,7 +136,7 @@ artist_names = [entry["name"] for entry in artists]
 async def artist_autocomplete(ctx: discord.AutocompleteContext):
     print(f"Input value: {ctx.value}")
     print(f"Artist names: {artist_names}")
-    results = [name for name in artist_names if name.startswith(ctx.value.lower())]
+    results = [name for name in artist_names if name.startswith(ctx.value.capitalize())]
     print(f"Matching results: {results}")
     return results
 
