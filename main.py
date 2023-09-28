@@ -129,7 +129,7 @@ artist_names = [entry["name"] for entry in artists]
 
 
 async def artist_autocomplete(ctx: discord.AutocompleteContext):
-    return [name for name in artist_names if name.startswith(ctx.value.capitalize())]
+    return [name for name in artist_names if name.startswith(ctx.value.title())]
 
 
 height_width_option = [
