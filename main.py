@@ -59,7 +59,7 @@ async def process_commands():
     while True:
         if command_queue:
             command_ctx = command_queue.pop(0)
-            command_ctx.send("Hello " + command_ctx.author.mention)
+            command_ctx.respond("Hello " + command_ctx.author.mention)
             await bot.process_commands(command_ctx)
 
 
