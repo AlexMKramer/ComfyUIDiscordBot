@@ -52,7 +52,7 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
-    bot.loop.create_task(process_commands())
+'''    bot.loop.create_task(process_commands())'''
 
 
 @bot.event
