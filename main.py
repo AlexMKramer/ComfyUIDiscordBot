@@ -47,7 +47,7 @@ def random_message():
     return text
 
 
-command_queue = []
+'''command_queue = []
 
 
 @bot.slash_command()
@@ -66,7 +66,7 @@ async def process_commands():
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user.name}')
-    bot.loop.create_task(process_commands())
+    bot.loop.create_task(process_commands())'''
 
 
 @bot.event
