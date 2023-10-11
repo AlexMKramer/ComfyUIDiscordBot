@@ -93,35 +93,6 @@ async def add_command(ctx, *, command_name):
         await ctx.send(f"Command {command_name} not found")'''
 
 
-async def process_commands():
-    while True:
-        if len(command_queue) > 0:
-            message, command = command_queue.pop(0)
-            await bot.process_commands(command)
-            await message.add_reaction('\u2705')  # Add a checkmark reaction when the command is done
-        await asyncio.sleep(1)
-
-
-@bot.command()
-async def command1(ctx):
-    await ctx.send("Command 1 processed")
-
-
-@bot.command()
-async def command2(ctx):
-    await ctx.send("Command 2 processed")
-
-
-@bot.slash_command(description='Add a command to the queue')
-async def add_command(ctx, *, command_name):
-    command = bot.get_command(command_name)
-    if command:
-        command_queue.append((ctx.message, command))
-        await ctx.send(f"Added {command_name} to the queue")
-    else:
-        await ctx.send(f"Command {command_name} not found")
-
-
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
     gpt_message = gpt_initial_prompt + [gpt_new_prompt]
