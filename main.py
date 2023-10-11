@@ -74,13 +74,13 @@ async def process_commands():
 
 @bot.command()
 async def command1(ctx):
-    ctx.respond("Hello " + ctx.author.mention)
+    ctx.send("This is command 1")
     await ctx.send("Command 1 processed")
 
 
 @bot.command()
 async def command2(ctx):
-    ctx.respond("Hello " + ctx.author.mention)
+    ctx.send("This is command 2")
     await ctx.send("Command 2 processed")
 
 
@@ -88,7 +88,7 @@ async def command2(ctx):
 async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
     if command:
-        command_queue.append(ctx)
+        command_queue.append(ctx.message)
         await ctx.send(f"Added {command_name} to the queue")
     else:
         await ctx.send(f"Command {command_name} not found")
