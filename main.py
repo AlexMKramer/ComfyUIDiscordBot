@@ -70,7 +70,7 @@ async def command2(ctx):
     await ctx.send("Command 2 processed")
 
 
-@bot.command()
+@bot.slash_command()
 async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
     if command:
