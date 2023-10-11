@@ -92,19 +92,6 @@ async def add_command(ctx, *, command_name):
         await ctx.send(f"Command {command_name} not found")
 
 
-@bot.slash_command(description='Add a command to the queue')
-async def add_command(ctx, *, command_name):
-    # Get the command object based on the command name
-    command = bot.get_command(command_name)
-    if command:
-        # Instead of adding the command object, add the message object
-        command_queue.append(ctx.message)
-        await ctx.send(f"Added {command_name} to the queue")
-    else:
-        await ctx.send(f"Command {command_name} not found")
-
-
-
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
     gpt_message = gpt_initial_prompt + [gpt_new_prompt]
