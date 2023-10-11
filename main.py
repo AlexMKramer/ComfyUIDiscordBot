@@ -47,26 +47,37 @@ def random_message():
     return text
 
 
-'''command_queue = []
-
-
-@bot.slash_command()
-async def command(ctx):
-    command_queue.append(ctx)
+command_queue = []
 
 
 async def process_commands():
     while True:
-        if command_queue:
-            command_ctx = command_queue.pop(0)
-            command_ctx.respond("Hello " + command_ctx.author.mention)
-            await bot.process_commands(command_ctx)
+        if len(command_queue) > 0:
+            command = command_queue.pop(0)
+            await bot.process_commands(command)
+        await asyncio.sleep(1)
 
 
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name}')
-    bot.loop.create_task(process_commands())'''
+@bot.command()
+async def command1(ctx):
+    ctx.respond("Hello " + ctx.author.mention)
+    await ctx.send("Command 1 processed")
+
+
+@bot.command()
+async def command2(ctx):
+    ctx.respond("Hello " + ctx.author.mention)
+    await ctx.send("Command 2 processed")
+
+
+@bot.command()
+async def add_command(ctx, *, command_name):
+    command = bot.get_command(command_name)
+    if command:
+        command_queue.append(ctx.message)
+        await ctx.send(f"Added {command_name} to the queue")
+    else:
+        await ctx.send(f"Command {command_name} not found")
 
 
 @bot.event
@@ -74,6 +85,7 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
+    bot.loop.create_task(process_commands())
 
 
 @bot.event
