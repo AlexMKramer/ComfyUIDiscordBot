@@ -47,6 +47,20 @@ def random_message():
     return text
 
 
+@bot.event
+async def on_connect():
+    if bot.auto_sync_commands:
+        await bot.sync_commands()
+    print(f'Logged in as {bot.user.name}')
+    bot.loop.create_task(process_commands())
+
+
+@bot.event
+async def on_disconnect():
+    print(f'Disconnected from {bot.user.name}')
+    await bot.connect(reconnect=True)
+
+
 command_queue = []
 
 
@@ -70,7 +84,7 @@ async def command2(ctx):
     await ctx.send("Command 2 processed")
 
 
-@bot.slash_command()
+@bot.slash_command(description='Add a command to the queue')
 async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
     if command:
@@ -78,20 +92,6 @@ async def add_command(ctx, *, command_name):
         await ctx.send(f"Added {command_name} to the queue")
     else:
         await ctx.send(f"Command {command_name} not found")
-
-
-@bot.event
-async def on_connect():
-    if bot.auto_sync_commands:
-        await bot.sync_commands()
-    print(f'Logged in as {bot.user.name}')
-    bot.loop.create_task(process_commands())
-
-
-@bot.event
-async def on_disconnect():
-    print(f'Disconnected from {bot.user.name}')
-    await bot.connect(reconnect=True)
 
 
 def gpt_integration(text):
