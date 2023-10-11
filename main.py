@@ -87,6 +87,7 @@ async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
     if command:
         command_queue.append(ctx.message)
+        print(ctx.message)
         await ctx.send(f"Added {command_name} to the queue")
     else:
         await ctx.send(f"Command {command_name} not found")
