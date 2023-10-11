@@ -58,19 +58,19 @@ async def process_commands():
         await asyncio.sleep(1)
 
 
-@bot.command()
+@bot.slash_command()
 async def command1(ctx):
     ctx.respond("Hello " + ctx.author.mention)
     await ctx.send("Command 1 processed")
 
 
-@bot.command()
+@bot.slash_command()
 async def command2(ctx):
     ctx.respond("Hello " + ctx.author.mention)
     await ctx.send("Command 2 processed")
 
 
-@bot.command()
+@bot.slash_command()
 async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
     if command:
