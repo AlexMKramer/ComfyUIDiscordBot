@@ -52,7 +52,7 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
-    bot.loop.create_task(process_commands())
+    bot.loop.create_task(process_command())
 
 
 @bot.event
@@ -64,7 +64,7 @@ async def on_disconnect():
 command_queue = []
 
 
-async def process_commands():
+async def process_command():
     while True:
         if len(command_queue) > 0:
             command = command_queue.pop(0)
@@ -90,6 +90,19 @@ async def add_command(ctx, *, command_name):
         await ctx.send(f"Added {command_name} to the queue")
     else:
         await ctx.send(f"Command {command_name} not found")
+
+
+@bot.slash_command(description='Add a command to the queue')
+async def add_command(ctx, *, command_name):
+    # Get the command object based on the command name
+    command = bot.get_command(command_name)
+    if command:
+        # Instead of adding the command object, add the message object
+        command_queue.append(ctx.message)
+        await ctx.send(f"Added {command_name} to the queue")
+    else:
+        await ctx.send(f"Command {command_name} not found")
+
 
 
 def gpt_integration(text):
