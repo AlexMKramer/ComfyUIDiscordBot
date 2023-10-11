@@ -74,13 +74,11 @@ async def process_commands():
 
 @bot.command()
 async def command1(ctx):
-    ctx.send("This is command 1")
     await ctx.send("Command 1 processed")
 
 
 @bot.command()
 async def command2(ctx):
-    ctx.send("This is command 2")
     await ctx.send("Command 2 processed")
 
 
