@@ -93,8 +93,8 @@ async def command2(ctx):
 
 @bot.slash_command(description='Add a command to the queue')
 async def add_command(ctx, *, command_name):
-    command = bot.get_command(command_name)
-    print(f'Command Added: {command}')
+    command = bot.get_command(ctx, command_name)
+    print(f'Command Added: {ctx}, {command}')
     if command:
         await command_queue.put(command)
         print(command_name)
