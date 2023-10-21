@@ -94,7 +94,7 @@ async def add_command(ctx, *, command_name):
     else:
         await ctx.send(f"Command {command_name} not found")
 
-process_command()
+asyncio.run(process_command())
 
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
