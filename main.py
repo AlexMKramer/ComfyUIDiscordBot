@@ -103,14 +103,6 @@ async def add_command(ctx, *, command_name):
         await ctx.send(f"Command {command_name} not found")
 
 
-async def main():
-    asyncio.create_task(process_command())
-    return
-
-if __name__ == '__main__':
-    asyncio.run(main())
-
-
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
     gpt_message = gpt_initial_prompt + [gpt_new_prompt]
@@ -756,4 +748,11 @@ async def upscale(ctx, attached_image: discord.Attachment):
         print(e)
         await ctx.send(ctx.author.mention + "upscale issue.")"""
 
-bot.run(TOKEN)
+
+async def main():
+    bot.run(TOKEN)
+    asyncio.create_task(process_command())
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
