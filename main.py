@@ -76,12 +76,13 @@ async def process_command():
                 print(f'Processed command {command}')
             except Exception as e:
                 print(f'Error processing command: {e}')
-                break
+                continue
         await asyncio.sleep(1)
 
 
 @bot.command()
 async def command1(ctx):
+    print('Command 1 TBD')
     await ctx.send("Command 1 processed")
 
 
