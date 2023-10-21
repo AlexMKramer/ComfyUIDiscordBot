@@ -748,10 +748,10 @@ async def upscale(ctx, attached_image: discord.Attachment):
         print(e)
         await ctx.send(ctx.author.mention + "upscale issue.")"""
 
+bot.run(TOKEN)
 
 async def main():
     asyncio.create_task(process_command())
-    bot.run(TOKEN)
 
 
 if __name__ == '__main__':
