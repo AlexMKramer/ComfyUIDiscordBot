@@ -1,6 +1,5 @@
 import json
 import asyncio
-import queue
 import csv
 import PIL.Image
 import websocket
@@ -65,11 +64,11 @@ async def on_disconnect():
 command_queue = asyncio.Queue()
 
 
-async def process_command():
+async def process_command(queue):
     print('Processing command queue')
     while True:
         try:
-            command = command_queue.get_nowait()
+            command = queue.get_nowait()
             print(f'Processing command {command}')
             await bot.process_commands(command)
             print(f'Processed command {command}')
