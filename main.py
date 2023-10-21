@@ -67,6 +67,7 @@ command_queue = asyncio.Queue()
 async def process_command():
     print('Processing command queue')
     while True:
+        print('Checking command queue')
         if not command_queue.empty():
             try:
                 command = await command_queue.get()
