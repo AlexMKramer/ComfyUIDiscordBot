@@ -87,10 +87,12 @@ async def command2(ctx):
 @bot.slash_command(description='Add a command to the queue')
 async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
+    print(f'Command Added: {command}')
     if command:
         command_queue.append(command_name)
         print(command_name)
         await ctx.send(f"Added {command_name} to the queue")
+        print(f'Command Queue: {command_queue}')
     else:
         await ctx.send(f"Command {command_name} not found")
 
