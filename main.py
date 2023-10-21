@@ -65,10 +65,12 @@ command_queue = []
 
 
 async def process_command():
+    print(f'Processing command {command_queue}')
     while True:
         if len(command_queue) > 0:
             command = command_queue.pop(0)
             await bot.process_commands(command)
+            print(f'Processed command {command}')
         await asyncio.sleep(1)
 
 
