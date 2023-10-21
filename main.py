@@ -1,5 +1,6 @@
 import json
 import asyncio
+import queue
 import csv
 import PIL.Image
 import websocket
@@ -72,10 +73,10 @@ async def process_command():
             print(f'Processing command {command}')
             await bot.process_commands(command)
             print(f'Processed command {command}')
-        except asyncio.queues.QueueEmpty:
-            continue
+        except queue.Empty:
+            print('Command queue is empty')
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(5)
 
 
 @bot.command()
