@@ -73,7 +73,7 @@ async def process_command():
             await bot.process_commands(command)
             print(f'Processed command {command}')
         except asyncio.queues.QueueEmpty:
-            break
+            pass
 
         await asyncio.sleep(1)
 
