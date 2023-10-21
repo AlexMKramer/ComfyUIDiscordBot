@@ -102,7 +102,7 @@ async def add_command(ctx, *, command_name):
 
 
 async def main():
-    asyncio.create_task(process_command())
+    asyncio.create_task(process_command(command_queue))
 
 if __name__ == '__main__':
     asyncio.run(main())
