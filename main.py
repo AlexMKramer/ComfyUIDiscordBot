@@ -103,8 +103,12 @@ async def add_command(ctx, *, command_name):
         await ctx.send(f"Command {command_name} not found")
 
 
+async def main():
+    asyncio.create_task(process_command())
+    return
+
 if __name__ == '__main__':
-    asyncio.run(process_command())
+    asyncio.run(main())
 
 
 def gpt_integration(text):
