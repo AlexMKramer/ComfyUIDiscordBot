@@ -64,16 +64,16 @@ async def on_disconnect():
 command_queue = asyncio.Queue()
 
 
-async def process_command(queue):
+async def process_command():
     print('Processing command queue')
     while True:
         try:
-            command = queue.get_nowait()
+            command = await command_queue.get()
             print(f'Processing command {command}')
             await bot.process_commands(command)
             print(f'Processed command {command}')
         except asyncio.queues.QueueEmpty:
-            pass
+            break
 
         await asyncio.sleep(1)
 
@@ -102,7 +102,7 @@ async def add_command(ctx, *, command_name):
 
 
 async def main():
-    asyncio.create_task(process_command(command_queue))
+    asyncio.create_task(process_command())
 
 if __name__ == '__main__':
     asyncio.run(main())
