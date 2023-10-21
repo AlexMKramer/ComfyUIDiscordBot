@@ -61,17 +61,21 @@ async def on_disconnect():
     await bot.connect(reconnect=True)
 
 
-command_queue = []
+command_queue = asyncio.Queue()
+
 
 async def process_command():
     print('Processing command queue')
     while True:
-        if len(command_queue) > 0:
-            print(f'Processing command {command_queue[0]}')
-            command = command_queue.pop(0)
-            await bot.process_commands(command)
-            print(f'Processed command {command}')
-        await asyncio.sleep(1)
+        if command_queue.qsize() > 0:
+            try:
+                command = command_queue.get_nowait()
+                print(f'Processing command {command}')
+                await bot.process_commands(command)
+                print(f'Processed command {command}')
+            except asyncio.QueueEmpty:
+                continue
+        await asyncio.sleep(5)
 
 
 @bot.command()
@@ -89,7 +93,7 @@ async def add_command(ctx, *, command_name):
     command = bot.get_command(command_name)
     print(f'Command Added: {command}')
     if command:
-        command_queue.append(command_name)
+        await command_queue.put(command)
         print(command_name)
         await ctx.send(f"Added {command_name} to the queue")
         print(f'Command Queue: {command_queue}')
