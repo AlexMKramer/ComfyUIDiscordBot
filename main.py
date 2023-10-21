@@ -750,8 +750,8 @@ async def upscale(ctx, attached_image: discord.Attachment):
 
 
 async def main():
-    bot.run(TOKEN)
     asyncio.create_task(process_command())
+    bot.run(TOKEN)
 
 
 if __name__ == '__main__':
