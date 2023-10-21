@@ -63,11 +63,11 @@ async def on_disconnect():
 
 command_queue = []
 
-
 async def process_command():
-    print(f'Processing command {command_queue}')
+    print('Processing command queue')
     while True:
         if len(command_queue) > 0:
+            print(f'Processing command {command_queue[0]}')
             command = command_queue.pop(0)
             await bot.process_commands(command)
             print(f'Processed command {command}')
@@ -94,6 +94,7 @@ async def add_command(ctx, *, command_name):
     else:
         await ctx.send(f"Command {command_name} not found")
 
+process_command()
 
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
