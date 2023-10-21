@@ -748,10 +748,18 @@ async def upscale(ctx, attached_image: discord.Attachment):
         print(e)
         await ctx.send(ctx.author.mention + "upscale issue.")"""
 
-bot.run(TOKEN)
+# bot.run(TOKEN)
 
 async def main():
     asyncio.create_task(process_command())
+
+    try:
+        bot.loop.run_until_complete(bot.start(TOKEN))
+    except KeyboardInterrupt:
+        bot.loop.run_until_complete(bot.close())
+        # cancel all tasks lingering
+    finally:
+        bot.loop.close()
 
 
 if __name__ == '__main__':
