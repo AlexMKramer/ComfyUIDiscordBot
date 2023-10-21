@@ -73,10 +73,10 @@ async def process_command():
             print(f'Processing command {command}')
             await bot.process_commands(command)
             print(f'Processed command {command}')
-        except queue.Empty:
+        except asyncio.queues.QueueEmpty:
             print('Command queue is empty')
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
 
 @bot.command()
