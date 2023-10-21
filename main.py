@@ -64,7 +64,7 @@ async def on_disconnect():
 command_queue = []
 
 
-'''async def process_command():
+async def process_command():
     while True:
         if len(command_queue) > 0:
             command = command_queue.pop(0)
@@ -90,7 +90,7 @@ async def add_command(ctx, *, command_name):
         print(command_name)
         await ctx.send(f"Added {command_name} to the queue")
     else:
-        await ctx.send(f"Command {command_name} not found")'''
+        await ctx.send(f"Command {command_name} not found")
 
 
 def gpt_integration(text):
