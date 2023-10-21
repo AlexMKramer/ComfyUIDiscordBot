@@ -67,17 +67,15 @@ command_queue = asyncio.Queue()
 async def process_command():
     print('Processing command queue')
     while True:
-        if command_queue.empty():
-            print('Command queue empty')
-        else:
+        if not command_queue.empty():
             try:
                 command = await command_queue.get()
                 print(f'Processing command {command}')
                 await bot.process_commands(command)
                 print(f'Processed command {command}')
-            except asyncio.queues.QueueEmpty:
-                pass
-
+            except Exception as e:
+                print(f'Error processing command: {e}')
+                break
         await asyncio.sleep(1)
 
 
