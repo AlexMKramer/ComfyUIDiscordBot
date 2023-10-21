@@ -75,7 +75,7 @@ async def process_command():
         except asyncio.QueueEmpty:
             continue
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(1)
 
 
 @bot.command()
