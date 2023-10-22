@@ -75,7 +75,7 @@ async def image_queue():
             print(f'Processing image {command}')
             loop = asyncio.get_event_loop()
             try:
-                file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name, model_name)
+                file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
                 # file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
                 #                                  artist_name, model_name)
                 await channel.send(message, files=file_list)
