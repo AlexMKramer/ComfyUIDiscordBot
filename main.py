@@ -752,14 +752,14 @@ async def upscale(ctx, attached_image: discord.Attachment):
 
 # bot.run(TOKEN)
 
-
-async def main():
-    # Run process_command() in a separate thread
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.submit(process_command)
-    # Start the bot
-    await bot.start(TOKEN)
+# async def main():
+#     asyncio.create_task(process_command())
+#
+#     await bot.start(TOKEN)
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    # asyncio.run(main())
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.submit(process_command)
+    bot.run(TOKEN)
