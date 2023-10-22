@@ -69,16 +69,16 @@ queue_processing = False
 # Image queue loop to process images
 @tasks.loop(seconds=1)
 async def image_queue():
+    global queue_processing
     if not command_queue.empty():
         try:
             command = await command_queue.get()
+            queue_processing = True
             channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
             print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
-                global queue_processing
-                queue_processing = True
                 file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
                 await channel.send(message, files=file_list)
                 queue_processing = False
