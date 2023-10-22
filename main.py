@@ -72,7 +72,13 @@ async def process_command():
             try:
                 command = await command_queue.get()
                 print(f'Processing command {command}')
-                await bot.process_commands(command)
+                try:
+                    file_list = generate_image(command.new_prompt, command.new_negative, command.new_style, command.new_size, command.new_lora, command.lora_strength,
+                                               command.artist_name, command.model_name)
+                    await command.ctx.send(command.message, files=file_list)
+                except Exception as e:
+                    print(e)
+                    await command.ctx.send(command.ctx.author.mention + " Something went wrong. Please try again.")
                 print(f'Processed command {command}')
             except Exception as e:
                 print(f'Error processing command: {e}')
@@ -80,29 +86,18 @@ async def process_command():
         await asyncio.sleep(1)
 
 
-@bot.command()
-async def command1(ctx):
-    print('Command 1 TBD')
-    await ctx.send("Command 1 processed")
-
-
-@bot.command()
-async def command2(ctx):
-    await ctx.send("Command 2 processed")
-
-
-@bot.slash_command(description='Add a command to the queue')
-async def add_command(ctx, *, command_name):
-    command = bot.get_command(ctx, command_name)
-    print(f'Command Added: {ctx}, {command}')
-    if command:
-        await command_queue.put(command)
-        print(command_name)
-        await ctx.send(f"Added {command_name} to the queue")
-        print(f'Command Queue: {command_queue}')
-    else:
-        await ctx.send(f"Command {command_name} not found")
-
+# @bot.slash_command(description='Add a command to the queue')
+# async def add_command(ctx, *, command_name):
+#     command = bot.get_command(command_name)
+#     print(f'Command Added: {command}')
+#     if command:
+#         await command_queue.put(command)
+#         print(command_name)
+#         await ctx.send(f"Added {command_name} to the queue")
+#         print(f'Command Queue: {command_queue}')
+#     else:
+#         await ctx.send(f"Command {command_name} not found")
+#
 
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
@@ -485,12 +480,13 @@ async def draw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
-    try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-        await ctx.send(message, files=file_list)
-    except Exception as e:
-        print(e)
-        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+    command_queue.put_nowait((ctx, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
+    # try:
+    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
+    #     await ctx.send(message, files=file_list)
+    # except Exception as e:
+    #     print(e)
+    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description='Go Crazy!')
