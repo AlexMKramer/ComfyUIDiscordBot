@@ -64,6 +64,7 @@ async def on_disconnect():
 
 command_queue = asyncio.Queue()
 
+
 # Image queue loop to process images
 @tasks.loop(seconds=1)
 async def image_queue():
@@ -73,6 +74,7 @@ async def image_queue():
             channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
             print(f'Generating image {command}')
+            await channel.send("**" + random_message() + "**" + "\nGenerating images...")
             loop = asyncio.get_event_loop()
             try:
                 file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -465,7 +467,9 @@ async def draw(ctx,
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
-    await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
+    if not command_queue.empty():
+        queue_spot = command_queue.qsize()
+        await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
     await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
