@@ -66,12 +66,12 @@ background_task_loop = asyncio.get_event_loop()
 
 async def process_command():
     print('Processing command queue')
+    await bot.wait_until_ready()
     while True:
         print('Checking command queue')
         if not command_queue.empty():
             try:
                 print('Processing command...')
-                await bot.wait_until_ready()
                 command = await command_queue.get()
                 channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
                 channel = bot.get_channel(channel_id)
