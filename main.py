@@ -73,12 +73,13 @@ async def process_command():
                 command = await command_queue.get()
                 print(f'Processing command {command}')
                 try:
-                    file_list = generate_image(command.new_prompt, command.new_negative, command.new_style, command.new_size, command.new_lora, command.lora_strength,
-                                               command.artist_name, command.model_name)
-                    await command.ctx.send(command.message, files=file_list)
+                    ctx, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+                    file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
+                                               artist_name, model_name)
+                    await ctx.send(command.message, files=file_list)
                 except Exception as e:
                     print(e)
-                    await command.ctx.send(command.ctx.author.mention + " Something went wrong. Please try again.")
+                    await ctx.send(command.ctx.author.mention + " Something went wrong. Please try again.")
                 print(f'Processed command {command}')
             except Exception as e:
                 print(f'Error processing command: {e}')
