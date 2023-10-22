@@ -52,6 +52,7 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
+    # Start the image queue
     image_queue.start()
 '''    bot.loop.create_task(process_commands())'''
 
@@ -63,53 +64,25 @@ async def on_disconnect():
 
 command_queue = asyncio.Queue()
 
+# Image queue loop to process images
 @tasks.loop(seconds=1)
 async def image_queue():
-    print('Checking image queue')
     if not command_queue.empty():
         try:
-            print('Processing image...')
             command = await command_queue.get()
             channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
-            print(f'Processing image {command}')
+            print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
                 file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-                # file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
-                #                                  artist_name, model_name)
                 await channel.send(message, files=file_list)
             except Exception as e:
                 print(e)
                 await channel.send(author_name + " Something went wrong. Please try again.")
-            print(f'Processed image {command}')
         except Exception as e:
-            print(f'Error processing command: {e}')
+            print(f'Error processing image: {e}')
 
-# async def process_command():
-#     print('Processing command queue')
-#     await bot.wait_until_ready()
-#     while True:
-#         print('Checking command queue')
-#         if not command_queue.empty():
-#             try:
-#                 print('Processing command...')
-#                 command = await command_queue.get()
-#                 channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
-#                 channel = bot.get_channel(channel_id)
-#                 print(f'Processing command {command}')
-#                 try:
-#                     file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
-#                                                artist_name, model_name)
-#                     await channel.send(message, files=file_list)
-#                 except Exception as e:
-#                     print(e)
-#                     await channel.send(author_name + " Something went wrong. Please try again.")
-#                 print(f'Processed command {command}')
-#             except Exception as e:
-#                 print(f'Error processing command: {e}')
-#                 continue
-#         await asyncio.sleep(1)
 
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
@@ -522,12 +495,14 @@ async def crazy(ctx):
     model_name = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
-    try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-        await ctx.send(message, files=file_list)
-    except Exception as e:
-        print(e)
-        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+    await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                             new_lora, lora_strength, artist_name, model_name))
+    # try:
+    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
+    #     await ctx.send(message, files=file_list)
+    # except Exception as e:
+    #     print(e)
+    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description="Interpret a song's lyrics using ChatGPT!")
@@ -572,12 +547,14 @@ async def interpret(ctx,
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name,  model_name)
-    try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-        await ctx.send(message, files=file_list)
-    except Exception as e:
-        print(e)
-        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+    await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                             new_lora, lora_strength, artist_name, model_name))
+    # try:
+    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
+    #     await ctx.send(message, files=file_list)
+    # except Exception as e:
+    #     print(e)
+    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description="Generate images based on song lyrics!")
@@ -625,12 +602,14 @@ async def music(ctx,
     percent_of_original = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
-    try:
-        file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-        await ctx.send(message, files=file_list)
-    except Exception as e:
-        print(e)
-        await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+    await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                             new_lora, lora_strength, artist_name, model_name))
+    # try:
+    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
+    #     await ctx.send(message, files=file_list)
+    # except Exception as e:
+    #     print(e)
+    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description='Generate an image using an image and words!')
