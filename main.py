@@ -484,6 +484,7 @@ async def draw(ctx,
                            lora_strength, artist_name, model_name)
     await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
     await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
+    await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
     await ctx.send("Processing images...")
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
