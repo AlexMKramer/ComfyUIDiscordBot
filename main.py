@@ -470,6 +470,8 @@ async def draw(ctx,
     if not command_queue.empty():
         queue_spot = command_queue.qsize()
         await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
+    else:
+        await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
     await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
