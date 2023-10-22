@@ -72,17 +72,16 @@ async def process_command():
             try:
                 print('Processing command...')
                 command = await command_queue.get()
-                ctxmessage, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
-                print(f'Command: {command}')
-                ctx = await bot.get_context(ctxmessage)
+                channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+                channel = bot.get_channel(channel_id)
                 print(f'Processing command {command}')
                 try:
                     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
                                                artist_name, model_name)
-                    await ctx.send(message, files=file_list)
+                    await channel.send(message, files=file_list)
                 except Exception as e:
                     print(e)
-                    await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
+                    await channel.send(author_name + " Something went wrong. Please try again.")
                 print(f'Processed command {command}')
             except Exception as e:
                 print(f'Error processing command: {e}')
@@ -484,7 +483,8 @@ async def draw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
-    await command_queue.put((ctx.origin, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
+    channel_id = ctx.channel.id
+    await command_queue.put((channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
     #     await ctx.send(message, files=file_list)
