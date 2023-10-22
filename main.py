@@ -65,6 +65,19 @@ async def on_disconnect():
 command_queue = asyncio.Queue()
 queue_processing = False
 
+# Function to check if an image is in the queue and/or processing and return what the queue placement is
+def check_queue_placement():
+    # Check if the queue has something in it
+    if not command_queue.empty():
+        # Check if the queue is processing
+        if queue_processing:
+            queue_spot = command_queue.qsize() + 1
+            return queue_spot
+        else:
+            queue_spot = command_queue.qsize()
+            return queue_spot
+    else:
+        return 0
 
 # Image queue loop to process images
 @tasks.loop(seconds=1)
@@ -471,19 +484,11 @@ async def draw(ctx,
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
-    if not command_queue.empty():
-        if queue_processing:
-            queue_spot = command_queue.qsize() + 1
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
-        else:
-            queue_spot = command_queue.qsize()
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
+    if check_queue_placement() != 0:
+        await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                 new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
         await command_queue.put(
@@ -517,24 +522,18 @@ async def crazy(ctx):
     model_name = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
-    if command_queue.empty():
-        if queue_processing:
-            queue_spot = command_queue.qsize() + 1
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
-        else:
-            queue_spot = command_queue.qsize()
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
+    if check_queue_placement() != 0:
+        await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                 new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + "\nGoing crazy for " + ctx.author.mention)
         await command_queue.put(
             (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                 new_lora, lora_strength, artist_name, model_name))
+             new_lora, lora_strength, artist_name, model_name))
+
+
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
     #     await ctx.send(message, files=file_list)
@@ -573,43 +572,24 @@ async def interpret(ctx,
     lora_strength = None
     artist_name = None
     percent_of_original = None
-    if not command_queue.empty():
-        if queue_processing:
-            queue_spot = command_queue.qsize() + 1
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            fixed_lyrics = get_lyrics(song, artist)
-            if fixed_lyrics is None:
-                await ctx.send("Lyrics not found. Please check your spelling try again.")
-                return
-            await ctx.send("Interpreting lyrics...")
-            new_prompt = gpt_integration(fixed_lyrics)
-            if new_prompt is None:
-                await ctx.send("Something went wrong. Please try again.")
-                return
-            message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
-                                   new_lora,
-                                   lora_strength, artist_name, model_name)
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
-        else:
-            queue_spot = command_queue.qsize()
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            fixed_lyrics = get_lyrics(song, artist)
-            if fixed_lyrics is None:
-                await ctx.send("Lyrics not found. Please check your spelling try again.")
-                return
-            await ctx.send("Interpreting lyrics...")
-            new_prompt = gpt_integration(fixed_lyrics)
-            if new_prompt is None:
-                await ctx.send("Something went wrong. Please try again.")
-                return
-            message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
-                                   new_lora,
-                                   lora_strength, artist_name, model_name)
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
+    if check_queue_placement() != 0:
+        await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        fixed_lyrics = get_lyrics(song, artist)
+        if fixed_lyrics is None:
+            await ctx.send("Lyrics not found. Please check your spelling try again.")
+            return
+        await ctx.send("Interpreting lyrics...")
+        new_prompt = gpt_integration(fixed_lyrics)
+        if new_prompt is None:
+            await ctx.send("Something went wrong. Please try again.")
+            return
+        message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
+                               new_lora,
+                               lora_strength, artist_name, model_name)
+        await command_queue.put((
+            ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+            new_lora, lora_strength, artist_name, model_name))
+
     else:
         await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
@@ -672,53 +652,28 @@ async def music(ctx,
     lora_strength = None
     artist_name = None
     percent_of_original = None
-    if not command_queue.empty():
-        if queue_processing:
-            queue_spot = command_queue.qsize() + 1
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            fixed_lyrics = get_lyrics(song, artist)
-            if fixed_lyrics is None:
-                await ctx.send("Lyrics not found. Please check your spelling try again.")
-                return
-            await ctx.send("Interpreting lyrics...")
-            lines = fixed_lyrics.split('\n')
-            lines = [line for line in lines if line.strip()]
-            lines = [line for line in lines if '[' not in line and ']' not in line]
-            random_lines = random.sample(lines, min(3, len(lines)))
-            output_line = ', '.join(random_lines)
-            new_prompt = song + ", " + output_line + ", " + artist
-            if new_prompt is None:
-                await ctx.send("Something went wrong. Please try again.")
-                return
-            message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
-                                   new_lora,
-                                   lora_strength, artist_name, model_name)
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
-        else:
-            queue_spot = command_queue.qsize()
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            fixed_lyrics = get_lyrics(song, artist)
-            if fixed_lyrics is None:
-                await ctx.send("Lyrics not found. Please check your spelling try again.")
-                return
-            await ctx.send("Interpreting lyrics...")
-            lines = fixed_lyrics.split('\n')
-            lines = [line for line in lines if line.strip()]
-            lines = [line for line in lines if '[' not in line and ']' not in line]
-            random_lines = random.sample(lines, min(3, len(lines)))
-            output_line = ', '.join(random_lines)
-            new_prompt = song + ", " + output_line + ", " + artist
-            if new_prompt is None:
-                await ctx.send("Something went wrong. Please try again.")
-                return
-            message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
-                                   new_lora,
-                                   lora_strength, artist_name, model_name)
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
+    if check_queue_placement() != 0:
+        await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        fixed_lyrics = get_lyrics(song, artist)
+        if fixed_lyrics is None:
+            await ctx.send("Lyrics not found. Please check your spelling try again.")
+            return
+        await ctx.send("Interpreting lyrics...")
+        lines = fixed_lyrics.split('\n')
+        lines = [line for line in lines if line.strip()]
+        lines = [line for line in lines if '[' not in line and ']' not in line]
+        random_lines = random.sample(lines, min(3, len(lines)))
+        output_line = ', '.join(random_lines)
+        new_prompt = song + ", " + output_line + ", " + artist
+        if new_prompt is None:
+            await ctx.send("Something went wrong. Please try again.")
+            return
+        message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
+                               new_lora,
+                               lora_strength, artist_name, model_name)
+        await command_queue.put((
+                                ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                                new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
