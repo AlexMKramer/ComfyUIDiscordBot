@@ -478,10 +478,15 @@ async def draw(ctx,
             await command_queue.put((
                                     ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
                                     new_lora, lora_strength, artist_name, model_name))
+        else:
+            await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
+            await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                                 new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
-        await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                 new_lora, lora_strength, artist_name, model_name))
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+                 new_lora, lora_strength, artist_name, model_name))
 
         # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
