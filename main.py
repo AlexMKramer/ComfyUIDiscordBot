@@ -71,15 +71,16 @@ async def process_command():
         if not command_queue.empty():
             try:
                 command = await command_queue.get()
+                message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+                ctx = await bot.get_context(message)
                 print(f'Processing command {command}')
                 try:
-                    ctx, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
                     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
                                                artist_name, model_name)
-                    await ctx.send(command.message, files=file_list)
+                    await ctx.send(message, files=file_list)
                 except Exception as e:
                     print(e)
-                    await ctx.send(command.ctx.author.mention + " Something went wrong. Please try again.")
+                    await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
                 print(f'Processed command {command}')
             except Exception as e:
                 print(f'Error processing command: {e}')
@@ -481,7 +482,7 @@ async def draw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
-    command_queue.put_nowait((ctx, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
+    command_queue.put_nowait((message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
     #     await ctx.send(message, files=file_list)
