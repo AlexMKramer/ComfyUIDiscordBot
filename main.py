@@ -70,9 +70,11 @@ async def process_command():
         print('Checking command queue')
         if not command_queue.empty():
             try:
+                print('Processing command...')
                 command = await command_queue.get()
-                ctxMessage, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
-                ctx = await bot.get_context(ctxMessage)
+                ctxmessage, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+                print(f'Command: {command}')
+                ctx = await bot.get_context(ctxmessage)
                 print(f'Processing command {command}')
                 try:
                     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
