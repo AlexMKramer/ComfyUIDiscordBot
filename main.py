@@ -65,6 +65,7 @@ async def on_disconnect():
 command_queue = asyncio.Queue()
 queue_processing = False
 
+
 # Function to check if an image is in the queue and/or processing and return what the queue placement is
 def check_queue_placement():
     # Check if the queue has something in it
@@ -77,7 +78,10 @@ def check_queue_placement():
             queue_spot = command_queue.qsize()
             return queue_spot
     else:
-        return 0
+        if queue_processing:
+            return 1
+        else:
+            return 0
 
 # Image queue loop to process images
 @tasks.loop(seconds=1)
