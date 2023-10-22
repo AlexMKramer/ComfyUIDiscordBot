@@ -6,7 +6,7 @@ import websocket
 import random
 import discord
 import magic
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord import option
 import os
 from PIL import Image
@@ -60,49 +60,59 @@ async def on_disconnect():
     print(f'Disconnected from {bot.user.name}')
     await bot.connect(reconnect=True)
 
-
 command_queue = asyncio.Queue()
-background_task_loop = asyncio.get_event_loop()
+
+@bot.event
+async def on_ready():
+    print(f'Logged in as {bot.user.name}')
+    image_queue.start()
 
 
-async def process_command():
-    print('Processing command queue')
-    await bot.wait_until_ready()
-    while True:
-        print('Checking command queue')
-        if not command_queue.empty():
+@tasks.loop(seconds=1)
+async def image_queue():
+    print('Checking image queue')
+    if not command_queue.empty():
+        try:
+            print('Processing image...')
+            command = await command_queue.get()
+            channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+            channel = bot.get_channel(channel_id)
+            print(f'Processing image {command}')
             try:
-                print('Processing command...')
-                command = await command_queue.get()
-                channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
-                channel = bot.get_channel(channel_id)
-                print(f'Processing command {command}')
-                try:
-                    file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
-                                               artist_name, model_name)
-                    await channel.send(message, files=file_list)
-                except Exception as e:
-                    print(e)
-                    await channel.send(author_name + " Something went wrong. Please try again.")
-                print(f'Processed command {command}')
+                file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
+                                                 artist_name, model_name)
+                await channel.send(message, files=file_list)
             except Exception as e:
-                print(f'Error processing command: {e}')
-                continue
-        await asyncio.sleep(1)
+                print(e)
+                await channel.send(author_name + " Something went wrong. Please try again.")
+            print(f'Processed image {command}')
+        except Exception as e:
+            print(f'Error processing command: {e}')
 
-
-# @bot.slash_command(description='Add a command to the queue')
-# async def add_command(ctx, *, command_name):
-#     command = bot.get_command(command_name)
-#     print(f'Command Added: {command}')
-#     if command:
-#         await command_queue.put(command)
-#         print(command_name)
-#         await ctx.send(f"Added {command_name} to the queue")
-#         print(f'Command Queue: {command_queue}')
-#     else:
-#         await ctx.send(f"Command {command_name} not found")
-#
+# async def process_command():
+#     print('Processing command queue')
+#     await bot.wait_until_ready()
+#     while True:
+#         print('Checking command queue')
+#         if not command_queue.empty():
+#             try:
+#                 print('Processing command...')
+#                 command = await command_queue.get()
+#                 channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+#                 channel = bot.get_channel(channel_id)
+#                 print(f'Processing command {command}')
+#                 try:
+#                     file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
+#                                                artist_name, model_name)
+#                     await channel.send(message, files=file_list)
+#                 except Exception as e:
+#                     print(e)
+#                     await channel.send(author_name + " Something went wrong. Please try again.")
+#                 print(f'Processed command {command}')
+#             except Exception as e:
+#                 print(f'Error processing command: {e}')
+#                 continue
+#         await asyncio.sleep(1)
 
 def gpt_integration(text):
     gpt_new_prompt = ({"role": "user", "content": "Here are the lyrics I would like in this format:" + text})
@@ -751,15 +761,8 @@ async def upscale(ctx, attached_image: discord.Attachment):
         print(e)
         await ctx.send(ctx.author.mention + "upscale issue.")"""
 
-# bot.run(TOKEN)
-
-# async def main():
-#     asyncio.create_task(process_command())
-#
-#     await bot.start(TOKEN)
-
 
 if __name__ == '__main__':
     # asyncio.run(main())
-    background_task_loop.create_task(process_command())
+    # background_task_loop.create_task(process_command())
     bot.run(TOKEN)
