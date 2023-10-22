@@ -751,11 +751,13 @@ async def upscale(ctx, attached_image: discord.Attachment):
 
 # bot.run(TOKEN)
 
-async def main():
-    asyncio.create_task(process_command())
-
-    await bot.start(TOKEN)
+# async def main():
+#     asyncio.create_task(process_command())
+#
+#     await bot.start(TOKEN)
 
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    # asyncio.run(main())
+    bot.loop.create_task(process_command())
+    bot.run(TOKEN)
