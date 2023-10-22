@@ -52,6 +52,7 @@ async def on_connect():
     if bot.auto_sync_commands:
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
+    image_queue.start()
 '''    bot.loop.create_task(process_commands())'''
 
 
@@ -61,12 +62,6 @@ async def on_disconnect():
     await bot.connect(reconnect=True)
 
 command_queue = asyncio.Queue()
-
-@bot.event
-async def on_ready():
-    print(f'Logged in as {bot.user.name}')
-    image_queue.start()
-
 
 @tasks.loop(seconds=1)
 async def image_queue():
@@ -78,9 +73,11 @@ async def image_queue():
             channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
             print(f'Processing image {command}')
+            loop = asyncio.get_event_loop()
             try:
-                file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
-                                                 artist_name, model_name)
+                file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name, model_name)
+                # file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
+                #                                  artist_name, model_name)
                 await channel.send(message, files=file_list)
             except Exception as e:
                 print(e)
@@ -304,7 +301,7 @@ def form_message(
     return message
 
 
-async def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name):
+def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name):
     if new_lora is not None:
         if lora_strength is None:
             lora_strength = 0.5
