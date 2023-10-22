@@ -471,21 +471,13 @@ async def draw(ctx,
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
-    if not command_queue.empty():
+    if command_queue.empty():
         if queue_processing:
             queue_spot = command_queue.qsize() + 1
             await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
             await command_queue.put((
                                     ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
                                     new_lora, lora_strength, artist_name, model_name))
-
-        else:
-            queue_spot = command_queue.qsize()
-            await ctx.respond(f"You are number {queue_spot} in the queue. Please wait patiently.")
-            await command_queue.put((
-                                    ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                    new_lora, lora_strength, artist_name, model_name))
-
     else:
         await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
         await command_queue.put((ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
