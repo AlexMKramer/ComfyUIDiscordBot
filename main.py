@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 import re
 from lyricsgenius import Genius
 import openai
-import concurrent.futures
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -72,6 +71,7 @@ async def process_command():
         if not command_queue.empty():
             try:
                 print('Processing command...')
+                await bot.wait_until_ready()
                 command = await command_queue.get()
                 channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
                 channel = bot.get_channel(channel_id)
@@ -760,6 +760,5 @@ async def upscale(ctx, attached_image: discord.Attachment):
 
 if __name__ == '__main__':
     # asyncio.run(main())
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        executor.submit(process_command)
+    background_task_loop.create_task(process_command())
     bot.run(TOKEN)
