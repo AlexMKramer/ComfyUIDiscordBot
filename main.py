@@ -469,6 +469,7 @@ async def draw(ctx,
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
+    global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if not command_queue.empty():
