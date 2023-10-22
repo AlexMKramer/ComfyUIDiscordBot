@@ -62,7 +62,7 @@ async def on_disconnect():
 
 
 command_queue = asyncio.Queue()
-
+background_task_loop = asyncio.get_event_loop()
 
 async def process_command():
     print('Processing command queue')
@@ -759,5 +759,5 @@ async def upscale(ctx, attached_image: discord.Attachment):
 
 if __name__ == '__main__':
     # asyncio.run(main())
-    bot.loop.create_task(process_command())
+    background_task_loop.create_task(process_command())
     bot.run(TOKEN)
