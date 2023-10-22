@@ -64,6 +64,7 @@ async def on_disconnect():
 command_queue = asyncio.Queue()
 background_task_loop = asyncio.get_event_loop()
 
+
 async def process_command():
     print('Processing command queue')
     await bot.wait_until_ready()
@@ -77,7 +78,7 @@ async def process_command():
                 channel = bot.get_channel(channel_id)
                 print(f'Processing command {command}')
                 try:
-                    file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
+                    file_list = await generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength,
                                                artist_name, model_name)
                     await channel.send(message, files=file_list)
                 except Exception as e:
@@ -293,7 +294,7 @@ def form_message(
     return message
 
 
-def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name):
+async def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name):
     if new_lora is not None:
         if lora_strength is None:
             lora_strength = 0.5
