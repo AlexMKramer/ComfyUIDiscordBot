@@ -97,7 +97,7 @@ async def image_queue():
             queue_processing = True
             channel_id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
-            msg = await channel_id.fetch_message(ack_id)
+            msg = await channel.fetch_message(ack_id)
             # ack_message = bot.get_message(ack_id)
             print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
