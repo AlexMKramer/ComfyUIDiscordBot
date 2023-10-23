@@ -95,30 +95,29 @@ async def image_queue():
         try:
             command = await command_queue.get()
             queue_processing = True
-            channel_id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+            channel_id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
-            msg = await channel.fetch_message(ack_id)
             # ack_message = bot.get_message(ack_id)
-            print(f'Generating image {command}' + "\n" + f'msg is: {msg}')
+            print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
                 if is_img2img:
-                    await msg.edit(content="**" + random_message() + "**" + "\nRecreating image...")
+                    await acknowledgement.edit_original_message(content="**" + random_message() + "**" + "\nRecreating image...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
                 else:
-                    await msg.edit(content="**" + random_message() + "**" + "\nGenerating images...")
+                    await acknowledgement.edit_original_message(content="**" + random_message() + "**" + "\nGenerating images...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                await msg.edit(content=message, files=file_list)
+                await acknowledgement.edit_original_message(content=message, files=file_list)
                 # await channel.send(message, files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)
-                await msg.edit(content=author_name + " \nSomething went wrong. Please try again.")
+                await acknowledgement.edit_original_message(content=author_name + " \nSomething went wrong. Please try again.")
                 # await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
@@ -509,17 +508,13 @@ async def draw(ctx,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
-        print(f'the ack_id is: {acknowledgment.id}')
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment.id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgment = await ctx.respond(f"On it!")
-        await acknowledgment.edit_original_message(content=f"Doing it!")
-        print(f'the acknowledgment id is: {acknowledgment.id}')
-        print(f'the acknowledgment id is: {acknowledgment}')
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment.id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
         # try:
