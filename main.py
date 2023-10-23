@@ -107,7 +107,7 @@ async def image_queue():
                                                            artist_name, model_name)
                 else:
                     await channel.send("**" + random_message() + "**" + "\nGenerating images...")
-                    file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style,
+                    file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                 await channel.send(message, files=file_list)
                 queue_processing = False
@@ -308,7 +308,7 @@ def form_message(
     return message
 
 
-def generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name):
+def generate_image(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name):
     if new_lora is not None:
         if lora_strength is None:
             lora_strength = 0.5
@@ -497,18 +497,19 @@ async def draw(ctx,
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
+    is_img2img = False
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.defer(invisible=True)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
         # try:
@@ -575,6 +576,7 @@ async def interpret(ctx,
                     model_name: str = None
                     ):
     author_name = ctx.author.mention
+    is_img2img = False
     new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
     new_size = "1344 768"
     if check_queue_placement() != 0:
@@ -592,7 +594,7 @@ async def interpret(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
 
     else:
@@ -610,7 +612,7 @@ async def interpret(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -643,6 +645,7 @@ async def music(ctx,
                 model_name: str = None
                 ):
     author_name = ctx.author.mention
+    is_img2img = False
     new_negative = new_style = new_size = new_lora = lora_strength = artist_name = percent_of_original = None
     await ctx.respond(
         f"Generating images:\n**Song:** {song}\n**Artist:** {artist}")
@@ -671,7 +674,7 @@ async def music(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
@@ -693,7 +696,7 @@ async def music(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -767,6 +770,7 @@ async def redraw(ctx,
                  model_name: str = None
                  ):
     author_name = ctx.author.mention
+    is_img2img = True
     await ctx.respond("**" + random_message() + "**" + f"\nGenerating image:\n**Prompt:** {new_prompt}")
     image_bytes = await attached_image.read()
 
@@ -793,16 +797,31 @@ async def redraw(ctx,
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
     print(f'New size: {new_size}')
+
+    global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
+    if check_queue_placement() != 0:
+        await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
+    else:
+        await ctx.defer(invisible=True)
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
+
+    '''message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
+                           lora_strength, artist_name, model_name)
     try:
-        file_list = generate_img2img(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
+        file_list = generate_img2img(new_prompt, percent_of_original, is_img2img, new_negative, new_style, new_size, new_lora,
                                      lora_strength, artist_name, model_name)
         await ctx.send(message)
         await ctx.send("New image:", files=file_list)
     except Exception as e:
         print(e)
-        await ctx.send(ctx.author.mention + "img2img issue.")
+        await ctx.send(ctx.author.mention + "img2img issue.")'''
 
 
 """@bot.slash_command(description='Upscale an image!')
