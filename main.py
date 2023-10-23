@@ -508,6 +508,7 @@ async def draw(ctx,
     if check_queue_placement() != 0:
         acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         ack_id = bot.get_message(acknowledgment)
+        print(f'the ack_id is: {ack_id}')
         await command_queue.put(
             (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
