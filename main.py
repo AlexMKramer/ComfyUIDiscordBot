@@ -99,7 +99,7 @@ async def image_queue():
             channel = bot.get_channel(channel_id)
             msg = await channel.fetch_message(ack_id)
             # ack_message = bot.get_message(ack_id)
-            print(f'Generating image {command}')
+            print(f'Generating image {command}' + "\n" + f'msg is: {msg}')
             loop = asyncio.get_event_loop()
             try:
                 if is_img2img:
