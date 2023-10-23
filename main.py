@@ -97,27 +97,28 @@ async def image_queue():
             queue_processing = True
             channel_id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
-            ack_message = bot.get_message(ack_id)
+            msg = await channel.fetch_message(ack_id)
+            # ack_message = bot.get_message(ack_id)
             print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
                 if is_img2img:
-                    await ack_message.edit(content="**" + random_message() + "**" + "\nRecreating image...")
+                    await msg.edit(content="**" + random_message() + "**" + "\nRecreating image...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
                 else:
-                    await ack_message.edit(content="**" + random_message() + "**" + "\nGenerating images...")
+                    await msg.edit(content="**" + random_message() + "**" + "\nGenerating images...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                await ack_message.edit(content=message, files=file_list)
+                await msg.edit(content=message, files=file_list)
                 # await channel.send(message, files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)
-                await ack_message.edit(content=author_name + " \nSomething went wrong. Please try again.")
+                await msg.edit(content=author_name + " \nSomething went wrong. Please try again.")
                 # await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
