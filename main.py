@@ -516,7 +516,7 @@ async def draw(ctx,
     else:
         acknowledgment = await ctx.respond(f"On it!")
         print(f'the acknowledgment is: {acknowledgment}')
-        ack_id = acknowledgment.id
+        ack_id = int(acknowledgment.id)
         print(f'the ack_id is: {ack_id}')
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgment.id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
