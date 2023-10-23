@@ -507,17 +507,15 @@ async def draw(ctx,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
-        ack_id = bot.get_message(acknowledgment)
-        print(f'the ack_id is: {ack_id}')
+        print(f'the ack_id is: {acknowledgment.id}')
         await command_queue.put(
-            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgment.id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgment = await ctx.respond(f"On it!")
-        ack_id = bot.get_message(acknowledgment)
-        print(f'the ack_id is: {ack_id}')
+        print(f'the ack_id is: {acknowledgment.id}')
         await command_queue.put(
-            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgment.id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
         # try:
