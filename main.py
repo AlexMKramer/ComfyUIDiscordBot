@@ -507,7 +507,7 @@ async def draw(ctx,
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        ctx.send('ok', hidden=True)
+        ctx.respond('ok', invisible=True)
         await command_queue.put(
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
@@ -540,7 +540,7 @@ async def crazy(ctx):
             (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        await ctx.defer(hidden=True)
+        ctx.respond('ok', invisible=True)
         await command_queue.put(
             (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
@@ -810,7 +810,7 @@ async def redraw(ctx,
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        ctx.respond('ok', hidden=True)
+        ctx.respond('ok', invisible=True)
         await command_queue.put(
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
