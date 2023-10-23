@@ -515,8 +515,9 @@ async def draw(ctx,
              new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgment = await ctx.respond(f"On it!")
+        await acknowledgment.edit_original_message(content=f"Doing it!")
         print(f'the acknowledgment id is: {acknowledgment.id}')
-        print(f'the acknowledgment id is: {acknowledgment.content}')
+        print(f'the acknowledgment id is: {acknowledgment}')
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgment.id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
