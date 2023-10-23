@@ -101,19 +101,19 @@ async def image_queue():
             loop = asyncio.get_event_loop()
             try:
                 if is_img2img:
-                    await channel.send("**" + random_message() + "**" + "\nRecreating image...")
+                    await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
                 else:
-                    await channel.send("**" + random_message() + "**" + "\nGenerating images...")
+                    await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                 await channel.send(message, files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)
-                await channel.send(author_name + " Something went wrong. Please try again.")
+                await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
 
@@ -507,7 +507,7 @@ async def draw(ctx,
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        await ctx.defer(invisible=True)
+        await ctx.defer(hidden=True)
         await command_queue.put(
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
@@ -540,7 +540,7 @@ async def crazy(ctx):
             (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        await ctx.respond("**" + random_message() + "**" + "\nGoing crazy for " + ctx.author.mention)
+        await ctx.defer(hidden=True)
         await command_queue.put(
             (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
@@ -581,6 +581,7 @@ async def interpret(ctx,
     new_size = "1344 768"
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await ctx.send("Lyrics not found. Please check your spelling try again.")
@@ -647,13 +648,15 @@ async def music(ctx,
     author_name = ctx.author.mention
     is_img2img = False
     new_negative = new_style = new_size = new_lora = lora_strength = artist_name = percent_of_original = None
-    await ctx.respond(
+
+    '''await ctx.respond(
         f"Generating images:\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
     if fixed_lyrics is None:
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
-    await ctx.send("**" + random_message() + "**" + "\nGot lyrics...")
+    await ctx.send("**" + random_message() + "**" + "\nGot lyrics...")'''
+
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         fixed_lyrics = get_lyrics(song, artist)
@@ -807,7 +810,7 @@ async def redraw(ctx,
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        await ctx.defer(invisible=True)
+        await ctx.defer(hidden=True)
         await command_queue.put(
             (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
