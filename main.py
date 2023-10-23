@@ -54,6 +54,8 @@ async def on_connect():
     print(f'Logged in as {bot.user.name}')
     # Start the image queue
     image_queue.start()
+
+
 '''    bot.loop.create_task(process_commands())'''
 
 
@@ -61,6 +63,7 @@ async def on_connect():
 async def on_disconnect():
     print(f'Disconnected from {bot.user.name}')
     await bot.connect(reconnect=True)
+
 
 command_queue = asyncio.Queue()
 queue_processing = False
@@ -83,6 +86,7 @@ def check_queue_placement():
         else:
             return 0
 
+
 # Image queue loop to process images
 @tasks.loop(seconds=1)
 async def image_queue():
@@ -91,12 +95,20 @@ async def image_queue():
         try:
             command = await command_queue.get()
             queue_processing = True
-            channel_id, author_name, message, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+            channel_id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
             print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
-                file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
+                if is_img2img:
+                    await channel.send("**" + random_message() + "**" + "\nRecreating image...")
+                    file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
+                                                           new_negative, new_style, new_size, new_lora, lora_strength,
+                                                           artist_name, model_name)
+                else:
+                    await channel.send("**" + random_message() + "**" + "\nGenerating images...")
+                    file_list = await loop.run_in_executor(None, generate_image, new_prompt, new_negative, new_style,
+                                                           new_size, new_lora, lora_strength, artist_name, model_name)
                 await channel.send(message, files=file_list)
                 queue_processing = False
             except Exception as e:
@@ -491,13 +503,13 @@ async def draw(ctx,
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                 new_lora, lora_strength, artist_name, model_name))
+            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
     else:
-        await ctx.respond("**" + random_message() + "**" + "\nGenerating images...")
+        await ctx.defer(invisible=True)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                 new_lora, lora_strength, artist_name, model_name))
+            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
 
         # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -510,33 +522,27 @@ async def draw(ctx,
 @bot.slash_command(description='Go Crazy!')
 async def crazy(ctx):
     author_name = ctx.author.mention
-
+    new_negative = percent_of_original = new_lora = lora_strength = model_name = None
     random_subject = random.choice(prompts_data["prompts"]["subjects"])
     random_verb = random.choice(prompts_data["prompts"]["verbs"])
     random_location = random.choice(prompts_data["prompts"]["locations"])
     artist_name = random.choice(artist_names)
     new_prompt = f"{random_subject} {random_verb} {random_location}"
-    percent_of_original = None
-    new_negative = None
     new_style = random.choice(style_names)
     random_size = random.choice(height_width_option)
     new_size = str(random_size["height"]) + " " + str(random_size["width"])
-    new_lora = None
-    lora_strength = None
-    model_name = None
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                 new_lora, lora_strength, artist_name, model_name))
+            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + "\nGoing crazy for " + ctx.author.mention)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
-
 
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -569,13 +575,8 @@ async def interpret(ctx,
                     model_name: str = None
                     ):
     author_name = ctx.author.mention
-    new_negative = None
-    new_style = None
+    new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
     new_size = "1344 768"
-    new_lora = None
-    lora_strength = None
-    artist_name = None
-    percent_of_original = None
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         fixed_lyrics = get_lyrics(song, artist)
@@ -591,7 +592,7 @@ async def interpret(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
 
     else:
@@ -609,8 +610,8 @@ async def interpret(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                 new_lora, lora_strength, artist_name, model_name))
+            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
     #     await ctx.send(message, files=file_list)
@@ -642,6 +643,7 @@ async def music(ctx,
                 model_name: str = None
                 ):
     author_name = ctx.author.mention
+    new_negative = new_style = new_size = new_lora = lora_strength = artist_name = percent_of_original = None
     await ctx.respond(
         f"Generating images:\n**Song:** {song}\n**Artist:** {artist}")
     fixed_lyrics = get_lyrics(song, artist)
@@ -649,13 +651,6 @@ async def music(ctx,
         await ctx.send("Lyrics not found. Please check your spelling try again.")
         return
     await ctx.send("**" + random_message() + "**" + "\nGot lyrics...")
-    new_negative = None
-    new_style = None
-    new_size = None
-    new_lora = None
-    lora_strength = None
-    artist_name = None
-    percent_of_original = None
     if check_queue_placement() != 0:
         await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         fixed_lyrics = get_lyrics(song, artist)
@@ -676,8 +671,8 @@ async def music(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-                                ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                                new_lora, lora_strength, artist_name, model_name))
+            ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            new_lora, lora_strength, artist_name, model_name))
     else:
         await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
@@ -698,8 +693,8 @@ async def music(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, new_prompt, new_negative, new_style, new_size,
-                 new_lora, lora_strength, artist_name, model_name))
+            (ctx.channel.id, author_name, message, new_prompt, percent_of_original, new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
     #     await ctx.send(message, files=file_list)
@@ -832,7 +827,6 @@ async def upscale(ctx, attached_image: discord.Attachment):
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "upscale issue.")"""
-
 
 if __name__ == '__main__':
     # asyncio.run(main())
