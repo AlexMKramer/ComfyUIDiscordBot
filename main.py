@@ -95,28 +95,28 @@ async def image_queue():
         try:
             command = await command_queue.get()
             queue_processing = True
-            channel_id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
+            channel_id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
             print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
                 if is_img2img:
-                    await acknowledgment.message.edit(acknowledgment, content="**" + random_message() + "**" + "\nRecreating image...")
+                    await ack_id.message.edit(content="**" + random_message() + "**" + "\nRecreating image...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
                 else:
-                    await acknowledgment.message.edit(acknowledgment, content="**" + random_message() + "**" + "\nGenerating images...")
+                    await ack_id.message.edit(content="**" + random_message() + "**" + "\nGenerating images...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                await acknowledgment.message.edit(acknowledgment, content=message, files=file_list)
+                await ack_id.message.edit(content=message, files=file_list)
                 # await channel.send(message, files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)
-                await acknowledgment.message.edit(acknowledgment, content=author_name + " \nSomething went wrong. Please try again.")
+                await ack_id.message.edit(content=author_name + " \nSomething went wrong. Please try again.")
                 # await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
@@ -507,13 +507,15 @@ async def draw(ctx,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        ack_id = bot.get_message(acknowledgment)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgment = await ctx.respond(f"On it!")
+        ack_id = bot.get_message(acknowledgment)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
         # try:
@@ -540,13 +542,15 @@ async def crazy(ctx):
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        ack_id = bot.get_message(acknowledgment)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, ack_id, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgment = await ctx.respond(f"On it!")
+        ack_id = bot.get_message(acknowledgment)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, ack_id, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
     # try:
@@ -605,11 +609,12 @@ async def interpret(ctx,
             # await ctx.send("Something went wrong. Please try again.")
 
             return
+        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
 
     else:
@@ -633,11 +638,12 @@ async def interpret(ctx,
             # await ctx.send("Something went wrong. Please try again.")
 
             return
+        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -706,11 +712,12 @@ async def music(ctx,
             # await ctx.send("Something went wrong. Please try again.")
 
             return
+        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgment = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
@@ -740,11 +747,12 @@ async def music(ctx,
             # await ctx.send("Something went wrong. Please try again.")
 
             return
+        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
