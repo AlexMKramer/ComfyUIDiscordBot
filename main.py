@@ -585,25 +585,15 @@ async def interpret(ctx,
     new_size = "1344 768"
     if check_queue_placement() != 0:
         acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
-        acknowledgement = await acknowledgement.edit_original_response(content=f"**{random_message()}**\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
-
-        # await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
-
+        await acknowledgement.edit_original_response(content=f"**{random_message()}**\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
-
-            # await ctx.send("Lyrics not found. Please check your spelling try again.")
-
             return
-        acknowledgement = await acknowledgement.edit_original_response( content="Interpreting lyrics...")
-        # await ctx.send("Interpreting lyrics...")
+        await acknowledgement.edit_original_response( content="Interpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
-
-            # await ctx.send("Something went wrong. Please try again.")
-
             return
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
@@ -614,24 +604,14 @@ async def interpret(ctx,
 
     else:
         acknowledgement = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
-
-        #await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
-
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
-
-            # await ctx.send("Lyrics not found. Please check your spelling try again.")
-
             return
-        acknowledgement = await acknowledgement.edit_original_response(content="Interpreting lyrics...")
-        # await ctx.send("Interpreting lyrics...")
+        await acknowledgement.edit_original_response(content="Interpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
-
-            # await ctx.send("Something went wrong. Please try again.")
-
             return
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
@@ -686,14 +666,8 @@ async def music(ctx,
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
-
-            # await ctx.send("Lyrics not found. Please check your spelling try again.")
-
             return
-        acknowledgement = await acknowledgement.edit_original_response(content="Interpreting lyrics...")
-
-        # await ctx.send("Interpreting lyrics...")
-
+        await acknowledgement.edit_original_response(content="Interpreting lyrics...")
         lines = fixed_lyrics.split('\n')
         lines = [line for line in lines if line.strip()]
         lines = [line for line in lines if '[' not in line and ']' not in line]
@@ -702,9 +676,6 @@ async def music(ctx,
         new_prompt = song + ", " + output_line + ", " + artist
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
-
-            # await ctx.send("Something went wrong. Please try again.")
-
             return
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
@@ -714,20 +685,11 @@ async def music(ctx,
             new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgement = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
-
-        # await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
-
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
-
-            # await ctx.send("Lyrics not found. Please check your spelling try again.")
-
             return
-        acknowledgement = acknowledgement.edit_original_response(content="Interpreting lyrics...")
-
-        # await ctx.send("Interpreting lyrics...")
-
+        await acknowledgement.edit_original_response(content="Interpreting lyrics...")
         lines = fixed_lyrics.split('\n')
         lines = [line for line in lines if line.strip()]
         lines = [line for line in lines if '[' not in line and ']' not in line]
@@ -736,9 +698,6 @@ async def music(ctx,
         new_prompt = song + ", " + output_line + ", " + artist
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
-
-            # await ctx.send("Something went wrong. Please try again.")
-
             return
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
