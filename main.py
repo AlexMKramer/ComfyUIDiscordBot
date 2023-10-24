@@ -585,7 +585,7 @@ async def interpret(ctx,
     new_size = "1344 768"
     if check_queue_placement() != 0:
         acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
-        await acknowledgement.edit_original_response(content=f"**{random_message()}**\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+        await acknowledgement.edit_original_response(content=f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
@@ -603,7 +603,7 @@ async def interpret(ctx,
             new_lora, lora_strength, artist_name, model_name))
 
     else:
-        acknowledgement = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+        acknowledgement = await ctx.respond(f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
@@ -616,7 +616,7 @@ async def interpret(ctx,
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
-        message = f'**Song: **{song}\n**Artist: **{artist}\n' + message
+        message = f"**Song:** {song}\n**Artist:** {artist}\n" + message
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
