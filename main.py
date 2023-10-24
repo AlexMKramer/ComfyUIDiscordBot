@@ -598,7 +598,7 @@ async def interpret(ctx,
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
-        message = f"**Song:** {song}\n**Artist:** {artist}\n" + message
+        message = (f"**Song:** {song}\n**Artist:** {artist}\n" + message)
         await command_queue.put((
             ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
@@ -617,7 +617,7 @@ async def interpret(ctx,
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
-        message = f"**Song:** {song}\n**Artist:** {artist}\n" + message
+        message = (f"**Song:** {song}\n**Artist:** {artist}\n" + message)
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
