@@ -112,7 +112,7 @@ async def image_queue():
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                await acknowledgement.edit_original_response(content=rand_msg + "\n" + message, files=file_list)
+                await acknowledgement.edit_original_response(content="**" + rand_msg + "\n" + message, files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)
@@ -616,6 +616,7 @@ async def interpret(ctx,
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
+        message = f'**Song: **{song}\n**Artist: **{artist}\n' + message
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
