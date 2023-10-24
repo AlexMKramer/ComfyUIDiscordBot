@@ -97,27 +97,26 @@ async def image_queue():
             queue_processing = True
             channel_id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name = command
             channel = bot.get_channel(channel_id)
-            # ack_message = bot.get_message(ack_id)
             print(f'Generating image {command}')
             loop = asyncio.get_event_loop()
             try:
                 if is_img2img:
-                    await acknowledgement.edit_original_message(content="**" + random_message() + "**" + "\nRecreating image...")
+                    await acknowledgement.edit_original_response(content="**" + random_message() + "**" + "\nRecreating image...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
                 else:
-                    await acknowledgement.edit_original_message(content="**" + random_message() + "**" + "\nGenerating images...")
+                    await acknowledgement.edit_original_response(content="**" + random_message() + "**" + "\nGenerating images...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original, new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                await acknowledgement.edit_original_message(content=message, files=file_list)
+                await acknowledgement.edit_original_response(content=message, files=file_list)
                 # await channel.send(message, files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)
-                await acknowledgement.edit_original_message(content=author_name + " \nSomething went wrong. Please try again.")
+                await acknowledgement.edit_original_response(content=author_name + " \nSomething went wrong. Please try again.")
                 # await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
@@ -507,14 +506,14 @@ async def draw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
-        acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        acknowledgment = await ctx.respond(f"On it!")
+        acknowledgement = await ctx.respond(f"On it!")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
         # try:
@@ -540,16 +539,14 @@ async def crazy(ctx):
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
-        acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
-        ack_id = bot.get_message(acknowledgment)
+        acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, ack_id, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        acknowledgment = await ctx.respond(f"On it!")
-        ack_id = bot.get_message(acknowledgment)
+        acknowledgement = await ctx.respond(f"On it!")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, ack_id, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
     # try:
@@ -587,62 +584,60 @@ async def interpret(ctx,
     new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
     new_size = "1344 768"
     if check_queue_placement() != 0:
-        acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
-        acknowledgment = await ctx.edit(acknowledgment, content=f"**{random_message()}**\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+        acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        acknowledgement = await acknowledgement.edit_original_response(content=f"**{random_message()}**\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
 
         # await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
 
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
-            await ctx.edit(acknowledgment, content="Lyrics not found. Please check your spelling try again.")
+            await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
 
             # await ctx.send("Lyrics not found. Please check your spelling try again.")
 
             return
-        acknowledgment = await ctx.edit(acknowledgment, content="Interpreting lyrics...")
+        acknowledgement = await acknowledgement.edit_original_response( content="Interpreting lyrics...")
         # await ctx.send("Interpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
-            await ctx.edit(acknowledgment, content="Something went wrong. Please try again.")
+            await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
 
             # await ctx.send("Something went wrong. Please try again.")
 
             return
-        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
 
     else:
-        acknowledgment = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+        acknowledgement = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
 
         #await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
 
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
-            await ctx.edit(acknowledgment, content="Lyrics not found. Please check your spelling try again.")
+            await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
 
             # await ctx.send("Lyrics not found. Please check your spelling try again.")
 
             return
-        acknowledgment = await ctx.edit(acknowledgment, content="Interpreting lyrics...")
+        acknowledgement = await acknowledgement.edit_original_response(content="Interpreting lyrics...")
         # await ctx.send("Interpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
-            await ctx.edit(acknowledgment, content="Something went wrong. Please try again.")
+            await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
 
             # await ctx.send("Something went wrong. Please try again.")
 
             return
-        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -687,15 +682,15 @@ async def music(ctx,
     await ctx.send("**" + random_message() + "**" + "\nGot lyrics...")'''
 
     if check_queue_placement() != 0:
-        acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
-            await ctx.edit(acknowledgment, content="Lyrics not found. Please check your spelling try again.")
+            await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
 
             # await ctx.send("Lyrics not found. Please check your spelling try again.")
 
             return
-        acknowledgment = await ctx.edit(acknowledgment, content="Interpreting lyrics...")
+        acknowledgement = await acknowledgement.edit_original_response(content="Interpreting lyrics...")
 
         # await ctx.send("Interpreting lyrics...")
 
@@ -706,31 +701,30 @@ async def music(ctx,
         output_line = ', '.join(random_lines)
         new_prompt = song + ", " + output_line + ", " + artist
         if new_prompt is None:
-            await ctx.edit(acknowledgment, content="Something went wrong. Please try again.")
+            await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
 
             # await ctx.send("Something went wrong. Please try again.")
 
             return
-        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put((
-            ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
     else:
-        acknowledgment = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+        acknowledgement = await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
 
         # await ctx.respond("**" + random_message() + "**" + f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
 
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
-            await ctx.edit(acknowledgment, content="Lyrics not found. Please check your spelling try again.")
+            await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
 
             # await ctx.send("Lyrics not found. Please check your spelling try again.")
 
             return
-        acknowledgment = ctx.edit(acknowledgment, content="Interpreting lyrics...")
+        acknowledgement = acknowledgement.edit_original_response(content="Interpreting lyrics...")
 
         # await ctx.send("Interpreting lyrics...")
 
@@ -741,17 +735,16 @@ async def music(ctx,
         output_line = ', '.join(random_lines)
         new_prompt = song + ", " + output_line + ", " + artist
         if new_prompt is None:
-            await ctx.edit(acknowledgment, content="Something went wrong. Please try again.")
+            await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
 
             # await ctx.send("Something went wrong. Please try again.")
 
             return
-        ack_id = bot.get_message(acknowledgment)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         await command_queue.put(
-            (ctx.channel.id, author_name, message, ack_id, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     # try:
     #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
@@ -857,14 +850,14 @@ async def redraw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
-        acknowledgment = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        acknowledgment = await ctx.respond(f"On it!")
+        acknowledgement = await ctx.respond(f"On it!")
         await command_queue.put(
-            (ctx.channel.id, author_name, message, acknowledgment, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
+            (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
     '''message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
