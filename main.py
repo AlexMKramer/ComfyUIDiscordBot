@@ -61,6 +61,7 @@ async def on_connect():
 
 @bot.event
 async def on_disconnect():
+    await asyncio.sleep(5)
     print(f'Disconnected from {bot.user.name}')
     await bot.connect(reconnect=True)
 
