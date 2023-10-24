@@ -53,17 +53,15 @@ async def on_connect():
         await bot.sync_commands()
     print(f'Logged in as {bot.user.name}')
     # Start the image queue
-    image_queue.start()
-
-
-'''    bot.loop.create_task(process_commands())'''
+    if not image_queue.is_running():
+        image_queue.start()
 
 
 @bot.event
 async def on_disconnect():
     await asyncio.sleep(5)
     print(f'Disconnected from {bot.user.name}')
-    await bot.connect(reconnect=True)
+    # await bot.connect(reconnect=True)
 
 
 command_queue = asyncio.Queue()
