@@ -590,7 +590,7 @@ async def interpret(ctx,
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
             return
-        await acknowledgement.edit_original_response( content="Interpreting lyrics...")
+        await acknowledgement.edit_original_response(content=f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
@@ -598,17 +598,18 @@ async def interpret(ctx,
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
+        message = f"**Song:** {song}\n**Artist:** {artist}\n" + message
         await command_queue.put((
             ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
 
     else:
-        acknowledgement = await ctx.respond(f"\nGetting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
+        acknowledgement = await ctx.respond(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}")
         fixed_lyrics = get_lyrics(song, artist)
         if fixed_lyrics is None:
             await acknowledgement.edit_original_response(content="Lyrics not found. Please check your spelling try again.")
             return
-        await acknowledgement.edit_original_response(content="Interpreting lyrics...")
+        await acknowledgement.edit_original_response(content=f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
