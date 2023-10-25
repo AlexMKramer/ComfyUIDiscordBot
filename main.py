@@ -169,22 +169,24 @@ gpt_initial_prompt = [{'role': 'user',
 
 
 def dalle_integration(dalle_prompt):
-    response = openai.Image.create(
-      prompt=dalle_prompt,
-      n=1,
-      size="1024x1024",
-      response_format="b64_json",
-    )
-    image_json = response['data'][0]['b64_json'][:50]
-    with open(image_json, mode="r", encoding="utf-8") as file:
-        response = json.load(file)
+    folder_path = "/path/to/save/image/"  # Set your desired folder path
 
-    for index, image_dict in enumerate(response["data"]):
-        image_data = base64.b64decode(image_dict["b64_json"])
-        image_file = folder_path + f"dalle_image.png"
-        with open(image_file, mode="wb") as png:
-            png.write(image_data)
-        return image_file
+    response = openai.Image.create(
+        prompt=dalle_prompt,
+        n=1,
+        size="1024x1024",
+        response_format="url",
+    )
+
+    image_url = response['data'][0]['url']
+
+    image_data = base64.b64decode(image_url)  # Decode the base64 data
+
+    image_file = folder_path + "dalle_image.png"
+    with open(image_file, mode="wb") as png:
+        png.write(image_data)
+
+    return image_file
 
 
 with open('resources/prompts.json', 'r') as sdxl_prompts:
