@@ -176,8 +176,15 @@ def dalle_integration(dalle_prompt):
       response_format="b64_json",
     )
     image_json = response['data'][0]['b64_json'][:50]
-    decoded_image = base64.b64decode(image_json)
-    return decoded_image
+    with open(image_json, mode="r", encoding="utf-8") as file:
+        response = json.load(file)
+
+    for index, image_dict in enumerate(response["data"]):
+        image_data = base64.b64decode(image_dict["b64_json"])
+        image_file = folder_path + f"dalle_image.png"
+        with open(image_file, mode="wb") as png:
+            png.write(image_data)
+        return image_file
 
 
 with open('resources/prompts.json', 'r') as sdxl_prompts:
