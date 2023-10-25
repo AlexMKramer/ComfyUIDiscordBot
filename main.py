@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 import re
 from lyricsgenius import Genius
 import openai
+import pybase64
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -165,6 +166,18 @@ gpt_initial_prompt = [{'role': 'user',
                        'content': "{Vibrant and energetic street art style}, {a group of friends dancing and "
                                   "celebrating under the city lights}, {joyful, urban, rhythm}, {bold and lively "
                                   "colors, with splashes of neon blues and pinks}"}, ]
+
+
+def dalle_integration(dalle_prompt):
+    response = openai.Image.create(
+      prompt=dalle_prompt,
+      n=1,
+      size="1024x1024"
+    )
+    image_json = response['data'][0]['b64_json'][:50]
+    decoded_image = pybase64.b64decode(image_json)
+    return decoded_image
+
 
 with open('resources/prompts.json', 'r') as sdxl_prompts:
     prompts_data = json.load(sdxl_prompts)
@@ -594,10 +607,13 @@ async def interpret(ctx,
         if new_prompt is None:
             await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
             return
+        dalle_image = dalle_integration(new_prompt)
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
                                lora_strength, artist_name, model_name)
         message = (f"**Song:** {song}\n**Artist:** {artist}\n" + message)
+        await ctx.send(f"Dalle image:")
+        await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
         await command_queue.put((
             ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
