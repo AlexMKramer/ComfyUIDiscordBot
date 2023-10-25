@@ -6,3 +6,4 @@ lyricsgenius~=3.0.1
 openai~=0.27.8
 python-magic~=0.4.27
 pybase64
+requests~=2.31.0

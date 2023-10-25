@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 import re
 from lyricsgenius import Genius
 import openai
-import base64
+import requests
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -178,14 +178,17 @@ def dalle_integration(dalle_prompt):
     )
 
     image_url = response['data'][0]['url']
+    image_response = requests.get(image_url)
 
-    image_data = base64.b64decode(image_url)  # Decode the base64 data
+    if image_response.status_code == 200:
+        image_data = BytesIO(image_response.content)
+        image = Image.open(image_data)
+        image_file = folder_path + "dalle_image.png"
+        image.save(image_file, "PNG")
 
-    image_file = folder_path + "dalle_image.png"
-    with open(image_file, mode="wb") as png:
-        png.write(image_data)
-
-    return image_file
+        return image_file
+    else:
+        return None
 
 
 with open('resources/prompts.json', 'r') as sdxl_prompts:
