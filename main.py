@@ -832,8 +832,10 @@ async def redraw(ctx,
     output = io.BytesIO()
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
-    await ctx.send(f"Original image:")
-    await ctx.send(file=discord.File(output, filename="original_image.png"))
+
+    # await ctx.send(f"Original image:")
+    # await ctx.send(file=discord.File(output, filename="original_image.png"))
+
     print(f'New image saved to input/temp_image.png')
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
@@ -844,25 +846,18 @@ async def redraw(ctx,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
         acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await ctx.send(f"Original image:")
+        await ctx.send(file=discord.File(output, filename="original_image.png"))
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
         acknowledgement = await ctx.respond(f"On it!")
+        await ctx.send(f"Original image:")
+        await ctx.send(file=discord.File(output, filename="original_image.png"))
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
-
-    '''message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
-                           lora_strength, artist_name, model_name)
-    try:
-        file_list = generate_img2img(new_prompt, percent_of_original, is_img2img, new_negative, new_style, new_size, new_lora,
-                                     lora_strength, artist_name, model_name)
-        await ctx.send(message)
-        await ctx.send("New image:", files=file_list)
-    except Exception as e:
-        print(e)
-        await ctx.send(ctx.author.mention + "img2img issue.")'''
 
 
 """@bot.slash_command(description='Upscale an image!')
