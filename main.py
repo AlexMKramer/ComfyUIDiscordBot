@@ -172,7 +172,8 @@ def dalle_integration(dalle_prompt):
     response = openai.Image.create(
       prompt=dalle_prompt,
       n=1,
-      size="1024x1024"
+      size="1024x1024",
+      response_format="b64_json",
     )
     image_json = response['data'][0]['b64_json'][:50]
     decoded_image = base64.b64decode(image_json)
