@@ -169,7 +169,6 @@ gpt_initial_prompt = [{'role': 'user',
 
 
 def dalle_integration(dalle_prompt):
-    folder_path = "/path/to/save/image/"  # Set your desired folder path
 
     response = openai.Image.create(
         prompt=dalle_prompt,
