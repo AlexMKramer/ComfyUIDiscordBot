@@ -19,6 +19,7 @@ from lyricsgenius import Genius
 import openai
 import requests
 from io import BytesIO
+import datetime
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -61,9 +62,9 @@ async def on_connect():
 
 @bot.event
 async def on_disconnect():
+    disconnect_time = datetime.datetime.utcnow()
+    print(f'{bot.user.name} failed to reconnect at {disconnect_time}')
     await asyncio.sleep(5)
-    print(f'Disconnected from {bot.user.name}')
-    # await bot.connect(reconnect=True)
 
 
 command_queue = asyncio.Queue()
