@@ -811,6 +811,7 @@ async def redraw(ctx,
                  model_name: str = None
                  ):
     author_name = ctx.author.mention
+    acknowledgement = await ctx.respond(f"On it!")
     is_img2img = True
     # await ctx.respond("**" + random_message() + "**" + f"\nGenerating image:\n**Prompt:** {new_prompt}")
     image_bytes = await attached_image.read()
@@ -845,14 +846,14 @@ async def redraw(ctx,
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
     if check_queue_placement() != 0:
-        acknowledgement = await ctx.respond(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await acknowledgement.edit_original_response(f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
         await ctx.send(f"Original image:")
         await ctx.send(file=discord.File(output, filename="original_image.png"))
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
     else:
-        acknowledgement = await ctx.respond(f"On it!")
+        await acknowledgement.edit_original_response(f"On it!")
         await ctx.send(f"Original image:")
         await ctx.send(file=discord.File(output, filename="original_image.png"))
         await command_queue.put(
