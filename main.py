@@ -18,6 +18,7 @@ import re
 from lyricsgenius import Genius
 import openai
 import requests
+from io import BytesIO
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
