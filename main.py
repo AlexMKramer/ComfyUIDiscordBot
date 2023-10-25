@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 import re
 from lyricsgenius import Genius
 import openai
-import pybase64
+import base64
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -175,7 +175,7 @@ def dalle_integration(dalle_prompt):
       size="1024x1024"
     )
     image_json = response['data'][0]['b64_json'][:50]
-    decoded_image = pybase64.b64decode(image_json)
+    decoded_image = base64.b64decode(image_json)
     return decoded_image
 
 
