@@ -603,7 +603,8 @@ async def crazy(ctx):
 async def interpret(ctx,
                     song: str,
                     artist: str,
-                    model_name: str = None
+                    model_name: str = None,
+                    dalle: bool = False
                     ):
     author_name = ctx.author.mention
     is_img2img = False
@@ -625,9 +626,10 @@ async def interpret(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         message = (f"**Song:** {song}\n**Artist:** {artist}\n" + message)
-        dalle_image = dalle_integration(new_prompt)
-        await ctx.send(f"Dalle image:")
-        await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
+        if dalle:
+            dalle_image = dalle_integration(new_prompt)
+            await ctx.send(f"Dalle image:")
+            await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
         await command_queue.put((
             ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
             new_lora, lora_strength, artist_name, model_name))
@@ -647,9 +649,10 @@ async def interpret(ctx,
                                new_lora,
                                lora_strength, artist_name, model_name)
         message = (f"**Song:** {song}\n**Artist:** {artist}\n" + message)
-        dalle_image = dalle_integration(new_prompt)
-        await ctx.send(f"Dalle image:")
-        await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
+        if dalle:
+            dalle_image = dalle_integration(new_prompt)
+            await ctx.send(f"Dalle image:")
+            await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, is_img2img, new_prompt, percent_of_original, new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
