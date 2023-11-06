@@ -620,7 +620,7 @@ async def interpret(ctx,
         await acknowledgement.edit_original_response(content=f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
-            await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
+            await acknowledgement.edit_original_response(content="ChatGPT did not respond or failed, try again.")
             return
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
@@ -643,7 +643,7 @@ async def interpret(ctx,
         await acknowledgement.edit_original_response(content=f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics...")
         new_prompt = gpt_integration(fixed_lyrics)
         if new_prompt is None:
-            await acknowledgement.edit_original_response(content="Something went wrong. Please try again.")
+            await acknowledgement.edit_original_response(content="ChatGPT did not respond or failed, try again.")
             return
         message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size,
                                new_lora,
