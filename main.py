@@ -491,7 +491,7 @@ def generate_upscale():
 
 def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
                    artist_name, model_name):
-    turbo_prompt["6"]["inputs"]["text_positive"] = new_prompt
+    turbo_prompt["6"]["inputs"]["text"] = new_prompt
     seed = random.randint(0, 0xffffffffff)
     turbo_prompt["13"]["inputs"]["noise_seed"] = int(seed)
 
