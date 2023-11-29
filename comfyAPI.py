@@ -660,7 +660,7 @@ turbo_prompt_text = """
   },
   "14": {
     "inputs": {
-      "sampler_name": "dpmpp_2m_sde",
+      "sampler_name": "dpmp_2m_sde"
     },
     "class_type": "KSamplerSelect"
   },
