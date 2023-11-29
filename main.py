@@ -292,6 +292,23 @@ async def models_autocomplete(ctx: discord.AutocompleteContext):
     return []
 
 
+async def turbo_models_autocomplete(ctx: discord.AutocompleteContext):
+    subfolder_name = 'checkpoints'
+    # Walk through the directory tree rooted at root_folder
+    for dirpath, dirnames, filenames in os.walk(folder_path + '/models/'):
+        # Check if the target subfolder is in the current directory
+        if subfolder_name in dirnames:
+            subfolder_path = os.path.join(dirpath, subfolder_name)
+
+            # List files within the target subfolder
+            subfolder_files = [file for file in os.listdir(subfolder_path)]
+            matching_files = [models for models in subfolder_files if "turbo" in models.lower()]
+            return sorted(matching_files)
+
+    # If the target subfolder is not found
+    return []
+
+
 def fix_lyrics(text):
     keyword1 = "Lyrics"
     keyword2 = r"\d*Embed|Embed"
@@ -492,6 +509,10 @@ def generate_upscale():
 def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
                    artist_name, model_name):
     turbo_prompt["6"]["inputs"]["text"] = new_prompt
+    if model_name is not None:
+        img2img_prompt["10"]["inputs"]["ckpt_name"] = model_name
+    else:
+        img2img_prompt["10"]["inputs"]["ckpt_name"] = 'sd_xl_turbo_1.0_fp16.safetensors'
     seed = random.randint(0, 0xffffffffff)
     turbo_prompt["13"]["inputs"]["noise_seed"] = int(seed)
 
@@ -939,15 +960,22 @@ async def redraw(ctx,
     description="Enter the prompt",
     required=True
 )
+@option(
+    "model_name",
+    description="Enter the model name",
+    autocomplete=turbo_models_autocomplete,
+    required=False
+)
 async def turbo(ctx,
                 new_prompt: str,
+                model_name: str = None
                 ):
     print(f'Turbo Command received: {ctx}')
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
     gen_type = "turbo"
-    new_negative = new_style = new_size = new_lora = lora_strength = artist_name = model_name = None
+    new_negative = new_style = new_size = new_lora = lora_strength = artist_name = None
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
