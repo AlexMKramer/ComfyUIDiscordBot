@@ -698,3 +698,5 @@ prompt = json.loads(prompt_text)
 img2img_prompt = json.loads(img2img_prompt_text)
 
 upscale_prompt = json.loads(upscale_prompt_text)
+
+turbo_prompt = json.loads(turbo_prompt_text)

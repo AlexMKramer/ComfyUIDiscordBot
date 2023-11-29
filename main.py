@@ -31,6 +31,7 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 prompt = comfyAPI.prompt
 img2img_prompt = comfyAPI.img2img_prompt
 upscale_prompt = comfyAPI.upscale_prompt
+turbo_prompt = comfyAPI.turbo_prompt
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -490,13 +491,13 @@ def generate_upscale():
 
 def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
                    artist_name, model_name):
-    prompt["6"]["inputs"]["text_positive"] = new_prompt
+    turbo_prompt["6"]["inputs"]["text_positive"] = new_prompt
     seed = random.randint(0, 0xffffffffff)
-    prompt["13"]["inputs"]["noise_seed"] = int(seed)
+    turbo_prompt["13"]["inputs"]["noise_seed"] = int(seed)
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    images = comfyAPI.get_images(ws, prompt)
+    images = comfyAPI.get_images(ws, turbo_prompt)
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
