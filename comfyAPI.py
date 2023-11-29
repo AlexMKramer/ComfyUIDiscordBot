@@ -660,7 +660,7 @@ turbo_prompt_text = """
   },
   "14": {
     "inputs": {
-      "sampler_name": "euler_ancestral"
+      "sampler_name": "dpmpp_2m_sde",
     },
     "class_type": "KSamplerSelect"
   },
