@@ -104,6 +104,7 @@ async def image_queue():
             try:
                 rand_msg = random_message()
                 if gen_type == "img2img":
+                    print("img2img")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nRecreating image...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
@@ -111,6 +112,7 @@ async def image_queue():
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
                 elif gen_type == "draw":
+                    print("draw")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating images...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
@@ -118,12 +120,16 @@ async def image_queue():
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                 elif gen_type == "turbo":
+                    print("turbo")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating turbo images...")
                     # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_turbo, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
+                else:
+                    print("Error: Invalid gen_type")
+                    return
                 await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
                                                              files=file_list)
                 queue_processing = False
@@ -934,19 +940,13 @@ async def redraw(ctx,
 )
 async def turbo(ctx,
                 new_prompt: str,
-                new_negative: str = None,
-                new_style: str = None,
-                new_size: str = None,
-                new_lora: str = None,
-                lora_strength: int = None,
-                artist_name: str = None,
-                model_name: str = None
                 ):
     print(f'Turbo Command received: {ctx}')
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
     gen_type = "turbo"
+    new_negative = new_style = new_size = new_lora = lora_strength = artist_name = model_name = None
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
