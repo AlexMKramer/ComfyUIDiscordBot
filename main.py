@@ -510,17 +510,17 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
                    artist_name, model_name):
     turbo_prompt["6"]["inputs"]["text"] = new_prompt
     if model_name is not None:
-        img2img_prompt["20"]["inputs"]["ckpt_name"] = model_name
+        turbo_prompt["20"]["inputs"]["ckpt_name"] = model_name
     else:
-        img2img_prompt["20"]["inputs"]["ckpt_name"] = 'sd_xl_turbo_1.0_fp16.safetensors'
+        turbo_prompt["20"]["inputs"]["ckpt_name"] = 'sd_xl_turbo_1.0_fp16.safetensors'
 
     if new_size is not None:
         height, width = new_size.split()
-        prompt["5"]["inputs"]["height"] = int(height)
-        prompt["5"]["inputs"]["width"] = int(width)
+        turbo_prompt["5"]["inputs"]["height"] = int(height)
+        turbo_prompt["5"]["inputs"]["width"] = int(width)
     else:
-        prompt["5"]["inputs"]["height"] = 1024
-        prompt["5"]["inputs"]["width"] = 1024
+        turbo_prompt["5"]["inputs"]["height"] = 512
+        turbo_prompt["5"]["inputs"]["width"] = 512
     seed = random.randint(0, 0xffffffffff)
     turbo_prompt["13"]["inputs"]["noise_seed"] = int(seed)
 
@@ -971,7 +971,7 @@ async def redraw(ctx,
 @option(
     "new_size",
     description="Choose the height and width",
-    autocomplete=["512 512", "768 768", "1024 1024"],
+    autocomplete=height_width_autocomplete,
     required=False
 )
 @option(
