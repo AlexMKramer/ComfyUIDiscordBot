@@ -510,9 +510,17 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
                    artist_name, model_name):
     turbo_prompt["6"]["inputs"]["text"] = new_prompt
     if model_name is not None:
-        img2img_prompt["10"]["inputs"]["ckpt_name"] = model_name
+        img2img_prompt["20"]["inputs"]["ckpt_name"] = model_name
     else:
-        img2img_prompt["10"]["inputs"]["ckpt_name"] = 'sd_xl_turbo_1.0_fp16.safetensors'
+        img2img_prompt["20"]["inputs"]["ckpt_name"] = 'sd_xl_turbo_1.0_fp16.safetensors'
+
+    if new_size is not None:
+        height, width = new_size.split()
+        prompt["5"]["inputs"]["height"] = int(height)
+        prompt["5"]["inputs"]["width"] = int(width)
+    else:
+        prompt["5"]["inputs"]["height"] = 1024
+        prompt["5"]["inputs"]["width"] = 1024
     seed = random.randint(0, 0xffffffffff)
     turbo_prompt["13"]["inputs"]["noise_seed"] = int(seed)
 
@@ -961,6 +969,12 @@ async def redraw(ctx,
     required=True
 )
 @option(
+    "new_size",
+    description="Choose the height and width",
+    autocomplete=["512 512", "768 768", "1024 1024"],
+    required=False
+)
+@option(
     "model_name",
     description="Enter the model name",
     autocomplete=turbo_models_autocomplete,
@@ -968,6 +982,7 @@ async def redraw(ctx,
 )
 async def turbo(ctx,
                 new_prompt: str,
+                new_size: str = None,
                 model_name: str = None
                 ):
     print(f'Turbo Command received: {ctx}')
@@ -975,7 +990,7 @@ async def turbo(ctx,
     author_name = ctx.author.mention
     percent_of_original = None
     gen_type = "turbo"
-    new_negative = new_style = new_size = new_lora = lora_strength = artist_name = None
+    new_negative = new_style = new_lora = lora_strength = artist_name = None
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
