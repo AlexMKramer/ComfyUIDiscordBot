@@ -509,10 +509,6 @@ def generate_upscale():
 def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
                    artist_name, model_name):
     turbo_prompt["6"]["inputs"]["text"] = new_prompt
-    if model_name is not None:
-        turbo_prompt["20"]["inputs"]["ckpt_name"] = model_name
-    else:
-        turbo_prompt["20"]["inputs"]["ckpt_name"] = 'sd_xl_turbo_1.0_fp16.safetensors'
 
     if new_size is not None:
         height, width = new_size.split()
@@ -974,23 +970,16 @@ async def redraw(ctx,
     autocomplete=height_width_autocomplete,
     required=False
 )
-@option(
-    "model_name",
-    description="Enter the model name",
-    autocomplete=turbo_models_autocomplete,
-    required=False
-)
 async def turbo(ctx,
                 new_prompt: str,
-                new_size: str = None,
-                model_name: str = None
+                new_size: str = None
                 ):
     print(f'Turbo Command received: {ctx}')
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
     gen_type = "turbo"
-    new_negative = new_style = new_lora = lora_strength = artist_name = None
+    new_negative = new_style = new_lora = lora_strength = artist_name = model_name = None
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)

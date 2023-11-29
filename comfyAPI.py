@@ -630,7 +630,7 @@ turbo_prompt_text = """
     "inputs": {
       "add_noise": true,
       "noise_seed": 2,
-      "cfg": 2.25,
+      "cfg": 1,
       "model": [
         "20",
         0
