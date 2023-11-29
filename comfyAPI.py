@@ -672,7 +672,7 @@ turbo_prompt_text = """
   },
   "22": {
     "inputs": {
-      "steps": 1,
+      "steps": 4,
       "model": [
         "20",
         0
