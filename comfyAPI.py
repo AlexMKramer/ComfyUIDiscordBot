@@ -40,6 +40,7 @@ def get_images(ws, prompt):
                     break # Execution is done
         else:
             continue # previews are binary data
+    print("Execution done, getting images")
 
     history = get_history(prompt_id)[prompt_id]
     for o in history['outputs']:
@@ -51,7 +52,7 @@ def get_images(ws, prompt):
                     image_data = get_image(image['filename'], image['subfolder'], image['type'])
                     images_output.append(image_data)
             output_images[node_id] = images_output
-
+    print("Got images")
     return output_images
 
 
