@@ -138,6 +138,7 @@ async def image_queue():
                 print(e)
                 await acknowledgement.edit_original_response(
                     content=author_name + " \nSomething went wrong. Please try again.")
+                queue_processing = False
                 # await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
