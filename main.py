@@ -20,7 +20,6 @@ import openai
 import requests
 from io import BytesIO
 import datetime
-import time
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -132,15 +131,9 @@ async def image_queue():
                 else:
                     print("Error: Invalid gen_type")
                     return
-                if file_list is None:
-                    await acknowledgement.edit_original_response(
-                        content=author_name + "\nSomething went wrong. Please try again.")
-                    # await channel.send(author_name + "\nSomething went wrong. Please try again.")
-                    return
-                else:
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 files=file_list)
-                    queue_processing = False
+                await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                             files=file_list)
+                queue_processing = False
             except Exception as e:
                 print(e)
                 await acknowledgement.edit_original_response(
@@ -423,22 +416,24 @@ def generate_image(new_prompt, percent_of_original, new_negative, new_style, new
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+
     try:
-        images = comfyAPI.get_images(ws, img2img_prompt)
+        images = comfyAPI.get_images(ws, prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            return file_list
     except websocket.WebSocketTimeoutException:
         print("WebSocket timed out. Closing connection.")
         ws.close()
-        return None
-    file_paths = []
-    for node_id in images:
-        for image_data in images[node_id]:
-            image = Image.open(io.BytesIO(image_data))
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                image.save(temp_file.name)
-                file_paths.append(temp_file.name)
-        file_list = [discord.File(file_path) for file_path in file_paths]
-        for file_path in file_paths:
-            os.remove(file_path)
+        file_list = None
         return file_list
 
 
@@ -487,32 +482,32 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+
     try:
         images = comfyAPI.get_images(ws, img2img_prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            return file_list
     except websocket.WebSocketTimeoutException:
         print("WebSocket timed out. Closing connection.")
         ws.close()
-    file_paths = []
-    for node_id in images:
-        for image_data in images[node_id]:
-            image = Image.open(io.BytesIO(image_data))
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                image.save(temp_file.name)
-                file_paths.append(temp_file.name)
-        file_list = [discord.File(file_path) for file_path in file_paths]
-        for file_path in file_paths:
-            os.remove(file_path)
+        file_list = None
         return file_list
+
 
 
 def generate_upscale():
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    try:
-        images = comfyAPI.get_images(ws, img2img_prompt)
-    except websocket.WebSocketTimeoutException:
-        print("WebSocket timed out. Closing connection.")
-        ws.close()
+    images = comfyAPI.get_images(ws, upscale_prompt)
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
@@ -542,17 +537,24 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    images = comfyAPI.get_images(ws, turbo_prompt)
-    file_paths = []
-    for node_id in images:
-        for image_data in images[node_id]:
-            image = Image.open(io.BytesIO(image_data))
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                image.save(temp_file.name)
-                file_paths.append(temp_file.name)
-        file_list = [discord.File(file_path) for file_path in file_paths]
-        for file_path in file_paths:
-            os.remove(file_path)
+
+    try:
+        images = comfyAPI.get_images(ws, turbo_prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            return file_list
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
+        file_list = None
         return file_list
 
 
