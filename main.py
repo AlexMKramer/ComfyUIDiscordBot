@@ -20,6 +20,7 @@ import openai
 import requests
 from io import BytesIO
 import datetime
+import time
 
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -417,6 +418,9 @@ def generate_image(new_prompt, percent_of_original, new_negative, new_style, new
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
     images = comfyAPI.get_images(ws, prompt)
+    # if no images are returned, try again
+    while len(images) == 0:
+        images = comfyAPI.get_images(ws, img2img_prompt)
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
@@ -475,7 +479,11 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+
     images = comfyAPI.get_images(ws, img2img_prompt)
+    # if no images are returned, try again
+    while len(images) == 0:
+        images = comfyAPI.get_images(ws, img2img_prompt)
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
@@ -493,6 +501,9 @@ def generate_upscale():
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
     images = comfyAPI.get_images(ws, upscale_prompt)
+    # if no images are returned, try again
+    while len(images) == 0:
+        images = comfyAPI.get_images(ws, img2img_prompt)
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
