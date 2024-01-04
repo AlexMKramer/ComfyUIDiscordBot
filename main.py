@@ -503,21 +503,27 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
         return file_list
 
 
-
 def generate_upscale():
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    images = comfyAPI.get_images(ws, upscale_prompt)
-    file_paths = []
-    for node_id in images:
-        for image_data in images[node_id]:
-            image = Image.open(io.BytesIO(image_data))
-            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
-                image.save(temp_file.name)
-                file_paths.append(temp_file.name)
-        file_list = [discord.File(file_path) for file_path in file_paths]
-        for file_path in file_paths:
-            os.remove(file_path)
+
+    try:
+        images = comfyAPI.get_images(ws, upscale_prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            return file_list
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
+        file_list = None
         return file_list
 
 
