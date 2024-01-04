@@ -428,6 +428,7 @@ def generate_image(new_prompt, percent_of_original, new_negative, new_style, new
             for file_path in file_paths:
                 os.remove(file_path)
             ws.close()
+            print("WebSocket closed.")
             return file_list
     except websocket.WebSocketTimeoutException:
         print("WebSocket timed out. Closing connection.")
@@ -481,6 +482,7 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("WebSocket connected.")
 
     try:
         images = comfyAPI.get_images(ws, img2img_prompt)
@@ -494,6 +496,8 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
             file_list = [discord.File(file_path) for file_path in file_paths]
             for file_path in file_paths:
                 os.remove(file_path)
+            ws.close()
+            print("WebSocket closed.")
             return file_list
     except websocket.WebSocketTimeoutException:
         print("WebSocket timed out. Closing connection.")
@@ -505,6 +509,7 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
 def generate_upscale():
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("WebSocket connected.")
 
     try:
         images = comfyAPI.get_images(ws, upscale_prompt)
@@ -555,6 +560,8 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
             file_list = [discord.File(file_path) for file_path in file_paths]
             for file_path in file_paths:
                 os.remove(file_path)
+            ws.close()
+            print("WebSocket closed.")
             return file_list
     except websocket.WebSocketTimeoutException:
         print("WebSocket timed out. Closing connection.")
