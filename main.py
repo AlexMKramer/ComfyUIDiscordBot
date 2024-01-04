@@ -108,7 +108,6 @@ async def image_queue():
                     print("img2img")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nRecreating image...")
-                    # await channel.send(author_name + "\n**" + random_message() + "**" + "\nRecreating image...")
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
@@ -116,7 +115,6 @@ async def image_queue():
                     print("draw")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating images...")
-                    # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
@@ -124,7 +122,6 @@ async def image_queue():
                     print("turbo")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating turbo images...")
-                    # await channel.send(author_name + "\n**" + random_message() + "**" + "\nGenerating images...")
                     file_list = await loop.run_in_executor(None, generate_turbo, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
@@ -139,7 +136,6 @@ async def image_queue():
                 await acknowledgement.edit_original_response(
                     content=author_name + " \nSomething went wrong. Please try again.")
                 queue_processing = False
-                # await channel.send(author_name + " \nSomething went wrong. Please try again.")
         except Exception as e:
             print(f'Error processing image: {e}')
 
