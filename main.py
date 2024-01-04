@@ -132,9 +132,15 @@ async def image_queue():
                 else:
                     print("Error: Invalid gen_type")
                     return
-                await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                             files=file_list)
-                queue_processing = False
+                if file_list is None:
+                    await acknowledgement.edit_original_response(
+                        content=author_name + "\nSomething went wrong. Please try again.")
+                    # await channel.send(author_name + "\nSomething went wrong. Please try again.")
+                    return
+                else:
+                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                 files=file_list)
+                    queue_processing = False
             except Exception as e:
                 print(e)
                 await acknowledgement.edit_original_response(
@@ -417,10 +423,12 @@ def generate_image(new_prompt, percent_of_original, new_negative, new_style, new
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    images = comfyAPI.get_images(ws, prompt)
-    # if no images are returned, try again
-    while len(images) == 0:
+    try:
         images = comfyAPI.get_images(ws, img2img_prompt)
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
+        return None
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
@@ -479,11 +487,11 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-
-    images = comfyAPI.get_images(ws, img2img_prompt)
-    # if no images are returned, try again
-    while len(images) == 0:
+    try:
         images = comfyAPI.get_images(ws, img2img_prompt)
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
@@ -500,10 +508,11 @@ def generate_img2img(new_prompt, percent_of_original, new_negative, new_style, n
 def generate_upscale():
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
-    images = comfyAPI.get_images(ws, upscale_prompt)
-    # if no images are returned, try again
-    while len(images) == 0:
+    try:
         images = comfyAPI.get_images(ws, img2img_prompt)
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
     file_paths = []
     for node_id in images:
         for image_data in images[node_id]:
