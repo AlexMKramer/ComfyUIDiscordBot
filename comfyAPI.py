@@ -761,7 +761,7 @@ txt2vid_prompt_text = """
   },
   "3": {
     "inputs": {
-      "text": "Donald Trump eating spaghetti and meatballs, masterpiece, oil painting",
+      "text": "Donald Trump eating spaghetti and meatballs",
       "clip": [
         "4",
         0
@@ -800,14 +800,14 @@ txt2vid_prompt_text = """
   },
   "7": {
     "inputs": {
-      "seed": 452371923286995,
+      "seed": 888888889,
       "steps": 20,
       "cfg": 8,
       "sampler_name": "euler",
       "scheduler": "normal",
       "denoise": 1,
       "model": [
-        "36",
+        "27",
         0
       ],
       "positive": [
@@ -832,7 +832,7 @@ txt2vid_prompt_text = """
     "inputs": {
       "width": 512,
       "height": 512,
-      "batch_size": 48
+      "batch_size": 16
     },
     "class_type": "EmptyLatentImage",
     "_meta": {
@@ -855,6 +855,22 @@ txt2vid_prompt_text = """
       "title": "VAE Decode"
     }
   },
+  "27": {
+    "inputs": {
+      "model_name": "v3_sd15_mm.ckpt",
+      "beta_schedule": "sqrt_linear (AnimateDiff)",
+      "motion_scale": 1,
+      "apply_v2_models_properly": true,
+      "model": [
+        "32",
+        0
+      ]
+    },
+    "class_type": "ADE_AnimateDiffLoaderWithContext",
+    "_meta": {
+      "title": "AnimateDiff Loader 🎭🅐🅓"
+    }
+  },
   "32": {
     "inputs": {
       "ckpt_name": "sd-1.5/sd-1.5_checkpoints/noosphere_v4.2.safetensors"
@@ -864,44 +880,11 @@ txt2vid_prompt_text = """
       "title": "Load Checkpoint"
     }
   },
-  "33": {
-    "inputs": {
-      "context_length": 16,
-      "context_stride": 1,
-      "context_overlap": 4,
-      "context_schedule": "uniform",
-      "closed_loop": false
-    },
-    "class_type": "ADE_AnimateDiffUniformContextOptions",
-    "_meta": {
-      "title": "Uniform Context Options 🎭🅐🅓"
-    }
-  },
-  "36": {
-    "inputs": {
-      "model_name": "v3_sd15_mm.ckpt",
-      "beta_schedule": "sqrt_linear (AnimateDiff)",
-      "motion_scale": 1,
-      "apply_v2_models_properly": true,
-      "model": [
-        "32",
-        0
-      ],
-      "context_options": [
-        "33",
-        0
-      ]
-    },
-    "class_type": "ADE_AnimateDiffLoaderWithContext",
-    "_meta": {
-      "title": "AnimateDiff Loader 🎭🅐🅓"
-    }
-  },
-  "37": {
+  "35": {
     "inputs": {
       "frame_rate": 8,
       "loop_count": 0,
-      "filename_prefix": "aaa_readme",
+      "filename_prefix": "ComfyuiGif",
       "format": "image/gif",
       "pingpong": false,
       "save_output": true,
