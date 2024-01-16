@@ -32,6 +32,8 @@ prompt = comfyAPI.prompt
 img2img_prompt = comfyAPI.img2img_prompt
 upscale_prompt = comfyAPI.upscale_prompt
 turbo_prompt = comfyAPI.turbo_prompt
+txt2vid_prompt = comfyAPI.txt2vid_prompt
+
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -123,6 +125,13 @@ async def image_queue():
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating turbo images...")
                     file_list = await loop.run_in_executor(None, generate_turbo, new_prompt, percent_of_original,
+                                                           new_negative, new_style,
+                                                           new_size, new_lora, lora_strength, artist_name, model_name)
+                elif gen_type == "txt2vid":
+                    print("txt2vid")
+                    await acknowledgement.edit_original_response(
+                        content="**" + rand_msg + "**" + "\nGenerating animated gif...")
+                    file_list = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                 else:
@@ -570,6 +579,41 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
         return file_list
 
 
+def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
+                     artist_name, model_name):
+    txt2vid_prompt["6"]["inputs"]["text"] = new_prompt
+    if new_negative is not None:
+        txt2vid_prompt["3"]["inputs"]["text_negative"] = new_negative
+    else:
+        txt2vid_prompt["6"]["inputs"]["text_negative"] = ''
+    seed = random.randint(0, 0xffffffffff)
+    txt2vid_prompt["7"]["inputs"]["seed"] = int(seed)
+
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+
+    try:
+        images = comfyAPI.get_images(ws, txt2vid_prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.gif', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            ws.close()
+            print("WebSocket closed.")
+            return file_list
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
+        file_list = None
+        return file_list
+
+
 @bot.slash_command(description='Generate images using only words!')
 @option(
     "new_prompt",
@@ -646,13 +690,6 @@ async def draw(ctx,
              new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
-        # try:
-    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-    #     await ctx.send(message, files=file_list)
-    # except Exception as e:
-    #     print(e)
-    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
-
 
 @bot.slash_command(description='Go Crazy!')
 async def crazy(ctx):
@@ -683,13 +720,6 @@ async def crazy(ctx):
             (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
              new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
-
-    # try:
-    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-    #     await ctx.send(message, files=file_list)
-    # except Exception as e:
-    #     print(e)
-    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description="Interpret a song's lyrics using ChatGPT!")
@@ -773,12 +803,6 @@ async def interpret(ctx,
             (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
              new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
-    # try:
-    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-    #     await ctx.send(message, files=file_list)
-    # except Exception as e:
-    #     print(e)
-    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description="Generate images based on song lyrics!")
@@ -866,12 +890,6 @@ async def music(ctx,
             (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
              new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
-    # try:
-    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-    #     await ctx.send(message, files=file_list)
-    # except Exception as e:
-    #     print(e)
-    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
 
 
 @bot.slash_command(description='Generate an image using an image and words!')
@@ -962,9 +980,6 @@ async def redraw(ctx,
     image.save(output, format='PNG')  # You can adjust the format if needed
     output.seek(0)
 
-    # await ctx.send(f"Original image:")
-    # await ctx.send(file=discord.File(output, filename="original_image.png"))
-
     print(f'New image saved to input/temp_image.png')
     # convert height and width back to new_size string
     new_size = str(new_height) + " " + str(new_width)
@@ -1031,13 +1046,6 @@ async def turbo(ctx,
              new_negative, new_style, new_size,
              new_lora, lora_strength, artist_name, model_name))
 
-        # try:
-    #     file_list = generate_image(new_prompt, new_negative, new_style, new_size, new_lora, lora_strength, artist_name, model_name)
-    #     await ctx.send(message, files=file_list)
-    # except Exception as e:
-    #     print(e)
-    #     await ctx.send(ctx.author.mention + " Something went wrong. Please try again.")
-
 
 """@bot.slash_command(description='Upscale an image!')
 @option(
@@ -1061,6 +1069,51 @@ async def upscale(ctx, attached_image: discord.Attachment):
     except Exception as e:
         print(e)
         await ctx.send(ctx.author.mention + "upscale issue.")"""
+
+
+@bot.slash_command(description='Generate short videos using only words!')
+@option(
+    "new_prompt",
+    description="Enter the prompt",
+    required=True
+)
+@option(
+    "new_negative",
+    description="Enter the negative prompt",
+    required=False
+)
+async def animate(ctx,
+                  new_prompt: str,
+                  new_negative: str = None
+                  ):
+    print(f'Txt2vid Command received: {ctx}')
+    # Setup message
+    author_name = ctx.author.mention
+    new_style = None
+    new_size = None
+    new_lora = None
+    lora_strength = None
+    artist_name = None
+    model_name = None
+    percent_of_original = None
+    gen_type = "txt2vid"
+    global queue_processing
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
+                           lora_strength, artist_name, model_name)
+    if check_queue_placement() != 0:
+        acknowledgement = await ctx.respond(
+            f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
+             new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
+    else:
+        acknowledgement = await ctx.respond(f"On it!")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
+             new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
+
 
 if __name__ == '__main__':
     # asyncio.run(main())
