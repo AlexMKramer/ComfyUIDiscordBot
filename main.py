@@ -597,18 +597,16 @@ def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, n
     try:
         images = comfyAPI.get_gifs(ws, txt2vid_prompt)
         file_paths = []
-        for node_id in images:
-            for image_data in images[node_id]:
-                image = Image.open(io.BytesIO(image_data))
-                with tempfile.NamedTemporaryFile(suffix='.gif', delete=False) as temp_file:
-                    image.save(temp_file.name)
-                    file_paths.append(temp_file.name)
-            file_list = [discord.File(file_path) for file_path in file_paths]
-            for file_path in file_paths:
-                os.remove(file_path)
-            ws.close()
-            print("WebSocket closed.")
-            return file_list
+        # Add all file urls to a list
+        for url in images:
+            file_paths.append(url)
+        # Create a list of discord.File objects
+        file_list = [discord.File(file_path) for file_path in file_paths]
+        for file_path in file_paths:
+            os.remove(file_path)
+        ws.close()
+        print("WebSocket closed.")
+        return file_list
     except websocket.WebSocketTimeoutException:
         print("WebSocket timed out. Closing connection.")
         ws.close()

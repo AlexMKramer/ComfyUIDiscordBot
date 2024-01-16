@@ -25,7 +25,7 @@ def get_image(filename, subfolder, folder_type):
         return response.read()
 
 
-def get_gif(filename, subfolder, folder_type):
+def get_gif_url(filename, subfolder, folder_type):
     data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
     url = "http://{}/view".format(server_address)
 
@@ -33,9 +33,8 @@ def get_gif(filename, subfolder, folder_type):
         response = requests.get(url, params=data)
         response.raise_for_status()
 
-        print(response.headers['Content-Type'])
         print(response.url)
-        return response.content
+        return response.url
 
     except requests.RequestException as e:
         print(f"Error fetching image: {e}")
@@ -79,7 +78,7 @@ def get_images(ws, prompt):
 
 def get_gifs(ws, prompt):
     prompt_id = queue_prompt(prompt)['prompt_id']
-    output_images = {}
+    gif_urls = {}
     while True:
         out = ws.recv()
         if isinstance(out, str):
@@ -104,11 +103,10 @@ def get_gifs(ws, prompt):
             if 'gifs' in node_output:
                 images_output = []
                 for gif in node_output['gifs']:
-                    image_data = get_gif(gif['filename'], gif['subfolder'], gif['type'])
-                    images_output.append(image_data)
-            output_images[node_id] = images_output
+                    gif_urls = gif_urls.append(get_gif_url(gif['filename'], gif['subfolder'], gif['type']))
+
     print("Got images")
-    return output_images
+    return gif_urls
 
 prompt_text = """
 {
