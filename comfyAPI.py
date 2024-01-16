@@ -1,8 +1,9 @@
+import asyncio
 import uuid
 import json
 import urllib.request
 import urllib.parse
-
+import time
 
 server_address = "127.0.0.1:8188"
 client_id = str(uuid.uuid4())
@@ -71,6 +72,10 @@ def get_gifs(ws, prompt):
         else:
             continue # previews are binary data
     print("Execution done, getting images")
+
+    # wait for the gif to be generated and combined
+    print('Waiting for gif to be generated and combined')
+    time.sleep(10)
 
     history = get_history(prompt_id)[prompt_id]
     print(history)

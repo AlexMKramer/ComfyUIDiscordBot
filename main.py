@@ -134,8 +134,6 @@ async def image_queue():
                     file_list = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                    # wait for the gif to finish generating
-                    await asyncio.sleep(10)
                 else:
                     print("Error: Invalid gen_type")
                     return
