@@ -581,9 +581,9 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
 
 def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
                      artist_name, model_name):
-    txt2vid_prompt["6"]["inputs"]["text"] = new_prompt
+    txt2vid_prompt["3"]["inputs"]["text"] = new_prompt
     if new_negative is not None:
-        txt2vid_prompt["3"]["inputs"]["text_negative"] = new_negative
+        txt2vid_prompt["6"]["inputs"]["text_negative"] = new_negative
     else:
         txt2vid_prompt["6"]["inputs"]["text_negative"] = ''
     seed = random.randint(0, 0xffffffffff)
