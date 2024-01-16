@@ -20,6 +20,7 @@ def get_image(filename, subfolder, folder_type):
     data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
     url_values = urllib.parse.urlencode(data)
     with urllib.request.urlopen("http://{}/view?{}".format(server_address, url_values)) as response:
+        print("http://{}/view?{}".format(server_address, url_values))
         return response.read()
 
 
