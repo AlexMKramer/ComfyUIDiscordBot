@@ -134,6 +134,7 @@ async def image_queue():
                     file_list = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
+                    await channel.send(file=file_list[0])
                 else:
                     print("Error: Invalid gen_type")
                     return
