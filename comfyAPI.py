@@ -103,7 +103,7 @@ def get_gifs(ws, prompt):
             if 'gifs' in node_output:
                 images_output = []
                 for gif in node_output['gifs']:
-                    gif_urls = gif_urls.append(get_gif_url(gif['filename'], gif['subfolder'], gif['type']))
+                    gif_urls = get_gif_url(gif['filename'], gif['subfolder'], gif['type'])
 
     print("Got images")
     return gif_urls
