@@ -4,6 +4,7 @@ import json
 import urllib.request
 import urllib.parse
 import time
+import requests
 
 server_address = "127.0.0.1:8188"
 client_id = str(uuid.uuid4())
@@ -22,6 +23,22 @@ def get_image(filename, subfolder, folder_type):
     with urllib.request.urlopen("http://{}/view?{}".format(server_address, url_values)) as response:
         print("http://{}/view?{}".format(server_address, url_values))
         return response.read()
+
+
+def get_gif(filename, subfolder, folder_type):
+    data = {"filename": filename, "subfolder": subfolder, "type": folder_type}
+    url = "http://{}/view".format(server_address)
+
+    try:
+        response = requests.get(url, params=data)
+        response.raise_for_status()
+
+        print(response.url)
+        return response.content
+
+    except requests.RequestException as e:
+        print(f"Error fetching image: {e}")
+        return None
 
 
 def get_history(prompt_id):
@@ -86,7 +103,7 @@ def get_gifs(ws, prompt):
             if 'gifs' in node_output:
                 images_output = []
                 for gif in node_output['gifs']:
-                    image_data = get_image(gif['filename'], gif['subfolder'], gif['type'])
+                    image_data = get_gif(gif['filename'], gif['subfolder'], gif['type'])
                     images_output.append(image_data)
             output_images[node_id] = images_output
     print("Got images")
