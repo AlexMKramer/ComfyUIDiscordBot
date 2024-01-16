@@ -595,7 +595,7 @@ def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, n
     print("WebSocket connected.")
 
     try:
-        images = comfyAPI.get_images(ws, txt2vid_prompt)
+        images = comfyAPI.get_gifs(ws, txt2vid_prompt)
         file_paths = []
         for node_id in images:
             for image_data in images[node_id]:
