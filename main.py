@@ -554,6 +554,7 @@ def generate_turbo(new_prompt, percent_of_original, new_negative, new_style, new
     seed = random.randint(0, 0xffffffffff)
     turbo_prompt["13"]["inputs"]["noise_seed"] = int(seed)
 
+    print("WebSocket connected.")
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
 
@@ -591,6 +592,7 @@ def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, n
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("WebSocket connected.")
 
     try:
         images = comfyAPI.get_images(ws, txt2vid_prompt)

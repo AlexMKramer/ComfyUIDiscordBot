@@ -57,6 +57,35 @@ def get_images(ws, prompt):
     return output_images
 
 
+def get_gifs(ws, prompt):
+    prompt_id = queue_prompt(prompt)['prompt_id']
+    output_images = {}
+    while True:
+        out = ws.recv()
+        if isinstance(out, str):
+            message = json.loads(out)
+            if message['type'] == 'executing':
+                data = message['data']
+                if data['node'] is None and data['prompt_id'] == prompt_id:
+                    break # Execution is done
+        else:
+            continue # previews are binary data
+    print("Execution done, getting images")
+
+    history = get_history(prompt_id)[prompt_id]
+    print(history)
+    for o in history['outputs']:
+        for node_id in history['outputs']:
+            node_output = history['outputs'][node_id]
+            if 'gifs' in node_output:
+                images_output = []
+                for gif in node_output['gifs']:
+                    image_data = get_image(gif['filename'], gif['subfolder'], gif['type'])
+                    images_output.append(image_data)
+            output_images[node_id] = images_output
+    print("Got images")
+    return output_images
+
 prompt_text = """
 {
     "4": {
