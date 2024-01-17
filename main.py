@@ -34,7 +34,6 @@ upscale_prompt = comfyAPI.upscale_prompt
 turbo_prompt = comfyAPI.turbo_prompt
 txt2vid_prompt = comfyAPI.txt2vid_prompt
 
-
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
 bot.auto_sync_commands = True
@@ -141,8 +140,10 @@ async def image_queue():
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                     print(file_list)
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 file=file_list)
+
+                    with open(file_list, 'rb') as f:
+                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                     file=file_list)
                 else:
                     print("Error: Invalid gen_type")
                     return
