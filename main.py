@@ -134,7 +134,7 @@ async def image_queue():
                     await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
                                                                  files=file_list)
                 elif gen_type == "high_quality":
-                    print("turbo")
+                    print("high_quality")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating high quality images...")
                     file_list = await loop.run_in_executor(None, generate_high_quality, new_prompt, percent_of_original,
@@ -480,40 +480,40 @@ def generate_high_quality(new_prompt, percent_of_original, new_negative, new_sty
         new_prompt = " <lora:" + new_lora + ":" + str(lora_strength) + ">, " + new_prompt
     if artist_name is not None:
         new_prompt = new_prompt + ", by " + artist_name
-    prompt["101"]["inputs"]["text_positive"] = new_prompt
+    high_quality_prompt["101"]["inputs"]["text_positive"] = new_prompt
 
     if new_negative is not None:
-        prompt["101"]["inputs"]["text_negative"] = new_negative
+        high_quality_prompt["101"]["inputs"]["text_negative"] = new_negative
     else:
-        prompt["101"]["inputs"]["text_negative"] = ''
+        high_quality_prompt["101"]["inputs"]["text_negative"] = ''
 
     if new_style is not None:
         if new_style == 'random':
             new_style = random.choice(style_names)
-        prompt["101"]["inputs"]["style"] = new_style
+        high_quality_prompt["101"]["inputs"]["style"] = new_style
     else:
-        prompt["101"]["inputs"]["style"] = 'base'
+        high_quality_prompt["101"]["inputs"]["style"] = 'base'
 
     if new_size is not None:
         height, width = new_size.split()
-        prompt["97"]["inputs"]["height"] = int(height)
-        prompt["97"]["inputs"]["width"] = int(width)
+        high_quality_prompt["97"]["inputs"]["height"] = int(height)
+        high_quality_prompt["97"]["inputs"]["width"] = int(width)
     else:
         prompt["97"]["inputs"]["height"] = 1024
         prompt["97"]["inputs"]["width"] = 1024
 
     seed = random.randint(0, 0xffffffffff)
-    prompt["5"]["inputs"]["noise_seed"] = int(seed)
-    prompt["27"]["inputs"]["noise_seed"] = int(seed)
-    prompt["67"]["inputs"]["noise_seed"] = int(seed)
-    prompt["72"]["inputs"]["noise_seed"] = int(seed)
+    high_quality_prompt["5"]["inputs"]["noise_seed"] = int(seed)
+    high_quality_prompt["27"]["inputs"]["noise_seed"] = int(seed)
+    high_quality_prompt["67"]["inputs"]["noise_seed"] = int(seed)
+    high_quality_prompt["72"]["inputs"]["noise_seed"] = int(seed)
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
     print("WebSocket connected.")
 
     try:
-        images = comfyAPI.get_images(ws, prompt)
+        images = comfyAPI.get_images(ws, high_quality_prompt)
         file_paths = []
         for node_id in images:
             for image_data in images[node_id]:
