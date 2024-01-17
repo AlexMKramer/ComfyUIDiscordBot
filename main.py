@@ -112,8 +112,6 @@ async def image_queue():
                     file_list = await loop.run_in_executor(None, generate_img2img, new_prompt, percent_of_original,
                                                            new_negative, new_style, new_size, new_lora, lora_strength,
                                                            artist_name, model_name)
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 files=file_list)
                 elif gen_type == "draw":
                     print("draw")
                     await acknowledgement.edit_original_response(
@@ -121,8 +119,6 @@ async def image_queue():
                     file_list = await loop.run_in_executor(None, generate_image, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 files=file_list)
                 elif gen_type == "turbo":
                     print("turbo")
                     await acknowledgement.edit_original_response(
@@ -130,8 +126,7 @@ async def image_queue():
                     file_list = await loop.run_in_executor(None, generate_turbo, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 files=file_list)
+
                 elif gen_type == "txt2vid":
                     print("txt2vid")
                     await acknowledgement.edit_original_response(
@@ -139,20 +134,18 @@ async def image_queue():
                     gif_url = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
                                                          new_negative, new_style,
                                                          new_size, new_lora, lora_strength, artist_name, model_name)
-                    # await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                    # file=gif)
 
                     # Get the gif from the url
                     gif_response = requests.get(gif_url)
                     if gif_response.status_code == 200:
                         gif_data = BytesIO(gif_response.content)
-                        gif = discord.File(gif_data, filename="gif.gif")
-                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                     file=gif)
+                        file_list = discord.File(gif_data, filename="gif.gif")
                     else:
                         await acknowledgement.edit_original_response(
                             content=author_name + " \nSomething went wrong. Please try again.")
 
+                await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                             files=file_list)
                 queue_processing = False
             except Exception as e:
                 print(e)

@@ -105,7 +105,7 @@ def get_gifs(ws, prompt):
                 for gif in node_output['gifs']:
                     gif_urls = get_gif_url(gif['filename'], gif['subfolder'], gif['type'])
 
-    print("Got images")
+    print("Got gif urls")
     return gif_urls
 
 prompt_text = """
