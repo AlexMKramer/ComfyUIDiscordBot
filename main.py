@@ -139,8 +139,6 @@ async def image_queue():
                     gif_url = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
                                                          new_negative, new_style,
                                                          new_size, new_lora, lora_strength, artist_name, model_name)
-                    # await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                    # file=gif)
 
                     # Get the gif from the url
                     gif_response = requests.get(gif_url)

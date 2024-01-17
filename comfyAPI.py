@@ -108,6 +108,7 @@ def get_gifs(ws, prompt):
     print("Got gif urls")
     return gif_urls
 
+
 prompt_text = """
 {
     "4": {
