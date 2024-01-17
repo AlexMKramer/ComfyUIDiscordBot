@@ -137,15 +137,16 @@ async def image_queue():
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating animated gif...")
                     gif_url = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
-                                                           new_negative, new_style,
-                                                           new_size, new_lora, lora_strength, artist_name, model_name)
+                                                         new_negative, new_style,
+                                                         new_size, new_lora, lora_strength, artist_name, model_name)
                     # await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 # file=gif)
-                    await channel.send(gif_url)
-                    print("Sent Gif")
-                else:
-                    print("Error: Invalid gen_type")
-                    return
+                    # file=gif)
+
+                    # Create an embed with the GIF as an image
+                    embed = discord.Embed()
+                    embed.set_image(url=gif_url)
+                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                 embed=embed)
 
                 queue_processing = False
             except Exception as e:
