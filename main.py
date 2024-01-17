@@ -499,8 +499,8 @@ def generate_high_quality(new_prompt, percent_of_original, new_negative, new_sty
         high_quality_prompt["97"]["inputs"]["height"] = int(height)
         high_quality_prompt["97"]["inputs"]["width"] = int(width)
     else:
-        prompt["97"]["inputs"]["height"] = 1024
-        prompt["97"]["inputs"]["width"] = 1024
+        high_quality_prompt["97"]["inputs"]["height"] = 1024
+        high_quality_prompt["97"]["inputs"]["width"] = 1024
 
     seed = random.randint(0, 0xffffffffff)
     high_quality_prompt["5"]["inputs"]["noise_seed"] = int(seed)
