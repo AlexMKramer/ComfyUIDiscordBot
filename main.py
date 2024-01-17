@@ -155,8 +155,8 @@ async def image_queue():
                     if gif_response.status_code == 200:
                         gif_data = BytesIO(gif_response.content)
                         gif = discord.File(gif_data, filename="gif.gif")
-                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                     file=gif)
+                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message)
+                        await acknowledgement.add_file(gif)
                     else:
                         await acknowledgement.edit_original_response(
                             content=author_name + " \nSomething went wrong. Please try again.")
@@ -874,9 +874,8 @@ async def interpret(ctx,
             await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
         if gen_type == "high_quality":
             gen_type = "txt2vid"
-            second_ack = await ctx.send(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics and making a gif...")
             await command_queue.put((
-                ctx.channel.id, author_name, message, second_ack, gen_type, new_prompt, percent_of_original,
+                ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
                 new_negative, new_style, new_size,
                 new_lora, lora_strength, artist_name, model_name))
             gen_type = "high_quality"
@@ -908,9 +907,8 @@ async def interpret(ctx,
             await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
         if gen_type == "high_quality":
             gen_type = "txt2vid"
-            second_ack = await ctx.send(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics and making a gif...")
             await command_queue.put((
-                ctx.channel.id, author_name, message, second_ack, gen_type, new_prompt, percent_of_original,
+                ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
                 new_negative, new_style, new_size,
                 new_lora, lora_strength, artist_name, model_name))
             gen_type = "high_quality"
