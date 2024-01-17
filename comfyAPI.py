@@ -900,6 +900,490 @@ txt2vid_prompt_text = """
 }
 """
 
+high_quality_prompt_text = """
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "DreamShaperXL_turbo.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "3": {
+    "inputs": {
+      "text": [
+        "102",
+        2
+      ],
+      "clip": [
+        "102",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "4": {
+    "inputs": {
+      "text": [
+        "100",
+        2
+      ],
+      "clip": [
+        "100",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "5": {
+    "inputs": {
+      "seed": 351988000611512,
+      "steps": 8,
+      "cfg": 2,
+      "sampler_name": "dpmpp_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 1,
+      "model": [
+        "102",
+        0
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "latent_image": [
+        "97",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "7": {
+    "inputs": {
+      "samples": [
+        "5",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "11": {
+    "inputs": {
+      "max_faces": 10,
+      "min_confidence": 0.5,
+      "resolution": 512,
+      "image": [
+        "73",
+        0
+      ]
+    },
+    "class_type": "MediaPipe-FaceMeshPreprocessor",
+    "_meta": {
+      "title": "MediaPipe Face Mesh"
+    }
+  },
+  "13": {
+    "inputs": {
+      "crop_factor": 3,
+      "bbox_fill": false,
+      "crop_min_size": 50,
+      "drop_size": 1,
+      "dilation": 0,
+      "face": false,
+      "mouth": false,
+      "left_eyebrow": false,
+      "left_eye": true,
+      "left_pupil": false,
+      "right_eyebrow": false,
+      "right_eye": true,
+      "right_pupil": false,
+      "image": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "MediaPipeFaceMeshToSEGS",
+    "_meta": {
+      "title": "MediaPipe FaceMesh to SEGS"
+    }
+  },
+  "15": {
+    "inputs": {
+      "segs": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "SegsToCombinedMask",
+    "_meta": {
+      "title": "SEGS to MASK (combined)"
+    }
+  },
+  "27": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": true,
+      "max_size": 1536,
+      "seed": 351988000611512,
+      "steps": 5,
+      "cfg": 2,
+      "sampler_name": "dpmpp_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 0.4,
+      "feather": 5,
+      "noise_mask": false,
+      "force_inpaint": true,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 10,
+      "image": [
+        "73",
+        0
+      ],
+      "segs": [
+        "41",
+        0
+      ],
+      "model": [
+        "102",
+        0
+      ],
+      "clip": [
+        "100",
+        1
+      ],
+      "vae": [
+        "1",
+        2
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "DetailerForEachDebug",
+    "_meta": {
+      "title": "DetailerDebug (SEGS)"
+    }
+  },
+  "41": {
+    "inputs": {
+      "combined": true,
+      "crop_factor": 3,
+      "bbox_fill": false,
+      "drop_size": 10,
+      "contour_fill": false,
+      "mask": [
+        "15",
+        0
+      ]
+    },
+    "class_type": "MaskToSEGS",
+    "_meta": {
+      "title": "MASK to SEGS"
+    }
+  },
+  "54": {
+    "inputs": {
+      "model_name": "bbox/hand_yolov8s.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "61": {
+    "inputs": {
+      "threshold": 0.5,
+      "dilation": 30,
+      "crop_factor": 3,
+      "drop_size": 10,
+      "labels": "all",
+      "bbox_detector": [
+        "54",
+        0
+      ],
+      "image": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "BboxDetectorSEGS",
+    "_meta": {
+      "title": "BBOX Detector (SEGS)"
+    }
+  },
+  "67": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": true,
+      "max_size": 1536,
+      "seed": 351988000611512,
+      "steps": 5,
+      "cfg": 2,
+      "sampler_name": "dpmpp_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 0.4,
+      "feather": 20,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 10,
+      "image": [
+        "27",
+        0
+      ],
+      "segs": [
+        "61",
+        0
+      ],
+      "model": [
+        "102",
+        0
+      ],
+      "clip": [
+        "1",
+        1
+      ],
+      "vae": [
+        "1",
+        2
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ]
+    },
+    "class_type": "DetailerForEachDebug",
+    "_meta": {
+      "title": "DetailerDebug (SEGS)"
+    }
+  },
+  "71": {
+    "inputs": {
+      "filename_prefix": "Comfyui",
+      "images": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "72": {
+    "inputs": {
+      "seed": 351988000611512,
+      "steps": 5,
+      "cfg": 2,
+      "sampler_name": "dpmpp_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 0.45,
+      "model": [
+        "102",
+        0
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "latent_image": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "73": {
+    "inputs": {
+      "samples": [
+        "72",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "75": {
+    "inputs": {
+      "pixels": [
+        "79",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE Encode"
+    }
+  },
+  "76": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Load Upscale Model"
+    }
+  },
+  "77": {
+    "inputs": {
+      "upscale_model": [
+        "76",
+        0
+      ],
+      "image": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "Upscale Image (using Model)"
+    }
+  },
+  "79": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "scale_by": 0.25,
+      "image": [
+        "77",
+        0
+      ]
+    },
+    "class_type": "ImageScaleBy",
+    "_meta": {
+      "title": "Upscale Image By"
+    }
+  },
+  "96": {
+    "inputs": {
+      "images": [
+        "67",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image (Detailer)"
+    }
+  },
+  "97": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "100": {
+    "inputs": {
+      "text": [
+        "101",
+        1
+      ],
+      "model": [
+        "1",
+        0
+      ],
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "LoraTagLoader",
+    "_meta": {
+      "title": "Load LoRA Tag Negative"
+    }
+  },
+  "101": {
+    "inputs": {
+      "text_positive": "high-resolution digital painting of a mystical forest transforming at twilight. The style is surreal and ethereal, reminiscent of the Romanticism era, emphasizing the sublime beauty of nature. The scene features glowing flowers, ethereal lights, and subtly visible mythical creatures. The color palette consists of twilight hues â purples, blues, and soft pinks, with glowing accents. Lighting is soft and ethereal, highlighting the magical transformation of the forest under the moonlight.",
+      "text_negative": "",
+      "style": "base",
+      "log_prompt": true
+    },
+    "class_type": "SDXLPromptStyler",
+    "_meta": {
+      "title": "SDXL Prompt Styler"
+    }
+  },
+  "102": {
+    "inputs": {
+      "text": [
+        "101",
+        0
+      ],
+      "model": [
+        "1",
+        0
+      ],
+      "clip": [
+        "1",
+        1
+      ]
+    },
+    "class_type": "LoraTagLoader",
+    "_meta": {
+      "title": "Load LoRA Tag Positive"
+    }
+  }
+}
+"""
+
 prompt = json.loads(prompt_text)
 
 img2img_prompt = json.loads(img2img_prompt_text)
@@ -909,3 +1393,5 @@ upscale_prompt = json.loads(upscale_prompt_text)
 turbo_prompt = json.loads(turbo_prompt_text)
 
 txt2vid_prompt = json.loads(txt2vid_prompt_text)
+
+high_quality_prompt = json.loads(high_quality_prompt_text)

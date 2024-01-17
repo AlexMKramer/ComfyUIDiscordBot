@@ -33,6 +33,7 @@ img2img_prompt = comfyAPI.img2img_prompt
 upscale_prompt = comfyAPI.upscale_prompt
 turbo_prompt = comfyAPI.turbo_prompt
 txt2vid_prompt = comfyAPI.txt2vid_prompt
+high_quality_prompt = comfyAPI.high_quality_prompt
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -128,6 +129,15 @@ async def image_queue():
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating turbo images...")
                     file_list = await loop.run_in_executor(None, generate_turbo, new_prompt, percent_of_original,
+                                                           new_negative, new_style,
+                                                           new_size, new_lora, lora_strength, artist_name, model_name)
+                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                 files=file_list)
+                elif gen_type == "high_quality":
+                    print("turbo")
+                    await acknowledgement.edit_original_response(
+                        content="**" + rand_msg + "**" + "\nGenerating high quality images...")
+                    file_list = await loop.run_in_executor(None, generate_high_quality, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                     await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
@@ -277,7 +287,8 @@ def get_loras():
             subfolder_path = os.path.join(dirpath, subfolder_name)
 
             # List files within the target subfolder
-            subfolder_files = [file for file in os.listdir(subfolder_path)]
+            subfolder_files = [file for file in os.listdir(subfolder_path) if
+                               os.path.isfile(os.path.join(subfolder_path, file))]
             matching_files = [os.path.splitext(loras)[0] for loras in subfolder_files]
             return sorted(matching_files)
     # If the target subfolder is not found
@@ -302,7 +313,8 @@ async def models_autocomplete(ctx: discord.AutocompleteContext):
             subfolder_path = os.path.join(dirpath, subfolder_name)
 
             # List files within the target subfolder
-            subfolder_files = [file for file in os.listdir(subfolder_path)]
+            subfolder_files = [file for file in os.listdir(subfolder_path) if
+                               os.path.isfile(os.path.join(subfolder_path, file))]
             matching_files = [models for models in subfolder_files if models.startswith(ctx.value.lower())]
             return sorted(matching_files)
 
@@ -431,6 +443,70 @@ def generate_image(new_prompt, percent_of_original, new_negative, new_style, new
     seed = random.randint(0, 0xffffffffff)
     prompt["22"]["inputs"]["noise_seed"] = int(seed)
     prompt["23"]["inputs"]["noise_seed"] = int(seed)
+
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+    print("WebSocket connected.")
+
+    try:
+        images = comfyAPI.get_images(ws, prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            ws.close()
+            print("WebSocket closed.")
+            return file_list
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
+        file_list = None
+        return file_list
+
+
+def generate_high_quality(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora, lora_strength,
+                          artist_name, model_name):
+    if new_lora is not None:
+        if lora_strength is None:
+            lora_strength = 0.5
+        else:
+            lora_strength = lora_strength / 10
+        new_prompt = " <lora:" + new_lora + ":" + str(lora_strength) + ">, " + new_prompt
+    if artist_name is not None:
+        new_prompt = new_prompt + ", by " + artist_name
+    prompt["101"]["inputs"]["text_positive"] = new_prompt
+
+    if new_negative is not None:
+        prompt["101"]["inputs"]["text_negative"] = new_negative
+    else:
+        prompt["101"]["inputs"]["text_negative"] = ''
+
+    if new_style is not None:
+        if new_style == 'random':
+            new_style = random.choice(style_names)
+        prompt["101"]["inputs"]["style"] = new_style
+    else:
+        prompt["101"]["inputs"]["style"] = 'base'
+
+    if new_size is not None:
+        height, width = new_size.split()
+        prompt["97"]["inputs"]["height"] = int(height)
+        prompt["97"]["inputs"]["width"] = int(width)
+    else:
+        prompt["97"]["inputs"]["height"] = 1024
+        prompt["97"]["inputs"]["width"] = 1024
+
+    seed = random.randint(0, 0xffffffffff)
+    prompt["5"]["inputs"]["noise_seed"] = int(seed)
+    prompt["27"]["inputs"]["noise_seed"] = int(seed)
+    prompt["67"]["inputs"]["noise_seed"] = int(seed)
+    prompt["72"]["inputs"]["noise_seed"] = int(seed)
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
@@ -659,6 +735,11 @@ def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, n
     autocomplete=models_autocomplete,
     required=False
 )
+@option(
+    "high_quality",
+    description="Choose if you want 1 high quality image or 4 regular images",
+    required=False
+)
 async def draw(ctx,
                new_prompt: str,
                new_negative: str = None,
@@ -667,14 +748,17 @@ async def draw(ctx,
                new_lora: str = None,
                lora_strength: int = None,
                artist_name: str = None,
-               model_name: str = None
+               model_name: str = None,
+               high_quality: bool = False
                ):
     print(f'Draw Command received: {ctx}')
     # Setup message
     author_name = ctx.author.mention
     percent_of_original = None
-    # is_img2img = False
-    gen_type = "draw"
+    if high_quality:
+        gen_type = "high_quality"
+    else:
+        gen_type = "draw"
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
@@ -741,15 +825,28 @@ async def crazy(ctx):
     autocomplete=models_autocomplete,
     required=False
 )
+@option(
+    "dalle",
+    description="Choose if you want a Dalle version too",
+    required=False
+)
+@option(
+    "high_quality",
+    description="Choose if you want 1 high quality image or 4 regular images",
+    required=False
+)
 async def interpret(ctx,
                     song: str,
                     artist: str,
                     model_name: str = None,
-                    dalle: bool = False
+                    dalle: bool = False,
+                    high_quality: bool = False
                     ):
     author_name = ctx.author.mention
-    # is_img2img = False
-    gen_type = "draw"
+    if high_quality:
+        gen_type = "high_quality"
+    else:
+        gen_type = "draw"
     new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
     new_size = "1344 768"
     if check_queue_placement() != 0:
