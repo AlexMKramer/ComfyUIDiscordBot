@@ -141,9 +141,15 @@ async def image_queue():
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
                     print(file_list)
 
-                    with open(file_list, 'rb') as f:
-                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                     file=file_list)
+                    # open the file from url using requests
+                    file = requests.get(file_list[0])
+                    print(file)
+                    # create a PIL Gif from the bytes
+                    gif = PIL.Image.open(io.BytesIO(file.content))
+                    print("Opened Gif with PIL")
+                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                 file=gif)
+                    print("Sent Gif")
                 else:
                     print("Error: Invalid gen_type")
                     return
