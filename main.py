@@ -142,11 +142,16 @@ async def image_queue():
                     # await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
                     # file=gif)
 
-                    # Create an embed with the GIF as an image
-                    embed = discord.Embed()
-                    embed.set_image(url=gif_url)
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 embed=embed)
+                    # Get the gif from the url
+                    gif_response = requests.get(gif_url)
+                    if gif_response.status_code == 200:
+                        gif_data = BytesIO(gif_response.content)
+                        gif = discord.File(gif_data, filename="gif.gif")
+                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                     file=gif)
+                    else:
+                        await acknowledgement.edit_original_response(
+                            content=author_name + " \nSomething went wrong. Please try again.")
 
                 queue_processing = False
             except Exception as e:
