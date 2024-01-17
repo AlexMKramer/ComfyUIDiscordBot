@@ -142,7 +142,7 @@ async def image_queue():
                     print(file_list)
 
                     # open the file from url using requests
-                    file = requests.get(file_list[0])
+                    file = requests.get(file_list)
                     print(file)
                     # create a PIL Gif from the bytes
                     gif = PIL.Image.open(io.BytesIO(file.content))
