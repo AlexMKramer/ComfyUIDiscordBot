@@ -843,6 +843,8 @@ async def interpret(ctx,
                     gif: bool = False
                     ):
     author_name = ctx.author.mention
+    new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
+    new_size = "1344 768"
     if high_quality and not gif:
         gen_type = "high_quality"
     elif high_quality and gif:
@@ -851,10 +853,9 @@ async def interpret(ctx,
         return
     elif not high_quality and gif:
         gen_type = "txt2vid"
+        new_size = "1024 1024"
     else:
         gen_type = "draw"
-    new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
-    new_size = "1344 768"
     if check_queue_placement() != 0:
         acknowledgement = await ctx.respond(
             f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
