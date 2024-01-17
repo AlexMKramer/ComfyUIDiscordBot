@@ -155,8 +155,7 @@ async def image_queue():
                     if gif_response.status_code == 200:
                         gif_data = BytesIO(gif_response.content)
                         gif = discord.File(gif_data, filename="gif.gif")
-                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message)
-                        await acknowledgement.add_file(gif)
+                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message, file=gif)
                     else:
                         await acknowledgement.edit_original_response(
                             content=author_name + " \nSomething went wrong. Please try again.")
@@ -840,11 +839,18 @@ async def interpret(ctx,
                     artist: str,
                     model_name: str = None,
                     dalle: bool = False,
-                    high_quality: bool = False
+                    high_quality: bool = False,
+                    gif: bool = False
                     ):
     author_name = ctx.author.mention
-    if high_quality:
+    if high_quality and not gif:
         gen_type = "high_quality"
+    elif high_quality and gif:
+        gen_type = "txt2vid"
+        acknowledgement = await ctx.respond(f"Can only gifs or high quality images, not both.  Try again.")
+        return
+    elif not high_quality and gif:
+        gen_type = "txt2vid"
     else:
         gen_type = "draw"
     new_negative = new_style = new_lora = lora_strength = artist_name = percent_of_original = None
@@ -872,13 +878,6 @@ async def interpret(ctx,
             dalle_image = dalle_integration(new_prompt)
             await ctx.send(f"Dalle image:")
             await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
-        if gen_type == "high_quality":
-            gen_type = "txt2vid"
-            await command_queue.put((
-                ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
-                new_negative, new_style, new_size,
-                new_lora, lora_strength, artist_name, model_name))
-            gen_type = "high_quality"
         await command_queue.put((
             ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
             new_negative, new_style, new_size,
@@ -905,13 +904,6 @@ async def interpret(ctx,
             dalle_image = dalle_integration(new_prompt)
             await ctx.send(f"Dalle image:")
             await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
-        if gen_type == "high_quality":
-            gen_type = "txt2vid"
-            await command_queue.put((
-                ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
-                new_negative, new_style, new_size,
-                new_lora, lora_strength, artist_name, model_name))
-            gen_type = "high_quality"
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
              new_negative, new_style, new_size,
