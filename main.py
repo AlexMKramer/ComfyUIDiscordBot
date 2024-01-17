@@ -165,7 +165,7 @@ async def image_queue():
             except Exception as e:
                 print(e)
                 await acknowledgement.edit_original_response(
-                    content=author_name + " \nSomething went wrong. Please try again.")
+                    content=author_name + " \nSomething went wrong. Please try again." + "\nError: " + str(e))
                 queue_processing = False
         except Exception as e:
             print(f'Error processing image: {e}')
