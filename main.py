@@ -503,10 +503,10 @@ def generate_high_quality(new_prompt, percent_of_original, new_negative, new_sty
         high_quality_prompt["97"]["inputs"]["width"] = 1024
 
     seed = random.randint(0, 0xffffffffff)
-    high_quality_prompt["5"]["inputs"]["noise_seed"] = int(seed)
-    high_quality_prompt["27"]["inputs"]["noise_seed"] = int(seed)
-    high_quality_prompt["67"]["inputs"]["noise_seed"] = int(seed)
-    high_quality_prompt["72"]["inputs"]["noise_seed"] = int(seed)
+    high_quality_prompt["5"]["inputs"]["seed"] = int(seed)
+    high_quality_prompt["27"]["inputs"]["seed"] = int(seed)
+    high_quality_prompt["67"]["inputs"]["seed"] = int(seed)
+    high_quality_prompt["72"]["inputs"]["seed"] = int(seed)
 
     ws = websocket.WebSocket()
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
