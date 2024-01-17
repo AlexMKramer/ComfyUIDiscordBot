@@ -136,20 +136,12 @@ async def image_queue():
                     print("txt2vid")
                     await acknowledgement.edit_original_response(
                         content="**" + rand_msg + "**" + "\nGenerating animated gif...")
-                    file_list = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
+                    gif_url = await loop.run_in_executor(None, generate_txt2vid, new_prompt, percent_of_original,
                                                            new_negative, new_style,
                                                            new_size, new_lora, lora_strength, artist_name, model_name)
-                    print(file_list)
-
-                    # open the file from url using requests
-                    file = requests.get(file_list)
-                    print(file)
-                    # create a PIL Gif from the bytes
-                    gif = PIL.Image.open(io.BytesIO(file.content)).convert("RGB")
-                    print(gif.format)
-                    print("Opened Gif with PIL")
-                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                 file=gif)
+                    #await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                 # file=gif)
+                    await acknowledgement.send(gif_url)
                     print("Sent Gif")
                 else:
                     print("Error: Invalid gen_type")
