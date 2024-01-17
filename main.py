@@ -145,7 +145,8 @@ async def image_queue():
                     file = requests.get(file_list)
                     print(file)
                     # create a PIL Gif from the bytes
-                    gif = PIL.Image.open(io.BytesIO(file.content))
+                    gif = PIL.Image.open(io.BytesIO(file.content)).convert("RGB")
+                    print(gif.format)
                     print("Opened Gif with PIL")
                     await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
                                                                  file=gif)
