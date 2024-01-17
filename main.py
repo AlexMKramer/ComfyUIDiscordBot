@@ -872,6 +872,14 @@ async def interpret(ctx,
             dalle_image = dalle_integration(new_prompt)
             await ctx.send(f"Dalle image:")
             await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
+        if gen_type == "high_quality":
+            gen_type = "txt2vid"
+            second_ack = await ctx.send(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics and making a gif...")
+            await command_queue.put((
+                ctx.channel.id, author_name, message, second_ack, gen_type, new_prompt, percent_of_original,
+                new_negative, new_style, new_size,
+                new_lora, lora_strength, artist_name, model_name))
+            gen_type = "high_quality"
         await command_queue.put((
             ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
             new_negative, new_style, new_size,
@@ -898,6 +906,14 @@ async def interpret(ctx,
             dalle_image = dalle_integration(new_prompt)
             await ctx.send(f"Dalle image:")
             await ctx.send(file=discord.File(dalle_image, filename="dalle_image.png"))
+        if gen_type == "high_quality":
+            gen_type = "txt2vid"
+            second_ack = await ctx.send(f"Getting lyrics:\n**Song:** {song}\n**Artist:** {artist}\nInterpreting lyrics and making a gif...")
+            await command_queue.put((
+                ctx.channel.id, author_name, message, second_ack, gen_type, new_prompt, percent_of_original,
+                new_negative, new_style, new_size,
+                new_lora, lora_strength, artist_name, model_name))
+            gen_type = "high_quality"
         await command_queue.put(
             (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
              new_negative, new_style, new_size,
