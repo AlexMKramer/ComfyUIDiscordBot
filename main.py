@@ -719,7 +719,10 @@ def generate_sd3(new_prompt, percent_of_original, new_negative, new_style, new_s
     sd3_prompt["115"]["inputs"]["text_negative"] = new_negative
 
     seed = random.randint(0, 0xffffffffff)
-    sd3_prompt["5"]["inputs"]["noise_seed"] = int(seed)
+    sd3_prompt["5"]["inputs"]["seed"] = int(seed)
+    sd3_prompt["27"]["inputs"]["seed"] = int(seed)
+    sd3_prompt["67"]["inputs"]["seed"] = int(seed)
+    sd3_prompt["127"]["inputs"]["seed"] = int(seed)
 
     print("WebSocket connected.")
     ws = websocket.WebSocket()
