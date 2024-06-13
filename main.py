@@ -34,6 +34,7 @@ upscale_prompt = comfyAPI.upscale_prompt
 turbo_prompt = comfyAPI.turbo_prompt
 txt2vid_prompt = comfyAPI.txt2vid_prompt
 high_quality_prompt = comfyAPI.high_quality_prompt
+sd3_prompt = comfyAPI.sd3_prompt
 
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix='/', intents=intents)
@@ -155,7 +156,19 @@ async def image_queue():
                     if gif_response.status_code == 200:
                         gif_data = BytesIO(gif_response.content)
                         gif = discord.File(gif_data, filename="gif.gif")
-                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message, file=gif)
+                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                     file=gif)
+                    elif gen_type == "sd3":
+                        print("sd3")
+                        await acknowledgement.edit_original_response(
+                            content="**" + rand_msg + "**" + "\nGenerating sd3 images...")
+                        file_list = await loop.run_in_executor(None, generate_sd3, new_prompt,
+                                                               percent_of_original,
+                                                               new_negative, new_style,
+                                                               new_size, new_lora, lora_strength, artist_name,
+                                                               model_name)
+                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                     files=file_list)
                     else:
                         await acknowledgement.edit_original_response(
                             content=author_name + " \nSomething went wrong. Please try again.")
@@ -691,6 +704,49 @@ def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, n
         return file_list
 
 
+def generate_sd3(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
+                 lora_strength,
+                 artist_name, model_name):
+
+    # separate the prompt into the background and foreground
+    parts = new_prompt.split('&&&')
+    background_prompt = parts[0]
+    foreground_prompt = parts[1]
+    sd3_prompt["112"]["inputs"]["clip_l"] = background_prompt
+    sd3_prompt["112"]["inputs"]["clip_g"] = background_prompt
+    sd3_prompt["112"]["inputs"]["t5xxl"] = foreground_prompt
+
+    sd3_prompt["115"]["inputs"]["text_negative"] = new_negative
+
+    seed = random.randint(0, 0xffffffffff)
+    sd3_prompt["5"]["inputs"]["noise_seed"] = int(seed)
+
+    print("WebSocket connected.")
+    ws = websocket.WebSocket()
+    ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
+
+    try:
+        images = comfyAPI.get_images(ws, turbo_prompt)
+        file_paths = []
+        for node_id in images:
+            for image_data in images[node_id]:
+                image = Image.open(io.BytesIO(image_data))
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as temp_file:
+                    image.save(temp_file.name)
+                    file_paths.append(temp_file.name)
+            file_list = [discord.File(file_path) for file_path in file_paths]
+            for file_path in file_paths:
+                os.remove(file_path)
+            ws.close()
+            print("WebSocket closed.")
+            return file_list
+    except websocket.WebSocketTimeoutException:
+        print("WebSocket timed out. Closing connection.")
+        ws.close()
+        file_list = None
+        return file_list
+
+
 @bot.slash_command(description='Generate images using only words!')
 @option(
     "new_prompt",
@@ -1203,6 +1259,62 @@ async def animate(ctx,
     model_name = None
     percent_of_original = None
     gen_type = "txt2vid"
+    global queue_processing
+    message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
+                           lora_strength, artist_name, model_name)
+    if check_queue_placement() != 0:
+        acknowledgement = await ctx.respond(
+            f"You are number {check_queue_placement()} in the queue. Please wait patiently.")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
+             new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
+    else:
+        acknowledgement = await ctx.respond(f"On it!")
+        await command_queue.put(
+            (ctx.channel.id, author_name, message, acknowledgement, gen_type, new_prompt, percent_of_original,
+             new_negative, new_style, new_size,
+             new_lora, lora_strength, artist_name, model_name))
+
+
+@bot.slash_command(description='Generate images using SD3')
+@option(
+    "background_prompt",
+    description="Enter the background prompt",
+    required=True
+)
+@option(
+    "foreground_prompt",
+    description="Enter the foreground prompt",
+    required=True
+)
+@option(
+    "new_negative",
+    description="Enter the negative prompt",
+    required=False
+)
+async def draw(ctx,
+               background_prompt: str,
+               foreground_prompt: str,
+               new_negative: str = None
+               ):
+    print(f'Draw Command received: {ctx}')
+
+    gen_type = "sd3"
+
+    # Setup message
+    author_name = ctx.author.mention
+    new_style = None
+    new_size = None
+    new_lora = None
+    lora_strength = None
+    artist_name = None
+    model_name = None
+    percent_of_original = None
+
+    # Combine the prompts and separate them with a &&&
+    new_prompt = background_prompt + "&&&" + foreground_prompt
+
     global queue_processing
     message = form_message(author_name, new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                            lora_strength, artist_name, model_name)
