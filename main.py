@@ -726,7 +726,7 @@ def generate_sd3(new_prompt, percent_of_original, new_negative, new_style, new_s
     ws.connect("ws://{}/ws?clientId={}".format(comfyAPI.server_address, comfyAPI.client_id))
 
     try:
-        images = comfyAPI.get_images(ws, turbo_prompt)
+        images = comfyAPI.get_images(ws, sd3_prompt)
         file_paths = []
         for node_id in images:
             for image_data in images[node_id]:
