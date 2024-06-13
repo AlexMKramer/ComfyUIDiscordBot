@@ -158,20 +158,21 @@ async def image_queue():
                         gif = discord.File(gif_data, filename="gif.gif")
                         await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
                                                                      file=gif)
-                    elif gen_type == "sd3":
-                        print("sd3")
-                        await acknowledgement.edit_original_response(
-                            content="**" + rand_msg + "**" + "\nGenerating sd3 images...")
-                        file_list = await loop.run_in_executor(None, generate_sd3, new_prompt,
-                                                               percent_of_original,
-                                                               new_negative, new_style,
-                                                               new_size, new_lora, lora_strength, artist_name,
-                                                               model_name)
-                        await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
-                                                                     files=file_list)
                     else:
                         await acknowledgement.edit_original_response(
                             content=author_name + " \nSomething went wrong. Please try again.")
+
+                elif gen_type == "sd3":
+                    print("sd3")
+                    await acknowledgement.edit_original_response(
+                        content="**" + rand_msg + "**" + "\nGenerating sd3 images...")
+                    file_list = await loop.run_in_executor(None, generate_sd3, new_prompt,
+                                                           percent_of_original,
+                                                           new_negative, new_style,
+                                                           new_size, new_lora, lora_strength, artist_name,
+                                                           model_name)
+                    await acknowledgement.edit_original_response(content="**" + rand_msg + "**\n" + message,
+                                                                 files=file_list)
 
                 queue_processing = False
             except Exception as e:
@@ -1297,7 +1298,7 @@ async def draw_sd3(ctx,
                    foreground_prompt: str,
                    new_negative: str = None
                    ):
-    print(f'Draw Command received: {ctx}')
+    print(f'Draw_sd3 Command received: {ctx}')
 
     gen_type = "sd3"
 
