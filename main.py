@@ -707,7 +707,6 @@ def generate_txt2vid(new_prompt, percent_of_original, new_negative, new_style, n
 def generate_sd3(new_prompt, percent_of_original, new_negative, new_style, new_size, new_lora,
                  lora_strength,
                  artist_name, model_name):
-
     # separate the prompt into the background and foreground
     parts = new_prompt.split('&&&')
     background_prompt = parts[0]
@@ -1293,11 +1292,11 @@ async def animate(ctx,
     description="Enter the negative prompt",
     required=False
 )
-async def draw(ctx,
-               background_prompt: str,
-               foreground_prompt: str,
-               new_negative: str = None
-               ):
+async def draw_sd3(ctx,
+                   background_prompt: str,
+                   foreground_prompt: str,
+                   new_negative: str = None
+                   ):
     print(f'Draw Command received: {ctx}')
 
     gen_type = "sd3"
